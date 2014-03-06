@@ -67,7 +67,7 @@ Where:
 ```
 ##Diferences with official AQL
 
-|Linux AQL        |Java AQL           |
+|Offical AQL        |Java AQL           |
 |-----------------|-------------------|
 |Print \<some text\>|Print '\<some text\>'|
 
