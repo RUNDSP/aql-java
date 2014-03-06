@@ -1,7 +1,7 @@
 #Portable AQL
 Aerospike [AQL](https://docs.aerospike.com/pages/viewpage.action?pageId=3807532) is a utility that executes Aerospike Query Language. Like the other Aerospike utilities, it is Linux only.
 
-Portable AQL is a utility written in Java so it can run where ever Java can run. It will execut in one of following modes:
+[Portable AQL](https://github.com/aerospike/portable-aql) is a utility written in Java so it can run where ever Java can run. It will execut in one of following modes:
  1. Translate - translates the AQL to a runnable Java/C/C# application with the correct Aerospike API calls
  2. Interactive - executes the AQL, using the Java API, as it is interpreted.
 
