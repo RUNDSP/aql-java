@@ -15,13 +15,20 @@ There are 3 grammars:
 * AQLCodeGenerator - This a tree walker that walks the AST and generates code (Java, C, C#) based using [ANTLR StringTemplates](http://www.stringtemplate.org/).
 * AQLExecutor - This is a tree walker that walks the AST and executes the statements using the Java API
 
+##Why
+Developers work on many platforms. Most developers are use SQL and AQL will be very familiar to them. A quick way to learn Aerospike and get a prototype up and running is to:
+ 1. Write an AQL script interact with Aerospike matching the use case.
+ 2. Use Portable AQL to test the AQL starements interactively
+ 3. Use Portable AQL to generate a runnable application in Java, C or C#
+ 4. Take the generated code and include it in the "real" application
+ 
 ##Build
 The code can be built with Maven. 
 	
 	mvn clean install
 
 ##Dependencies
-* Aerospike Java client 3.0.20
+* Aerospike Java client 3.0.22
 * Apache commons cli 1.2
 * Log4j 1.2.14
 * ANTLR 3.4
