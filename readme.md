@@ -60,7 +60,7 @@ ResultSet rs = client.execute(ps);
 ## Usage
 The packaged Jar can be run with the following:
 ```
-java -jar aerospike-aql-<version>.jar -h 192.168.21.150 -p 3000 -c test/resources/PkTest.aql -o output/PkTest.java -l JAVA
+java -jar portable-aql-3.0.0-jar-with-dependencies.jar -h 192.168.21.150 -p 3000 -c test/resources/PkTest.aql -o output/PkTest.java -l JAVA
 ```	
 Where:
 ```	
