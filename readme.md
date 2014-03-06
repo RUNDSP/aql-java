@@ -9,7 +9,7 @@ All the classes that make up this utility are packaged into a JAR. This makes th
 
 
 ##How
-ANTLR 3 is used as the parser, and Java. (ANTLR can also generate in C, C# and a bunch of other languages)
+[ANTLR 3](http://www.antlr3.org/) is used as the parser, and Java is the implementation language. (ANTLR can also generate in C, C# and a bunch of other languages)
 There are 3 grammars:
 * AQLast - checks syntax and generates an Abstract Syntax Tree (AST)
 * AQLCodeGenerator - This a tree walker that walks the AST and generates code (Java, C, C#) based using ANTLR StringTemplates.
