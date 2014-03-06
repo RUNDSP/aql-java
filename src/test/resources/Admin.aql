@@ -1,0 +1,37 @@
+#INFO:
+	SHOW NAMESPACES
+	show SETS
+	sHoW BiNS
+	SHOW SCAnS
+	shoW qUERIES
+	#SHOW INDEXES
+	SHOW INDEXES test.demo
+	DESC INDEX test index_bn2
+	STAT INDEX test index_bn3
+	STAT QUERY
+	STAT SYSTEM
+
+	# text_string - comment in script, line skipped.
+	PRINT 'text_string'
+
+	# NOTE: Do not specify value with GET. eg: SET ECHO true, GET ECHO
+	SET VERBOSE true
+	SET VERBOSE false #[default false]
+	SET ECHO true
+	SET ECHO false #[default false]
+	SET TIMEOUT 150 #[default 1000ms]
+	SET RECORD_TTL 0 #[default 0 - never expire]
+	SET VIEW TABLE #[default at startup - TABLE]
+	SET VIEW JSON
+	SET LUA_USERPATH '/opt/citrusleaf/usr/udf/lua' #[default /opt/citrusleaf/usr/udf/lua]
+	SET LUA_SYSPATH '/opt/citrusleaf/sys/udf/lua' #[default /opt/citrusleaf/sys/udf/lua]
+
+	GET VERBOSE 
+	GET ECHO 
+	GET TIMEOUT 
+	GET RECORD_TTL 
+	GET VIEW  
+	GET LUA_USERPATH 
+	GET LUA_SYSPATH 
+	# Note: These are client side paths for lua files.
+	

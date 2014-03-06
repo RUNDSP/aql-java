@@ -1,0 +1,222 @@
+CREATE INDEX index_bn2 ON test.demo (bn2) NUMERIC 
+CREATE INDEX index_bn3 ON test.demo (bn3) STRING 
+CREATE INDEX index_bn4 ON test.demo (bn4) NUMERIC 
+
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('1', 1, '1', 1)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('2', 2, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('3', 3, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('4', 4, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('5', 5, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('6', 6, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('7', 7, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('8', 8, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('9', 9, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('10', 10, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('11', 11, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('12', 12, '3', 3)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('13', 13, '3', 3)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('14', 14, '3', 3)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('15', 15, '3', 3)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('16', 16, '3', 3)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('17', 17, '3', 3)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('18', 18, '3', 3)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('19', 19, '3', 3)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('20', 20, '3', 3)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('21', 21, '3', 3)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('22', 22, '4', 4)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('23', 23, '4', 4)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('24', 24, '4', 4)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('25', 25, '4', 4)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('26', 26, '4', 4)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('27', 27, '4', 4)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('28', 28, '4', 4)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('29', 29, '4', 4)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('30', 30, '4', 4)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('31', 31, '4', 4)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('32', 32, '5', 5)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('33', 33, '5', 5)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('34', 34, '5', 5)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('35', 35, '5', 5)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('36', 36, '5', 5)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('37', 37, '5', 5)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('38', 38, '5', 5)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('39', 39, '5', 5)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('40', 40, '5', 5)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('41', 41, '5', 5)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('42', 42, '6', 6)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('43', 43, '6', 6)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('44', 44, '6', 6)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('45', 45, '6', 6)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('46', 46, '6', 6)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('47', 47, '6', 6)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('48', 48, '6', 6)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('49', 49, '6', 6)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('50', 50, '6', 6)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('51', 51, '6', 6)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('52', 52, '7', 7)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('53', 53, '7', 7)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('54', 54, '7', 7)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('55', 55, '7', 7)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('56', 56, '7', 7)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('57', 57, '7', 7)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('58', 58, '7', 7)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('59', 59, '7', 7)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('60', 60, '7', 7)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('61', 61, '7', 7)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('62', 62, '8', 8)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('63', 63, '8', 8)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('64', 64, '8', 8)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('65', 65, '8', 8)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('66', 66, '8', 8)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('67', 67, '8', 8)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('68', 68, '8', 8)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('69', 69, '8', 8)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('70', 70, '8', 8)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('71', 71, '8', 8)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('72', 72, '9', 9)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('73', 73, '9', 9)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('74', 74, '9', 9)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('75', 75, '9', 9)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('76', 76, '9', 9)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('77', 77, '9', 9)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('78', 78, '9', 9)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('79', 79, '9', 9)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('80', 80, '9', 9)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('81', 81, '9', 9)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('82', 82, '10', 10)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('83', 83, '10', 10)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('84', 84, '10', 10)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('85', 85, '10', 10)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('86', 86, '10', 10)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('87', 87, '10', 10)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('88', 88, '10', 10)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('89', 89, '10', 10)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('90', 90, '10', 10)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('91', 91, '10', 10)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('92', 92, '11', 11)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('93', 93, '11', 11)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('94', 94, '11', 11)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('95', 95, '11', 11)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('96', 96, '11', 11)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('97', 97, '11', 11)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('98', 98, '11', 11)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('99', 99, '11', 11)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('100', 100, '11', 11)
+
+	SELECT * FROM test.demo WHERE bn4 = 2
+	SELECT * FROM test.demo WHERE bn3 = '2'
+	SELECT * FROM test.demo WHERE bn4 BETWEEN 1 AND 2
+
+	SELECT bn2,bn3,bn4  FROM test.demo
+	SELECT bn2,bn3,bn4  FROM test.demo WHERE bn4 = 2
+	SELECT bn2,bn3,bn4  FROM test.demo WHERE bn3 = '2'
+	SELECT bn2,bn3,bn4  FROM test.demo WHERE bn4 BETWEEN 1 AND 2
+
+show Indexes test.index_bn2
+show Indexes test.index_bn3
+show Indexes test.index_bn4
+
+delete from test.demo where pk = '1'
+DELETE from test.demo WHERE PK = '2'
+delete from test.demo where pk = '3'
+delete from test.demo where pk = '4'
+delete from test.demo where pk = '5'
+delete from test.demo where pk = '6'
+delete from test.demo where pk = '7'
+delete from test.demo where pk = '8'
+delete from test.demo where pk = '9'
+delete from test.demo where pk = '10'
+delete from test.demo where pk = '11'
+delete from test.demo where pk = '12'
+delete from test.demo where pk = '13'
+delete from test.demo where pk = '14'
+delete from test.demo where pk = '15'
+delete from test.demo where pk = '16'
+delete from test.demo where pk = '17'
+delete from test.demo where pk = '18'
+delete from test.demo where pk = '19'
+delete from test.demo where pk = '20'
+delete from test.demo where pk = '21'
+delete from test.demo where pk = '22'
+delete from test.demo where pk = '23'
+delete from test.demo where pk = '24'
+delete from test.demo where pk = '25'
+delete from test.demo where pk = '26'
+delete from test.demo where pk = '27'
+delete from test.demo where pk = '28'
+delete from test.demo where pk = '29'
+delete from test.demo where pk = '30'
+delete from test.demo where pk = '31'
+delete from test.demo where pk = '32'
+delete from test.demo where pk = '33'
+delete from test.demo where pk = '34'
+delete from test.demo where pk = '35'
+delete from test.demo where pk = '36'
+delete from test.demo where pk = '37'
+delete from test.demo where pk = '38'
+delete from test.demo where pk = '39'
+delete from test.demo where pk = '40'
+delete from test.demo where pk = '41'
+delete from test.demo where pk = '42'
+delete from test.demo where pk = '43'
+delete from test.demo where pk = '44'
+delete from test.demo where pk = '45'
+delete from test.demo where pk = '46'
+delete from test.demo where pk = '47'
+delete from test.demo where pk = '48'
+delete from test.demo where pk = '49'
+delete from test.demo where pk = '50'
+delete from test.demo where pk = '51'
+delete from test.demo where pk = '52'
+delete from test.demo where pk = '53'
+delete from test.demo where pk = '54'
+delete from test.demo where pk = '55'
+delete from test.demo where pk = '56'
+delete from test.demo where pk = '57'
+delete from test.demo where pk = '58'
+delete from test.demo where pk = '59'
+delete from test.demo where pk = '60'
+delete from test.demo where pk = '61'
+delete from test.demo where pk = '62'
+delete from test.demo where pk = '63'
+delete from test.demo where pk = '64'
+delete from test.demo where pk = '65'
+delete from test.demo where pk = '66'
+delete from test.demo where pk = '67'
+delete from test.demo where pk = '68'
+delete from test.demo where pk = '69'
+delete from test.demo where pk = '70'
+delete from test.demo where pk = '71'
+delete from test.demo where pk = '72'
+delete from test.demo where pk = '73'
+delete from test.demo where pk = '74'
+delete from test.demo where pk = '75'
+delete from test.demo where pk = '76'
+delete from test.demo where pk = '77'
+delete from test.demo where pk = '78'
+delete from test.demo where pk = '79'
+delete from test.demo where pk = '80'
+delete from test.demo where pk = '81'
+delete from test.demo where pk = '82'
+delete from test.demo where pk = '83'
+delete from test.demo where pk = '84'
+delete from test.demo where pk = '85'
+delete from test.demo where pk = '86'
+delete from test.demo where pk = '87'
+delete from test.demo where pk = '88'
+delete from test.demo where pk = '89'
+delete from test.demo where pk = '90'
+delete from test.demo where pk = '91'
+delete from test.demo where pk = '92'
+delete from test.demo where pk = '93'
+delete from test.demo where pk = '94'
+delete from test.demo where pk = '95'
+delete from test.demo where pk = '96'
+delete from test.demo where pk = '97'
+delete from test.demo where pk = '98'
+delete from test.demo where pk = '99'
+delete from test.demo where pk = '100'
+
+DROP INDEX test.demo index_bn2
+DROP INDEX test.demo index_bn3
+DROP INDEX test.demo index_bn4

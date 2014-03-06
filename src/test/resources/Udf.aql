@@ -1,0 +1,36 @@
+SET LUA_USERPATH 'src/udf' 
+CREATE INDEX index_bn4 ON test.demo (bn4) NUMERIC
+# add data
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('1', 1, '1', 1)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('2', 2, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('3', 3, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('4', 4, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('5', 5, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('6', 6, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('7', 7, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('8', 8, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('9', 9, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('10', 10, '2', 2)
+
+REGISTER module 'src/test/resources/example1.lua'
+REGISTER module 'src/test/resources/sum_example.lua'
+REGISTER module 'src/test/resources/average_example.lua'
+SHOW modules
+desc module example1.lua
+EXECUTE example1.foo('arg1','arg2',3) ON test.demo WHERE PK = '1' 
+drop module example1.lua
+
+#AGGREGATE example-udf.foo('arg1','arg2',3) ON test.demo WHERE bn3 = 'smith'
+AGGREGATE sum_example.sum_single_bin('bn4') ON test.demo WHERE bn4 BETWEEN 1 AND 2
+
+#cleanup
+DELETE FROM test.demo WHERE PK = '1'
+DELETE FROM test.demo WHERE PK = '2'
+DELETE FROM test.demo WHERE PK = '3'
+DELETE FROM test.demo WHERE PK = '4'
+DELETE FROM test.demo WHERE PK = '5'
+DELETE FROM test.demo WHERE PK = '6'
+DELETE FROM test.demo WHERE PK = '7'
+DELETE FROM test.demo WHERE PK = '8'
+DELETE FROM test.demo WHERE PK = '9'
+DELETE FROM test.demo WHERE PK = '10'

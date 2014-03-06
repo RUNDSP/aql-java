@@ -1,0 +1,32 @@
+select * from test.demo where pk = 'tpby'
+
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('1', 1, '1', 1)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('2', 2, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('3', 3, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('4', 4, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('5', 5, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('6', 6, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('7', 7, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('8', 8, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('9', 9, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('10', 10, '2', 2)
+SELECT * FROM test.demo WHERE pk = '1'
+SELECT bn2, bn3, bn4 FROM test.demo WHERE pk = '2'
+SELECT * FROM test.demo WHERE pk = '3'
+SELECT bn2, bn3, bn4 FROM test.demo WHERE pk = '4'
+SELECT * FROM test.demo WHERE pk = '5'
+SELECT bn2, bn3, bn4 FROM test.demo WHERE pk = '6'
+SELECT * FROM test.demo WHERE pk = '7'
+SELECT bn2, bn3 FROM test.demo WHERE pk = '8'
+SELECT * FROM test.demo WHERE pk = '9'
+SELECT bn2 FROM test.demo WHERE pk = '10'
+DELETE FROM test.demo WHERE PK = '1'
+DELETE FROM test.demo WHERE PK = '2'
+DELETE FROM test.demo WHERE PK = '3'
+DELETE FROM test.demo WHERE PK = '4'
+DELETE FROM test.demo WHERE PK = '5'
+DELETE FROM test.demo WHERE PK = '6'
+DELETE FROM test.demo WHERE PK = '7'
+DELETE FROM test.demo WHERE PK = '8'
+DELETE FROM test.demo WHERE PK = '9'
+DELETE FROM test.demo WHERE PK = '10'
