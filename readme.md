@@ -1,7 +1,7 @@
 #Aerospike AQL
 Aerospike AQL is a utility that accepts Aerospike Query Language as input and either:
-1. translates the AQL to a Java/C/C# application with the correct Aerospike API calls
-2. executes the AQL, using the Java API, as it is interpreted.
+ 1. translates the AQL to a Java/C/C# application with the correct Aerospike API calls
+ 2. executes the AQL, using the Java API, as it is interpreted.
 
 ##How
 ANTLR 3 is used as the parser, and Java. (ANTLR can also generate in C, C# and a bunch of other languages)
