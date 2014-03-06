@@ -1,6 +1,7 @@
 
 package com.aerospike.aql;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -8,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Arrays;
 
 import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -213,23 +215,41 @@ public class AQL {
 		return moduleName;
 	}
 	public void interpret() throws Exception{
-		getStreamParser(System.in);
-		aqlStatements_return result =  this.parser.aqlStatements();
-		if (this.parser.getNumberOfSyntaxErrors() == 0){
-			CommonTree tree = (CommonTree) result.getTree();
-			log.debug("AST tree:");
-			log.debug(tree);
-			CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
-			nodes.setTokenStream(this.tokenStream);
-			AQLExecutor walker = new AQLExecutor(nodes);
-			walker.aqlStatement();
-			if (walker.getNumberOfSyntaxErrors() > 0) {
-				log.error("Errors in AST tree: " + walker.getNumberOfSyntaxErrors());
-			}
+		
+		//  interactive
+		System.out.print("aql > ");
 
-		} else {
-			log.error("Syntax errors: " + this.parser.getNumberOfSyntaxErrors());
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+		String commandline = null;
+
+		try {
+			while (true){
+				commandline = br.readLine();
+				getStringParser(commandline);
+				aqlStatements_return result =  this.parser.aqlStatements();
+				if (this.parser.getNumberOfSyntaxErrors() == 0){
+					CommonTree tree = (CommonTree) result.getTree();
+					log.debug("AST tree:");
+					log.debug(tree);
+					CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
+					nodes.setTokenStream(this.tokenStream);
+					AQLExecutor walker = new AQLExecutor(nodes);
+					walker.aqlStatement();
+					if (walker.getNumberOfSyntaxErrors() > 0) {
+						log.error("Errors in AST tree: " + walker.getNumberOfSyntaxErrors());
+					}
+
+				} else {
+					log.error("Syntax errors: " + this.parser.getNumberOfSyntaxErrors());
+				}
+				System.out.print("ascli > ");
+			}
+		} catch (IOException ioe) {
+			log.error("error processing command: " + commandline, ioe);
+			System.exit(1);
 		}
+
 	}
 
 }
