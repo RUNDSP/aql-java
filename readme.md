@@ -9,11 +9,20 @@ All the classes that make up this utility are packaged into a JAR. This makes th
 
 
 ##How
-[ANTLR 3](http://www.antlr3.org/) is used as the parser, and Java is the implementation language. (ANTLR can also generate in C, C# and a bunch of other languages)
-There are 3 grammars:
+[ANTLR 3](http://www.antlr3.org/) is used as the parser generator, and Java is the implementation language. (ANTLR can also generate parsers in C, C# and a bunch of other languages)
+There are 3 grammars that generate parsers:
 * AQLast - checks syntax and generates an Abstract Syntax Tree (AST)
 * AQLCodeGenerator - This a tree walker that walks the AST and generates code (Java, C, C#) based using [ANTLR StringTemplates](http://www.stringtemplate.org/).
 * AQLExecutor - This is a tree walker that walks the AST and executes the statements using the Java API
+ 
+###Code generation
+Gode generation is achieved using [StringTemplates](http://www.stringtemplate.org/). There is a StringTemplate for each target language, these are:
+* AS_C_Sharp.st - for C#
+* AS_C.st - for C
+* AS_Java.st - for Java
+
+The templates are located in the same directory as AQL.java at: src/main/java/com/aerospike/aql. The AQL class expects them to be there, so don't move them!
+
 
 ##Why
 Developers work on many platforms. Most developers are use SQL and AQL will be very familiar to them. A quick way to learn Aerospike and get a prototype up and running is to:
