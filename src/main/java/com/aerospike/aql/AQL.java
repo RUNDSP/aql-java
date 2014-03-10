@@ -243,7 +243,7 @@ public class AQL {
 				} else {
 					log.error("Syntax errors: " + this.parser.getNumberOfSyntaxErrors());
 				}
-				System.out.print("ascli > ");
+				System.out.print("aql > ");
 			}
 		} catch (IOException ioe) {
 			log.error("error processing command: " + commandline, ioe);
