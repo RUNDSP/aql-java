@@ -7,7 +7,6 @@ Aerospike [AQL](https://docs.aerospike.com/pages/viewpage.action?pageId=3807532)
  
 All the classes that make up this utility are packaged into a JAR. This makes them available to any other application that wants to use them. 
 
-The grammar for this implementation of AQL is documented [here](https://github.com/aerospike/aql-java/doc/ASQLast/ASQLast.html)
 
 ##How
 [ANTLR 3](http://www.antlr3.org/) is used as the parser generator, and Java is the implementation language. (ANTLR can also generate parsers in C, C# and a bunch of other languages)
