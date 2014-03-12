@@ -9,8 +9,6 @@ INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('7', 7, '2', 2)
 INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('8', 8, '2', 2)
 INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('9', 9, '2', 2)
 INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('10', 10, '2', 2)
-
-
 CREATE INDEX index_bn2 ON test.demo (bn2) NUMERIC
 CREATE INDEX index_bn3 ON test.demo (bn3) STRING
 
@@ -29,28 +27,32 @@ CREATE INDEX index_bn3 ON test.demo (bn3) STRING
 	SELECT bn2,bn3,bn4  FROM test.demo WHERE PK = '10'
 
 
-#INFO:
+
+#UDF:
+	REGISTER module 'src/test/resources/example1.lua'
+	REGISTER module 'src/test/resources/sum_example.lua'
+	REGISTER module 'src/test/resources/average_example.lua'
+	SHOW modules
+	desc module example1.lua
+	desc module average_example.lua
+	EXECUTE example1.foo('arg1','arg2',3) ON test.demo WHERE PK = '1' 
+	drop module example1.lua
+	AGGREGATE sum_example.sum_single_bin('bn4') ON test.demo WHERE bn4 BETWEEN 1 AND 2
+
+
+#ADMIN:
 	SHOW NAMESPACES
 	show SETS
 	sHoW BiNS
 	SHOW SCAnS
 	shoW qUERIES
+	#SHOW INDEXES
 	SHOW INDEXES test.demo
 	DESC INDEX test index_bn2
-	DESC module bob.lua
+	STAT INDEX test index_bn3
+	STAT QUERY
+	STAT SYSTEM
 
-
-#UDF:
-	REGISTER module '/AerospikeAQLGrammar/TestData/example1-udf.lua'
-	SHOW modules
-	EXECUTE example-udf.foo('arg1','arg2',3) ON test.demo
-	EXECUTE example-udf.foo('arg1','arg2',3) ON test.demo WHERE PK = '10'
-	AGGREGATE example-udf.foo('arg1','arg2',3) ON test.demo WHERE bn3 = 'smith'
-	AGGREGATE example-udf.foo('arg1','arg2',3) ON test.demo WHERE bn4 BETWEEN 1 AND 2
-	DrOp module example-udf.lua
-
-
-#ADMIN:
 	# text_string - comment in script, line skipped.
 	PRINT 'text_string'
 
@@ -59,7 +61,7 @@ CREATE INDEX index_bn3 ON test.demo (bn3) STRING
 	SET VERBOSE false #[default false]
 	SET ECHO true
 	SET ECHO false #[default false]
-	SET TIMEOUT 150 #[default 1000ms]
+	SET TIMEOUT 1500 #[default 1500ms]
 	SET RECORD_TTL 0 #[default 0 - never expire]
 	SET VIEW TABLE #[default at startup - TABLE]
 	SET VIEW JSON
@@ -74,15 +76,6 @@ CREATE INDEX index_bn3 ON test.demo (bn3) STRING
 	GET LUA_USERPATH 
 	GET LUA_SYSPATH 
 	# Note: These are client side paths for lua files.
-
-	KILL_QUERY 12345
-	KILL_SCAN 54321
-
-	KILL QUERY 12345
-	KILL SCAN 54321
-
-	RUN 'filename' 	#(Each line in the file contains an aql command)
-	HELP
 
 
 #clean up

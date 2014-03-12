@@ -56,8 +56,8 @@ public class Udf {
 		RegisterTask task =	null;
 		IndexTask indexTask = null;
 		LuaConfig.SourceDirectory = "udf"; // change this to match your UDF directory 
-		// cats
-		LuaConfig.SourceDirectory = "mice"; 
+		// SET LUA_USERPATH 'src/udf'
+		LuaConfig.SourceDirectory = "src/udf"; 
 
 		// CREATE INDEX index_bn4 ON test.demo (bn4) NUMERIC
 		indexTask = this.client.createIndex(this.policy, "test", "demo", "index_bn4", "bn4", IndexType.NUMERIC);

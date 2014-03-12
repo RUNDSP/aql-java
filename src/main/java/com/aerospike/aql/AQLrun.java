@@ -1,6 +1,8 @@
 package com.aerospike.aql;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -47,8 +49,9 @@ public class AQLrun {
 			options.addOption("p", "port", true, "Server port (default: 3000)");
 			options.addOption("n", "namespace", true, "Namespace (default: test)");
 			options.addOption("s", "set", true, "Set name. Use 'empty' for empty set (default: demoset)");
-			options.addOption("c", "compile", true, "AQL file name to compile");
-			options.addOption("l", "language", true, "Target language, supported languages: C, CSHARP and JAVA. Only valid with -c option");
+			options.addOption("c", "compile", true, "AQL file name to compile, cannot be used with -f");
+			options.addOption("f", "file", true, "AQL file name to execute, cannot be used with -c");
+			options.addOption("l", "language", true, "Target language, supported languages: JAVA (future: C and CSHARP). Only valid with -c option");
 			options.addOption("o", "output", true, "Output file name. Only valid with -c option");
 			options.addOption("u", "usage", false, "Print usage.");
 
@@ -127,8 +130,17 @@ public class AQLrun {
 
 				AQL aql = new AQL(client);
 
-				log.info("AQL Interpreter");
-				aql.interpret();
+				
+				if (cl.hasOption("f")){
+					String inputFileName = cl.getOptionValue("f");
+					File inputFile = new File(inputFileName);
+					InputStream inputFileStream = new FileInputStream(inputFile);
+					log.info("AQL executing file: " + inputFileName);
+					aql.interpret(inputFileStream);
+				} else {
+					log.info("AQL Interactive");
+					aql.interpret(System.in);
+				}
 			}
 
 		} catch (Exception e) {

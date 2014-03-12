@@ -378,6 +378,7 @@ create
 		'(' binName=bin ')' indexType 
 		-> ^(CREATE index_name nameSet bin indexType)
 	;
+	
 /**
 DROP INDEX namespace[.setname] indexname
 DROP MODULE modulename.extension 

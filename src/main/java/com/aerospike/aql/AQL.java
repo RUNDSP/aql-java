@@ -32,6 +32,7 @@ import com.aerospike.aql.grammar.NoCaseFileStream;
 import com.aerospike.aql.grammar.NoCaseInputStream;
 import com.aerospike.aql.grammar.NoCaseStringStream;
 import com.aerospike.client.AerospikeClient;
+import com.aerospike.client.AerospikeException;
 
 public class AQL {
 	public enum Language {
@@ -127,7 +128,7 @@ public class AQL {
 	public String compileAndGenerateString(String inputString, String moduleName, Language language, String host, String portString) throws Exception{
 		URL url = null;
 		String outputString = null;
-		
+
 		switch (language){
 		case CSHARP:
 			url = getClass().getResource("AS_C_Sharp.st");
@@ -197,14 +198,14 @@ public class AQL {
 
 		String content = compileAndGenerateString(inputfile, language, host, portString);
 
-				if (!outputFile.exists()){
-					outputFile.createNewFile();
-				}
+		if (!outputFile.exists()){
+			outputFile.createNewFile();
+		}
 
-				FileWriter fw = new FileWriter(outputFile.getAbsoluteFile());
-				BufferedWriter bw = new BufferedWriter(fw);
-				bw.write(content);
-				bw.close();	
+		FileWriter fw = new FileWriter(outputFile.getAbsoluteFile());
+		BufferedWriter bw = new BufferedWriter(fw);
+		bw.write(content);
+		bw.close();	
 
 	}
 	private String moduleFromFile(String fileName){
@@ -214,39 +215,56 @@ public class AQL {
 		}
 		return moduleName;
 	}
-	public void interpret() throws Exception{
-		
+	public void interpret(InputStream in) throws Exception{
+
 		//  interactive
 		System.out.print("aql > ");
 
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
 		String commandline = null;
 
 		try {
 			while (true){
 				commandline = br.readLine();
+				if (commandline == null || commandline.isEmpty())
+					continue;
+				log.debug(commandline);
 				getStringParser(commandline);
-				aqlStatements_return result =  this.parser.aqlStatements();
-				if (this.parser.getNumberOfSyntaxErrors() == 0){
-					CommonTree tree = (CommonTree) result.getTree();
-					log.debug("AST tree:");
-					log.debug(tree);
-					CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
-					nodes.setTokenStream(this.tokenStream);
-					AQLExecutor walker = new AQLExecutor(nodes);
-					walker.aqlStatement();
-					if (walker.getNumberOfSyntaxErrors() > 0) {
-						log.error("Errors in AST tree: " + walker.getNumberOfSyntaxErrors());
-					}
+				try {
+					aqlStatements_return result =  this.parser.aqlStatements();
+					if (this.parser.getNumberOfSyntaxErrors() == 0){
+						CommonTree tree = (CommonTree) result.getTree();
+						if (tree == null)
+							continue;
+						log.debug("AST tree:");
+						log.debug(tree.toStringTree());
+						CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
+						nodes.setTokenStream(this.tokenStream);
+						AQLExecutor walker = new AQLExecutor(nodes, this.client);
+						walker.setErrorReporter(new IErrorReporter() {
 
-				} else {
-					log.error("Syntax errors: " + this.parser.getNumberOfSyntaxErrors());
+							@Override
+							public void reportError(int line, int charStart, int charEnd, String message) {
+								log.error(line+":"+charStart+" "+message);
+							}
+						});
+						walker.aqlStatement();
+						if (walker.getNumberOfSyntaxErrors() > 0) {
+							log.error("Errors in AST tree: " + walker.getNumberOfSyntaxErrors());
+						}
+
+					} else {
+						log.error("Syntax errors: " + this.parser.getNumberOfSyntaxErrors());
+					}
+				} catch (AerospikeException ae){
+					log.error("Aerospike error: " + ae.getMessage());
+					log.debug(ae.getMessage(), ae);
 				}
 				System.out.print("aql > ");
 			}
 		} catch (IOException ioe) {
-			log.error("error processing command: " + commandline, ioe);
+			log.error("Error processing command: " + commandline, ioe);
 			System.exit(1);
 		}
 

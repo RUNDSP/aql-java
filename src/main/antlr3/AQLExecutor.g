@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.io.UnsupportedEncodingException;
 
 import com.aerospike.aql.grammar.NoCaseFileStream;
 import com.aerospike.client.AerospikeClient;
@@ -31,6 +32,7 @@ import com.aerospike.client.Language;
 import com.aerospike.client.Record;
 import com.aerospike.client.Value;
 import com.aerospike.client.cluster.Node;
+import com.aerospike.client.lua.LuaConfig;
 import com.aerospike.client.policy.Policy;
 import com.aerospike.client.policy.WritePolicy;
 import com.aerospike.client.query.Filter;
@@ -57,25 +59,25 @@ aqlFile throws AerospikeException
 	
 	
 aqlStatement throws AerospikeException
-	: create	
-	| drop		
-	| insert	
-	| delete	
-	| select 
-	| registerPackage 
-	| execute 
-	| aggregate 
-	| show 
-	| desc 
-	| stat 
-	| set 
-	| get 
-	| run 
-	| kill_query 
-	| kill_scan 
-	| quit 
-	| help 
-  | print 
+	: {reportStatement($aqlStatement.text);} create 
+	| {reportStatement($aqlStatement.text);} drop   
+	| {reportStatement($aqlStatement.text);} insert 
+	| {reportStatement($aqlStatement.text);} delete 
+	| {reportStatement($aqlStatement.text);} select 
+	| {reportStatement($aqlStatement.text);} registerPackage 
+	| {reportStatement($aqlStatement.text);} execute 
+	| {reportStatement($aqlStatement.text);} aggregate 
+	| {reportStatement($aqlStatement.text);} show   
+	| {reportStatement($aqlStatement.text);} desc   
+	| {reportStatement($aqlStatement.text);} stat  
+	| {reportStatement($aqlStatement.text);} set    
+	| {reportStatement($aqlStatement.text);} get    
+	| {reportStatement($aqlStatement.text);} run    
+	| {reportStatement($aqlStatement.text);} kill_query 
+	| {reportStatement($aqlStatement.text);} kill_scan 
+	| {reportStatement($aqlStatement.text);} quit   
+	| {reportStatement($aqlStatement.text);} help   
+  | {reportStatement($aqlStatement.text);} print  
 	;
 
 /*
@@ -142,20 +144,11 @@ insert throws AerospikeException
 				List<Bin> bins = new ArrayList<Bin>();
 				Key key = new Key(nameSpace, set, keyValue);
 				StringBuilder sb = new StringBuilder();
-				sb.append("Insert: ");
-				sb.append(keyValue);
-				int item = 0;
-				for (String binName : $bn.bins){
-						Bin bin = new Bin(binName, $v.list.get(item));
-						bins.add(bin);
-						sb.append(" ").append(bin.name).append(":").append(bin.value).append(":").append(bin.value.getClass());
-					item++;
-				}
       	long start_time = System.nanoTime();
 				client.put(this.writePolicy, key, bins.toArray(new Bin[0]));			
 				long end_time = System.nanoTime();
 				double difference = (end_time-start_time)/1000000.0;
-				sb.append(" - Success in ");
+				sb.append("Success in ");
 				sb.append(difference);
 				sb.append("ms");
 				this.resultReporter.report(sb.toString());
@@ -367,9 +360,13 @@ show throws AerospikeException
 		printInfo("Bins:", binsString);
 	}					
 	| ^(SHOW SCANS)					
+  {
+  String queriesString = info("jobs:module=scan");
+  printInfo("Queries:", queriesString);
+  }     
 	| ^(SHOW QUERIES)	
 	{
-	String queriesString = info("queries");
+	String queriesString = info("jobs:module=query");
 	printInfo("Queries:", queriesString);
 	}			
 	;
@@ -377,23 +374,32 @@ show throws AerospikeException
 //	DESC INDEX namespace indexname
 //	DESC PACKAGE pkgname.extension
 desc throws AerospikeException
-	: ^(DESC ^(PACKAGE moduleName))
+	: ^(DESC ^(MODULE moduleName))
 	{
-	this.resultReporter.report("Package: " + $moduleName.text);
-	String udfString = info("udf-get:filename=" + $moduleName.text);
-	this.resultReporter.report(Base64.decode(udfString.getBytes(), 0, udfString.length()).toString());
-	
+	this.resultReporter.report("Module: " + $moduleName.value);
+	String udfString = info("udf-get:filename=" + $moduleName.value );
+	if (udfString.startsWith("error")){
+	  this.resultReporter.report(udfString);
+  } else {
+    try {
+    this.resultReporter.report(getUdfSource(udfString));
+    } catch (UnsupportedEncodingException e) {
+    }
+	}
 	}
 	| ^(DESC ^(INDEX namespace_name index_name))
+	{
+	printInfo("Describe Index", info("sindex-describe:ns="+$namespace_name.text + ";indexname="+$index_name.text+";"));
+	}
 	;
 	
 //	STAT INDEX namespace indexname
 //	STAT QUERY
 //	STAT SYSTEM
-stat
+stat throws AerospikeException
 	: ^(STAT ^(INDEX namespace_name index_name))
-	|	^(STAT QUERY)
-	|	^(STAT SYSTEM)
+	|	^(STAT QUERY) {printInfo("Query statistics", info("query-stat"));}
+	|	^(STAT SYSTEM) {printInfo("Statistics", info("Statistics"));}
 	;
 /*
 ADMIN:
@@ -419,12 +425,16 @@ ADMIN:
 
 
 set
-	: ^(SET ^(TIMEOUT timeOut=INTLITERAL)) {this.policy.timeout = Integer.parseInt($timeOut.text);this.writePolicy.timeout = Integer.parseInt($timeOut.text);}
+	: ^(SET ^(TIMEOUT timeOut=INTLITERAL)) 
+	{
+	this.policy.timeout = Integer.parseInt($timeOut.text);
+	this.writePolicy.timeout = Integer.parseInt($timeOut.text);
+	}
 	| ^(SET ^(VERBOSE verboseOn=booleanLiteral))
 	| ^(SET ^(ECHO echoOn=booleanLiteral))
 	| ^(SET ^(RECORD_TTL ttl=INTLITERAL)) {this.writePolicy.expiration = Integer.parseInt($ttl.text);}
 	| ^(SET ^(VIEW viewType))
-	| ^(SET ^(LUA_USER_PATH luaUserPath=STRINGLITERAL))
+	| ^(SET ^(LUA_USER_PATH luaUserPath=STRINGLITERAL)) {LuaConfig.SourceDirectory = removeQuotes($luaUserPath.text); }
 	| ^(SET ^(LUA_SYSTEM_PATH luaSysPath=STRINGLITERAL))
 	;
 get
@@ -435,9 +445,9 @@ get
 	}
 	| ^(GET VERBOSE)					
 	| ^(GET ECHO)							
-	| ^(GET RECORD_TTL) {this.resultReporter.report(Integer.toString(this.writePolicy.expiration));}	
+	| ^(GET RECORD_TTL) {this.resultReporter.report("Write policy expiration: " + this.writePolicy.expiration);}	
 	| ^(GET VIEW)							
-	| ^(GET LUA_USER_PATH)		
+	| ^(GET LUA_USER_PATH)	{this.resultReporter.report("Lua source directory: " + LuaConfig.SourceDirectory);}	
 	| ^(GET LUA_SYSTEM_PATH)	
 	;
 
@@ -523,7 +533,10 @@ booleanLiteral
 		: TRUE
 		| FALSE
 		;
-moduleName
-  : IDENTIFIER '.' ('lua'|'so')
+moduleName returns [String value]
+  : ident=IDENTIFIER '.' 
+  ('lua' {$value = $ident.text + ".lua";}
+  |'so'  {$value = $ident.text + ".so";}
+  )
   ;
 

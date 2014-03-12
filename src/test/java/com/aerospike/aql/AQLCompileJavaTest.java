@@ -4,7 +4,7 @@ import org.junit.Test;
 
 
 public class AQLCompileJavaTest {
-	public static final String HOST = "192.168.51.197";
+	public static final String HOST = "P3";
 	public static final String PORT = "3000";
 	@Test
 	public void testPrimaryKey() throws Exception {
