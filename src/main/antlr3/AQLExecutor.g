@@ -47,10 +47,6 @@ public AQLExecutor(TreeNodeStream input, AerospikeClient client) {
 	super(input, client);
 }
 
-protected String removeQuotes(String source){
-	String target = source.substring(1, source.length()-1);
-	return target;
-}
 }
 
 aqlFile throws AerospikeException
@@ -88,16 +84,7 @@ Indexing commands
 */
 create throws AerospikeException
 	: ^(CREATE index_name nameSet bin indexType)
-		{
-		if (isConnected()) {
-      	String type = $indexType.text;
-      	long start_time = System.nanoTime();
-				this.client.createIndex(policy, $nameSet.nameSpace, $nameSet.setName, $index_name.text, $bin.text, (type.equalsIgnoreCase("string")) ? IndexType.STRING : IndexType.NUMERIC);
-				long end_time = System.nanoTime();
-				double difference = (end_time-start_time)/1000000.0;
-				this.resultReporter.report("Index " + $nameSet.nameSpace + "." + $nameSet.setName + "." + $index_name.text + " - created in " + difference + "ms");
-		}	
-		}
+		{createIndex( $nameSet.nameSpace, $nameSet.setName, $index_name.text, $bin.text, $indexType.text);}
 	;
 
 drop  throws AerospikeException
@@ -111,15 +98,7 @@ drop  throws AerospikeException
 			}	
 			}
 	  | ^(MODULE moduleName) 
-	    {
-	    Node node = this.client.getNodes()[0];
-	    String msg = Info.request(node, "udf-remove:filename=" + $moduleName.text);
-	    if (msg.contains("error")){
-	      this.resultReporter.report("Could not delete module: " +  $moduleName.text);
-	    } else {
-	      this.resultReporter.report("Delete module: " +  $moduleName.text);
-	    }
-	    }
+	    { removePackage($moduleName.text);}
 	  ))
  	;
 	
@@ -136,32 +115,13 @@ DML:
 */
 //	INSERT INTO namespace[.setname] (PK,binnames,,,) VALUES ('pk',nnn,'xxx',,)
 insert throws AerospikeException
-	: ^(INSERT nameSet primaryKey bn=binNameList v=valueList) 
-		{
-      	String nameSpace = $nameSet.nameSpace;
-      	String set = $nameSet.setName;
-      	String keyValue = $primaryKey.value;
-				List<Bin> bins = new ArrayList<Bin>();
-				Key key = new Key(nameSpace, set, keyValue);
-				StringBuilder sb = new StringBuilder();
-      	long start_time = System.nanoTime();
-				client.put(this.writePolicy, key, bins.toArray(new Bin[0]));			
-				long end_time = System.nanoTime();
-				double difference = (end_time-start_time)/1000000.0;
-				sb.append("Success in ");
-				sb.append(difference);
-				sb.append("ms");
-				this.resultReporter.report(sb.toString());
-
-		}
+	: ^(INSERT nameSet primaryKey binNames=binNameList binValues=valueList) 
+		{ insertRecord($nameSet.nameSpace, $nameSet.setName, $primaryKey.value, binNames, binValues);}
 	;
 //	DELETE FROM namespace[.setname] WHERE PK = 'x'
 delete throws AerospikeException
 	: ^(DELETE ns=nameSet pk=primaryKey)
-	{
-				Key key = new Key($ns.nameSpace, $ns.setName, $pk.value);
-				this.client.delete(this.writePolicy, key);
-	}
+	{ deleteRecord($ns.nameSpace, $ns.setName, $pk.value);}
 	;
 /*
 QUERY:
@@ -173,15 +133,15 @@ QUERY:
 	SELECT *|bin,,, [AS(,,,)] FROM namespace[.setname] WHERE PK = 'x'
 	Note:SELECT...WHERE bin ... needs an INDEX on bin. Use CREATE INDEX first.
 */	
-select scope {String nameSpace; String setName; String key;}
-	: ^(SELECT_ALL from)
-	| ^(SELECT_EXPLICIT bn=binNameList from) 
+select throws AerospikeException scope {String nameSpace; String setName; String key; Filter filter;} 
+	: ^(SELECT_ALL from) {selectRecord($select::nameSpace, $select::setName, null, $select::key, null);}
+	| ^(SELECT_EXPLICIT binNames=binNameList from) {selectRecord($select::nameSpace, $select::setName, binNames, $select::key, $select::filter);}
 	;
 	
 
 from  
 	: ^(FROM nameSet {$select::nameSpace = $nameSet.nameSpace; $select::setName = $nameSet.setName; } 
-		(^(WHERE expressions[$nameSet.nameSpace, $nameSet.setName] ))?) 
+		(^(WHERE expressions[$nameSet.nameSpace, $nameSet.setName] {$select::filter = $expressions.fil;}))?) 
 	;
 orderby
 	: order+ 
@@ -235,27 +195,12 @@ UDF
 // REGISTER PACKAGE 'filepath'
 registerPackage throws AerospikeException
 	: ^(REGISTER p=STRINGLITERAL)
-	{
-			File udfFile = new File(removeQuotes($p.text));
-      RegisterTask task = this.client.register(null, 
-      		udfFile.getPath(), //client path
-      		udfFile.getName(), //server path
-      		Language.LUA); //UDF language
-      task.waitTillComplete();
-	}
+	{ registerPackage($p.text); }
 	;
 // REMOVE PACKAGE pkgname.extension	
 removePackage throws AerospikeException
 	: ^(REMOVE IDENTIFIER)
-      {
-      Node node = this.client.getNodes()[0];
-      String msg = Info.request(node, "udf-remove:filename=" + $IDENTIFIER.text);
-      if (msg.contains("error")){
-        this.resultReporter.report("Could not delete module: " +  $IDENTIFIER.text);
-      } else {
-        this.resultReporter.report("Delete module: " +  $IDENTIFIER.text);
-      }
-      }
+      { removePackage($IDENTIFIER.text);}
 	;
 //		EXECUTE pkgname.funcname(arg1,arg2,,) ON namespace[.setname]
 //		EXECUTE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE PK = 'X'	
@@ -280,32 +225,7 @@ execute throws AerospikeException
 aggregate throws AerospikeException
 	: ^(AGGREGATE nameSet packageFunction expressions[$nameSet.nameSpace, $nameSet.setName] valueList?)
 	{
-	  List<Value> values = $valueList.list;
-	  Statement stmt = new Statement();
-    stmt.setNamespace($nameSet.nameSpace);
-    stmt.setSetName($nameSet.setName);
-    stmt.setFilters($expressions.fil);
-    ResultSet resultSet = client.queryAggregate(null, stmt, 
-      $packageFunction.packageName, 
-      $packageFunction.functionName, 
-      values.toArray(new Value[values.size()]));
-        
-    try {
-      int count = 0;
-      
-      while (resultSet.next()) {
-        Object object = resultSet.getObject();
-        this.resultReporter.report("Result: " + object);
-        count++;
-      }
-      
-      if (count == 0) {
-        this.resultReporter.report("No results returned.");     
-      }
-    }
-    finally {
-      resultSet.close();
-    }
+	executeAggregation($nameSet.nameSpace, $nameSet.setName, $packageFunction.packageName, $packageFunction.functionName, $valueList.list, $expressions.fil);
 	
 	}
 	;
@@ -374,23 +294,8 @@ show throws AerospikeException
 //	DESC INDEX namespace indexname
 //	DESC PACKAGE pkgname.extension
 desc throws AerospikeException
-	: ^(DESC ^(MODULE moduleName))
-	{
-	this.resultReporter.report("Module: " + $moduleName.value);
-	String udfString = info("udf-get:filename=" + $moduleName.value );
-	if (udfString.startsWith("error")){
-	  this.resultReporter.report(udfString);
-  } else {
-    try {
-    this.resultReporter.report(getUdfSource(udfString));
-    } catch (UnsupportedEncodingException e) {
-    }
-	}
-	}
-	| ^(DESC ^(INDEX namespace_name index_name))
-	{
-	printInfo("Describe Index", info("sindex-describe:ns="+$namespace_name.text + ";indexname="+$index_name.text+";"));
-	}
+	: ^(DESC ^(MODULE moduleName)) { describeModule($moduleName.text);	}
+	| ^(DESC ^(INDEX namespace_name index_name)) {describeIndex($namespace_name.text, $index_name.text);}
 	;
 	
 //	STAT INDEX namespace indexname

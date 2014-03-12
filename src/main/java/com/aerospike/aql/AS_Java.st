@@ -109,7 +109,11 @@ this.client.delete(this.writePolicy,
 select(source, nameSpace, setName, binNames, as, where, key) ::= <<
 // <source>
 <if(key)>
+<if(binNames)>
+record = client.get(this.policy, new Key("<nameSpace>", "<setName>", Value.get(<key>), <first(binNames):{b|"<b>"}><rest(binNames):{b|, "<b>"}>);
+<else>
 record = client.get(this.policy, new Key("<nameSpace>", "<setName>", Value.get(<key>)));
+<endif>
 System.out.println("Record: " + record);
 <elseif(where)>
 <where>
