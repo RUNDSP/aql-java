@@ -90,15 +90,9 @@ create throws AerospikeException
 drop  throws AerospikeException
 	: ^(DROP 
 	  (
-	    ^(INDEX index_name nameSet)
-			{
-			if (isConnected()) {
-					this.client.dropIndex(policy, $nameSet.nameSpace, $nameSet.setName, $index_name.text);
-					this.resultReporter.report("Index " + $nameSet.nameSpace + "." + $nameSet.setName + "." + $index_name.text + " - dropped");
-			}	
-			}
-	  | ^(MODULE moduleName) 
-	    { removePackage($moduleName.text);}
+	    ^(INDEX index_name ins=nameSet)	{ dropIndex($index_name.text, $ins.nameSpace, $ins.setName);}
+	  | ^(MODULE moduleName)  { removePackage($moduleName.text);}
+	  | ^(SET sns=nameSet) {dropSet($sns.nameSpace, $sns.setName);}
 	  ))
  	;
 	
@@ -207,15 +201,12 @@ removePackage throws AerospikeException
 execute throws AerospikeException
 	: ^(EXECUTE nameSet packageFunction primaryKey? valueList?)
 		{
-	// TODO Execute with query
-				Key key = new Key($nameSet.nameSpace, $nameSet.setName, $primaryKey.value);
-				List<Value> values = $valueList.list;
-				int item = 0;
-				Object result = client.execute(this.policy, key, 
-					$packageFunction.packageName, 
-					$packageFunction.functionName, 
-					values.toArray(new Value[values.size()]));
-				this.resultReporter.report(result.toString());
+		
+	// TODO Execute with query - AKA scan UDF
+	
+		executeRecordUDF($packageFunction.packageName, $packageFunction.functionName, 
+		  $nameSet.nameSpace, $nameSet.setName, 
+		  $primaryKey.value, $valueList.list);
 		}
 	
 	;
@@ -226,7 +217,6 @@ aggregate throws AerospikeException
 	: ^(AGGREGATE nameSet packageFunction expressions[$nameSet.nameSpace, $nameSet.setName] valueList?)
 	{
 	executeAggregation($nameSet.nameSpace, $nameSet.setName, $packageFunction.packageName, $packageFunction.functionName, $valueList.list, $expressions.fil);
-	
 	}
 	;
 	
@@ -254,41 +244,13 @@ INFO:
 //	SHOW SCANS|QUERIES
 //	SHOW INDEXES [namespace[.set]]
 show throws AerospikeException
-	: ^(SHOW INDEXES nameSet)
-	{
-			String indexesString = info("sindex");
-			printInfo("Indexes:", indexesString);
-	}
-	|	^(SHOW MODULES) 		
-	{
-		String packagesString = info("udf-list");
-		printInfo("Modules:", packagesString);
-	}		
-	| ^(SHOW NAMESPACES)	
-	{
-		String nameSpacesString = info("namespaces");
-		printInfo("Name spaces:", nameSpacesString);
-	}
-	| ^(SHOW SETS)	
-	{
-	String setsString = info("sets");
-	printInfo("Sets:", setsString);
-	}					
-	| ^(SHOW BINS)	
-	{
-		String binsString = info("bins");
-		printInfo("Bins:", binsString);
-	}					
-	| ^(SHOW SCANS)					
-  {
-  String queriesString = info("jobs:module=scan");
-  printInfo("Queries:", queriesString);
-  }     
-	| ^(SHOW QUERIES)	
-	{
-	String queriesString = info("jobs:module=query");
-	printInfo("Queries:", queriesString);
-	}			
+	: ^(SHOW INDEXES nameSet) {showIndexes();}
+	|	^(SHOW MODULES) 	{showPackages();}	
+	| ^(SHOW NAMESPACES)	{ showNameSpaces(); }
+	| ^(SHOW SETS) { showSets(); }
+	| ^(SHOW BINS) { showBins();}					
+	| ^(SHOW SCANS)		{ showScans(); }     
+	| ^(SHOW QUERIES)	{ showQueries();}			
 	;
 	
 //	DESC INDEX namespace indexname
@@ -394,7 +356,7 @@ quit
 	}
 	;
 help
-	: 'help'
+	: 'help' {printHelp();}
 	;
 	
 viewType

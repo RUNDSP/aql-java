@@ -223,7 +223,7 @@ namespace Aerospike.Generation
 
 				// SET VIEW JSON
 
-				// cats
+				// SET LUA_USERPATH '/opt/citrusleaf/usr/udf/lua'
 
 				// SET LUA_SYSPATH '/opt/citrusleaf/sys/udf/lua'
 
