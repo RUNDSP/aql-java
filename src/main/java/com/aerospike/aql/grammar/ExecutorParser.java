@@ -12,6 +12,7 @@ import org.antlr.runtime.RecognizerSharedState;
 import org.antlr.runtime.tree.TreeNodeStream;
 import org.antlr.runtime.tree.TreeParser;
 
+import com.aerospike.aql.AQLrun;
 import com.aerospike.client.AerospikeClient;
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Bin;
@@ -208,6 +209,16 @@ public class ExecutorParser extends TreeParser{
 		}
 	}
 
+	public void executeRecordUDF(String packageName, String function, String namespace, String set, String keyValue, List<Value> values) throws AerospikeException{
+		Key key = newKey(namespace, set, keyValue);
+		int item = 0;
+		Object result = client.execute(this.policy, key, 
+				packageName, 
+				function, 
+				values.toArray(new Value[values.size()]));
+		this.resultReporter.report(result.toString());
+
+	}
 	public void registerPackage(String packagePath) throws AerospikeException{
 		File udfFile = null;
 		if (packagePath.startsWith("'"))
@@ -247,16 +258,15 @@ public class ExecutorParser extends TreeParser{
 		return value;
 	}
 
-	protected Key getKey(String namespace, String set, String keyvalue) throws AerospikeException {
+	protected Key newKey(String namespace, String set, String keyvalue) throws AerospikeException {
 		Key key = new Key(namespace, set, getValue(keyvalue));
 		return key;
 	}
 
 	public void deleteRecord(String namespace, String set, String keyvalue) throws AerospikeException{
-		this.client.delete(this.writePolicy, getKey(namespace, set, keyvalue));
+		this.client.delete(this.writePolicy, newKey(namespace, set, keyvalue));
 	}
-
-	public void insertRecord(String namespace, String set, String keyvalue, List<String> binNames, List<Value> binValues) throws AerospikeException{
+	protected Bin[] binList(List<String> binNames, List<Value> binValues){
 		Bin[] bins = new Bin[binNames.size()];
 		if (binNames.size() > 0){
 			int count = 0;
@@ -265,7 +275,12 @@ public class ExecutorParser extends TreeParser{
 				count++;
 			}
 		}
-		Key key = getKey(namespace, set, keyvalue);
+		return bins;
+	}
+
+	public void insertRecord(String namespace, String set, String keyvalue, List<String> binNames, List<Value> binValues) throws AerospikeException{
+		Bin[] bins = binList(binNames, binValues);
+		Key key = newKey(namespace, set, keyvalue);
 		StringBuilder sb = new StringBuilder();
 		long start_time = System.nanoTime();
 		if (bins.length > 0)
@@ -300,9 +315,9 @@ public class ExecutorParser extends TreeParser{
 			// singleton
 			Record record = null;
 			if (binNames != null && binNames.size() > 0){
-				record = client.get(this.policy, getKey(namespace, set, keyString), binNames.toArray(new String[binNames.size()]));
+				record = client.get(this.policy, newKey(namespace, set, keyString), binNames.toArray(new String[binNames.size()]));
 			} else {
-				record = client.get(this.policy, getKey(namespace, set, keyString));
+				record = client.get(this.policy, newKey(namespace, set, keyString));
 			}
 			end_time = System.nanoTime();
 			this.resultReporter.report("Record: " + record);
@@ -351,5 +366,50 @@ public class ExecutorParser extends TreeParser{
 		sb.append(difference);
 		sb.append("ms");
 		this.resultReporter.report(sb.toString());
+	}
+
+	public void printHelp(){
+		AQLrun.printHelp();
+	}
+
+	public void showQueries() throws AerospikeException{
+		String queriesString = info("jobs:module=query");
+		printInfo("Queries:", queriesString);
+	}
+
+	public void showScans() throws AerospikeException{
+		String scansString = info("jobs:module=scan");
+		printInfo("Scans:", scansString);
+	}
+	public void showBins() throws AerospikeException{
+		String binsString = info("bins");
+		printInfo("Bins:", binsString);
+	}
+	public void showSets() throws AerospikeException{
+		String setsString = info("sets");
+		printInfo("Sets:", setsString);
+	}
+	public void showNameSpaces() throws AerospikeException{
+		String result = info("namespaces");
+		printInfo("Namespaces:", result);
+	}
+	public void showPackages() throws AerospikeException{
+		String result = info("udf-list");
+		printInfo("Packages:", result);
+	}
+	public void showIndexes() throws AerospikeException{
+		String result = info("sindex");
+		printInfo("Indexes:", result);
+	}
+
+	public void dropIndex(String index, String namespace, String set) throws AerospikeException{
+		this.client.dropIndex(policy, namespace, set, index);
+		this.resultReporter.report("Index " + namespace + "." + set + "." + index + " - dropped");
+	}
+	
+	public void dropSet(String namespace, String set) throws AerospikeException{
+		String result = info("set-config:context=" + namespace + ";id=test;set="+set+";set-delete=true;");
+		printInfo("Drop set:", result);
+		
 	}
 }

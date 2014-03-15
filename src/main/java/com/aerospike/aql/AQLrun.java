@@ -1,10 +1,16 @@
 package com.aerospike.aql;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -53,7 +59,7 @@ public class AQLrun {
 			options.addOption("f", "file", true, "AQL file name to execute, cannot be used with -c");
 			options.addOption("l", "language", true, "Target language, supported languages: JAVA (future: C and CSHARP). Only valid with -c option");
 			options.addOption("o", "output", true, "Output file name. Only valid with -c option");
-			options.addOption("u", "usage", false, "Print usage.");
+			options.addOption("u", "help", false, "Print usage.");
 
 			CommandLineParser parser = new PosixParser();
 			CommandLine cl = parser.parse(options, args, false);
@@ -130,7 +136,7 @@ public class AQLrun {
 
 				AQL aql = new AQL(client);
 
-				
+
 				if (cl.hasOption("f")){
 					String inputFileName = cl.getOptionValue("f");
 					File inputFile = new File(inputFileName);
@@ -149,14 +155,41 @@ public class AQLrun {
 	}
 	/**
 	 * Write usage to console.
+	 * @throws IOException 
 	 */
-	private static void logUsage(Options options) {
+	public static void logUsage(Options options)  {
 		HelpFormatter formatter = new HelpFormatter();
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
 		String syntax = AQL.class.getName() + " [<options>]";
 		formatter.printHelp(pw, 100, syntax, "options:", options, 0, 2, null);
 		log.info(sw.toString());
+		printHelp();
+	}
+	
+	public static void printHelp(){
+		URL helpUrl = AQLrun.class.getResource("commands.txt");
+		BufferedReader br;
+		try {
+			br = new BufferedReader(new InputStreamReader(helpUrl.openStream()));
+			try {
+				String line = br.readLine();
+
+				while (line != null) {
+					log.info(line);
+					line = br.readLine();
+				}
+				
+			} finally {
+				br.close();
+			}
+		} catch (FileNotFoundException e) {
+			log.error(e.getMessage());
+			log.debug("Detailed error:", e);
+		} catch (IOException e){
+			log.error(e.getMessage());
+			log.debug("Detailed error:", e);
+		}
 	}
 
 }
