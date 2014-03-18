@@ -387,8 +387,9 @@ drop
 @after{$drop.tree.source = $drop.text;}
 	: DROP (
 	    INDEX nameSet index_name -> ^(DROP ^(INDEX index_name nameSet))
-		  | MODULE moduleName -> ^(DROP ^(MODULE moduleName))
-		      )
+	| MODULE moduleName -> ^(DROP ^(MODULE moduleName))
+	| SET nameSet -> ^(DROP ^(SET nameSet))
+	)
 	
 	;
 	

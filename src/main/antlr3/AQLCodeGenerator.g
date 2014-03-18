@@ -54,8 +54,9 @@ create
 drop 
 	: ^(DROP 
 	(
-	  ^(INDEX index_name nameSet) -> drop(source={$DROP.source}, indexName={$index_name.text}, nameSpace={$nameSet.nameSpace}, setName={$nameSet.setName})
+	  ^(INDEX index_name ins=nameSet) -> drop(source={$DROP.source}, indexName={$index_name.text}, nameSpace={$ins.nameSpace}, setName={$ins.setName})
 		| ^(MODULE moduleName) -> remove(source={$DROP.source}, package={$moduleName.text})
+		| ^(SET sns=nameSet) ->deleteSet(source={$DROP.source}, namespace={$sns.nameSpace}, set={$sns.setName})
 	))
 	;
 	

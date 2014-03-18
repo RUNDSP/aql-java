@@ -79,4 +79,28 @@ public class SystemOutReporter implements IResultReporter {
 		
 	}
 
+	@Override
+	public void report(String message, boolean clear) {
+		this.report(message);
+		
+	}
+
+	@Override
+	public void report(Level level, String message, boolean clear) {
+		this.report(level, message);
+		
+	}
+
+	@Override
+	public void report(Record record, boolean clear) {
+		this.report(record);
+		
+	}
+
+	@Override
+	public void report(RecordSet recordSet, boolean clear) {
+		this.report(recordSet);
+		
+	}
+
 }

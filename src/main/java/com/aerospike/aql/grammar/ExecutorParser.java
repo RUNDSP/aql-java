@@ -98,6 +98,14 @@ public class ExecutorParser extends TreeParser{
 		return null;
 	}
 
+	protected String infoAll(String cmd) throws AerospikeException{
+		Node[] nodes = client.getNodes();
+		StringBuilder results = new StringBuilder();
+		for (Node node : nodes){
+			results.append(Info.request(node.getHost().name, node.getHost().port, cmd)).append("\n");
+		}
+		return results.toString();
+	}
 	protected String info(String cmd) throws AerospikeException{
 		Node node = randomNode();
 		if (node != null) {
@@ -408,8 +416,7 @@ public class ExecutorParser extends TreeParser{
 	}
 	
 	public void dropSet(String namespace, String set) throws AerospikeException{
-		String result = info("set-config:context=" + namespace + ";id=test;set="+set+";set-delete=true;");
+		String result = infoAll("set-config:context=namespace;id="+namespace+";set="+set+";set-delete=true;");
 		printInfo("Drop set:", result);
-		
 	}
 }

@@ -82,6 +82,14 @@ public class <className> {
 		}
 		
 	}
+	protected String infoAll(String cmd) throws AerospikeException{
+		Node[] nodes = client.getNodes();
+		StringBuilder results = new StringBuilder();
+		for (Node node : nodes){
+			results.append(Info.request(node.getHost().name, node.getHost().port, cmd)).append("\n");
+		}
+		return results.toString();
+	}
 }
 >>
 
@@ -230,6 +238,12 @@ task.waitTillComplete();
 remove(source, package) ::= <<
 // <source>
 System.out.println("Drop module <package>: " + Info.request(this.seedHost, this.port, "udf-remove:filename=<package>"));
+
+>>
+
+deleteSet(source, namespace, set)::= <<
+// <source>
+printInfo("Drop set:",infoAll("set-config:context=namespace;id="+namespace+";set="+set+";set-delete=true;"));
 
 >>
 
