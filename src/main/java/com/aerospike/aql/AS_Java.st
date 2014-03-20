@@ -24,6 +24,7 @@ import com.aerospike.client.query.ResultSet;
 import com.aerospike.client.query.Statement;
 import com.aerospike.client.task.RegisterTask;
 import com.aerospike.client.task.IndexTask;
+import com.aerospike.client.cluster.Node;
 import com.aerospike.client.lua.LuaConfig;
 
 public class <className> {
