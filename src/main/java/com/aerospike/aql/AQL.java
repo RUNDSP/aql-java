@@ -25,6 +25,7 @@ import com.aerospike.aql.grammar.AQLExecutor;
 import com.aerospike.aql.grammar.AQLTreeAdaptor;
 import com.aerospike.aql.grammar.AQLastLexer;
 import com.aerospike.aql.grammar.AQLastParser;
+import com.aerospike.aql.grammar.AQLastParser.aqlFile_return;
 import com.aerospike.aql.grammar.AQLastParser.aqlStatements_return;
 import com.aerospike.aql.grammar.IErrorReporter;
 import com.aerospike.aql.grammar.IResultReporter;
@@ -56,7 +57,7 @@ public class AQL {
 		this.client = client;
 	}
 
-	protected AQLastParser getFileParser(File file) throws Exception{
+	protected AQLastParser getFileParser(File file) throws IOException {
 		CharStream stream = new NoCaseFileStream(file);
 		getParser(stream);
 		return this.parser;
@@ -86,7 +87,7 @@ public class AQL {
 		return this.parser;
 	}
 
-	public void compile(File sqlFile, IErrorReporter reporter, IResultReporter resultReporter) throws IOException, RecognitionException{
+	public void compile(File sqlFile, IErrorReporter reporter, IResultReporter resultReporter) throws IOException{
 		CharStream stream = new NoCaseFileStream(sqlFile);
 		AQLastLexer lexer = new AQLastLexer(stream);
 		CommonTokenStream tokenStream = new CommonTokenStream(lexer);
@@ -94,7 +95,11 @@ public class AQL {
 		parser.setTreeAdaptor(new AQLTreeAdaptor());
 		parser.setErrorReporter(reporter);
 		parser.setResultReporter(resultReporter);
-		parser.aqlFile();
+		try {
+			parser.aqlFile();
+		} catch (RecognitionException e) {
+			reporter.reportError(e.line, e.charPositionInLine, e.charPositionInLine+e.token.getText().length(), e.getMessage());
+		}
 	}
 
 
@@ -214,6 +219,61 @@ public class AQL {
 			moduleName = moduleName.substring(0, moduleName.lastIndexOf("."));
 		}
 		return moduleName;
+	}
+	
+	public void execute(File file, IResultReporter resultReporter, IErrorReporter errorReporter) {
+		if (this.client == null){
+			if (resultReporter != null)
+				resultReporter.report("Aerospike client is null");
+			else
+				log.error("Aerospike client is null");
+			return;
+		}
+		if (file == null){
+			if (resultReporter != null)
+				resultReporter.report("Error: No input file");
+			else
+				log.error("Error: No input file");
+			return;
+		}
+		if (!file.exists()){
+			if (resultReporter != null)
+				resultReporter.report("Error: Input file does not exist");
+			else
+				log.error("Error: Input file does not exist");
+			return;
+		}
+		try{
+			AQLastParser astParser = getFileParser(file);
+			aqlFile_return result = astParser.aqlFile();
+			if (astParser.getNumberOfSyntaxErrors() == 0){
+				CommonTree tree = (CommonTree) result.getTree();
+				if (tree == null)
+					return;
+				log.debug("AST tree:");
+				log.debug(tree.toStringTree());
+				CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
+				nodes.setTokenStream(this.tokenStream);
+				AQLExecutor walker = new AQLExecutor(nodes, this.client);
+				walker.setErrorReporter(errorReporter);
+				walker.aqlFile();
+				if (walker.getNumberOfSyntaxErrors() > 0) {
+					log.error("Errors in AST tree: " + walker.getNumberOfSyntaxErrors());
+				}
+
+			} else {
+				log.error("Syntax errors: " + this.parser.getNumberOfSyntaxErrors());
+			}
+		} catch (IOException e){
+			resultReporter.report(e.getMessage());
+			log.error(e.getMessage(), e);
+		} catch (RecognitionException e) {
+			resultReporter.report(e.getMessage());
+			log.error(e.getMessage(), e);
+		} catch (AerospikeException e) {
+			resultReporter.report(e.getMessage());
+			log.error(e.getMessage(), e);
+		}
 	}
 	public void interpret(InputStream in) throws Exception{
 
