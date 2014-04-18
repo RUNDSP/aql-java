@@ -22,6 +22,7 @@ import com.aerospike.client.query.ResultSet;
 import com.aerospike.client.query.Statement;
 import com.aerospike.client.task.RegisterTask;
 import com.aerospike.client.task.IndexTask;
+import com.aerospike.client.cluster.Node;
 import com.aerospike.client.lua.LuaConfig;
 
 public class Example1 {
@@ -41,7 +42,7 @@ public class Example1 {
 	}
 
 	public static void main(String[] args) throws AerospikeException{
-		Example1 worker = new Example1("192.168.51.197", 3000);
+		Example1 worker = new Example1("P3", 3000);
 		worker.run();
 	}
 	public void run() throws AerospikeException {
@@ -56,6 +57,8 @@ public class Example1 {
 		RegisterTask task =	null;
 		IndexTask indexTask = null;
 		LuaConfig.SourceDirectory = "udf"; // change this to match your UDF directory 
+		String udfString;
+		String[] udfparts;
 		// SET ECHO true
 
 		// SET RECORD_TTL 100
@@ -298,14 +301,12 @@ public class Example1 {
 
 
 		// SELECT * FROM test.newtest WHERE PK = 'rec10'
-		record = client.get(this.policy, new Key("test", "newtest", Value.get("rec10")));
-		System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "newtest", Value.get("rec10")));System.out.println("Record: " + record);
 
 
 
 		// SELECT * FROM test.newtest WHERE PK = 'rec11'
-		record = client.get(this.policy, new Key("test", "newtest", Value.get("rec11")));
-		System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "newtest", Value.get("rec11")));System.out.println("Record: " + record);
 
 
 
@@ -384,8 +385,8 @@ public class Example1 {
 
 		// DESC MODULE example1-udf.lua
 		System.out.println("Module: example1-udf.lua");
-		String udfString = Info.request(this.seedHost, this.port, "udf-get:filename=example1-udf.lua");
-		String[] udfparts = udfString.split(";");
+		udfString = Info.request(this.seedHost, this.port, "udf-get:filename=example1-udf.lua");
+		udfparts = udfString.split(";");
 		System.out.println(new String(Base64.decode(udfparts[2].getBytes(), 8, udfparts[2].length()-2)));
 
 		// REMOVE MODULE example1-udf.lua
@@ -430,5 +431,13 @@ public class Example1 {
 			System.out.println();
 		}
 		
+	}
+	protected String infoAll(String cmd) throws AerospikeException{
+		Node[] nodes = client.getNodes();
+		StringBuilder results = new StringBuilder();
+		for (Node node : nodes){
+			results.append(Info.request(node.getHost().name, node.getHost().port, cmd)).append("\n");
+		}
+		return results.toString();
 	}
 }

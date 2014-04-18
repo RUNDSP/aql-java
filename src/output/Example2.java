@@ -22,6 +22,7 @@ import com.aerospike.client.query.ResultSet;
 import com.aerospike.client.query.Statement;
 import com.aerospike.client.task.RegisterTask;
 import com.aerospike.client.task.IndexTask;
+import com.aerospike.client.cluster.Node;
 import com.aerospike.client.lua.LuaConfig;
 
 public class Example2 {
@@ -41,7 +42,7 @@ public class Example2 {
 	}
 
 	public static void main(String[] args) throws AerospikeException{
-		Example2 worker = new Example2("192.168.51.197", 3000);
+		Example2 worker = new Example2("P3", 3000);
 		worker.run();
 	}
 	public void run() throws AerospikeException {
@@ -56,6 +57,8 @@ public class Example2 {
 		RegisterTask task =	null;
 		IndexTask indexTask = null;
 		LuaConfig.SourceDirectory = "udf"; // change this to match your UDF directory 
+		String udfString;
+		String[] udfparts;
 		// SET ECHO false
 
 		// SET RECORD_TTL 100
@@ -206,5 +209,13 @@ public class Example2 {
 			System.out.println();
 		}
 		
+	}
+	protected String infoAll(String cmd) throws AerospikeException{
+		Node[] nodes = client.getNodes();
+		StringBuilder results = new StringBuilder();
+		for (Node node : nodes){
+			results.append(Info.request(node.getHost().name, node.getHost().port, cmd)).append("\n");
+		}
+		return results.toString();
 	}
 }

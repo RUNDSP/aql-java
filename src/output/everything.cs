@@ -123,6 +123,41 @@ namespace Aerospike.Generation
 				// SELECT bn2,bn3,bn4  FROM test.demo WHERE PK = '10'
 
 
+				// REGISTER module 'src/test/resources/example1.lua'
+
+
+				// REGISTER module 'src/test/resources/sum_example.lua'
+
+
+				// REGISTER module 'src/test/resources/average_example.lua'
+
+
+				// SHOW modules
+				String packagesString = Info.request(this.seedHost, this.port, "udf-list");
+				String[] packagesList = packagesString.split(";");
+				System.out.println("Packages");
+				for (String pkg : packagesList){
+				  System.out.println("\t" + pkg);
+				}
+
+				// desc module example1.lua
+				System.out.println("Package: example1.lua");
+				String udfString = Info.request(this.seedHost, this.port, "udf-get:filename=example1.lua");
+				System.out.println(Base64.decode(udfString.getBytes(), 0, udfString.length()));
+
+				// desc module average_example.lua
+				System.out.println("Package: average_example.lua");
+				String udfString = Info.request(this.seedHost, this.port, "udf-get:filename=average_example.lua");
+				System.out.println(Base64.decode(udfString.getBytes(), 0, udfString.length()));
+
+				// EXECUTE example1.foo('arg1','arg2',3) ON test.demo WHERE PK = '1'
+
+				// drop module example1.lua
+				// TODO no java API to remove a package
+
+				// AGGREGATE sum_example.sum_single_bin('bn4') ON test.demo WHERE bn4 BETWEEN 1 AND 2
+
+				        
 				// SHOW NAMESPACES
 				String nameSpacesString = Info.request(this.seedHost, this.port, "namespaces");
 				String[] nameSpaces = nameSpacesString.split(";");
@@ -172,34 +207,11 @@ namespace Aerospike.Generation
 
 				// DESC INDEX test index_bn2
 
-				// DESC module bob.lua
-				System.out.println("Package: bob.lua");
-				String udfString = Info.request(this.seedHost, this.port, "udf-get:filename=bob.lua");
-				System.out.println(Base64.decode(udfString.getBytes(), 0, udfString.length()));
+				// STAT INDEX test index_bn3
 
-				// REGISTER module '/AerospikeAQLGrammar/TestData/example1-udf.lua'
+				// STAT QUERY
 
-
-				// SHOW modules
-				String packagesString = Info.request(this.seedHost, this.port, "udf-list");
-				String[] packagesList = packagesString.split(";");
-				System.out.println("Packages");
-				for (String pkg : packagesList){
-				  System.out.println("\t" + pkg);
-				}
-
-				// EXECUTE example-udf.foo('arg1','arg2',3) ON test.demo
-
-				// EXECUTE example-udf.foo('arg1','arg2',3) ON test.demo WHERE PK = '10'
-
-				// AGGREGATE example-udf.foo('arg1','arg2',3) ON test.demo WHERE bn3 = 'smith'
-
-				        
-				// AGGREGATE example-udf.foo('arg1','arg2',3) ON test.demo WHERE bn4 BETWEEN 1 AND 2
-
-				        
-				// DrOp module example-udf.lua
-				// TODO no java API to remove a package
+				// STAT SYSTEM
 
 				// PRINT 'text_string'
 				System.out.println("text_string");
@@ -212,9 +224,9 @@ namespace Aerospike.Generation
 
 				// SET ECHO false
 
-				// SET TIMEOUT 150
-				this.policy.timeout = 150;
-				this.writePolicy.timeout = 150;
+				// SET TIMEOUT 1500
+				this.policy.timeout = 1500;
+				this.writePolicy.timeout = 1500;
 
 				// SET RECORD_TTL 0
 				this.writePolicy.expiration = 0;
@@ -243,21 +255,6 @@ namespace Aerospike.Generation
 				// GET LUA_USERPATH
 
 				// GET LUA_SYSPATH
-
-				// KILL_QUERY 12345
-				Info.request(this.seedHost, this.port, "query-kill=12345");
-
-				// KILL_SCAN 54321
-				Info.request(this.seedHost, this.port, "scan-kill=54321");
-
-				// KILL QUERY 12345
-				Info.request(this.seedHost, this.port, "query-kill=12345");
-
-				// KILL SCAN 54321
-				Info.request(this.seedHost, this.port, "scan-kill=54321");
-
-				// RUN 'filename'
-				System.out.println("Run file: " + "filename");
 
 				// DELETE FROM test.demo WHERE PK = '1'
 				test

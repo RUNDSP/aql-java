@@ -22,6 +22,7 @@ import com.aerospike.client.query.ResultSet;
 import com.aerospike.client.query.Statement;
 import com.aerospike.client.task.RegisterTask;
 import com.aerospike.client.task.IndexTask;
+import com.aerospike.client.cluster.Node;
 import com.aerospike.client.lua.LuaConfig;
 
 public class PkTest {
@@ -41,7 +42,7 @@ public class PkTest {
 	}
 
 	public static void main(String[] args) throws AerospikeException{
-		PkTest worker = new PkTest("192.168.51.197", 3000);
+		PkTest worker = new PkTest("P3", 3000);
 		worker.run();
 	}
 	public void run() throws AerospikeException {
@@ -56,9 +57,10 @@ public class PkTest {
 		RegisterTask task =	null;
 		IndexTask indexTask = null;
 		LuaConfig.SourceDirectory = "udf"; // change this to match your UDF directory 
+		String udfString;
+		String[] udfparts;
 		// select * from test.demo where pk = 'tpby'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("tpby")));
-		System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("tpby")));System.out.println("Record: " + record);
 
 
 
@@ -133,62 +135,52 @@ public class PkTest {
 			);
 					
 		// SELECT * FROM test.demo WHERE pk = '1'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("1")));
-		System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("1")));System.out.println("Record: " + record);
 
 
 
 		// SELECT bn2, bn3, bn4 FROM test.demo WHERE pk = '2'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("2")));
-		System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("2")), "bn2", "bn3", "bn4");System.out.println("Record: " + record);
 
 
 
 		// SELECT * FROM test.demo WHERE pk = '3'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("3")));
-		System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("3")));System.out.println("Record: " + record);
 
 
 
 		// SELECT bn2, bn3, bn4 FROM test.demo WHERE pk = '4'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("4")));
-		System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("4")), "bn2", "bn3", "bn4");System.out.println("Record: " + record);
 
 
 
 		// SELECT * FROM test.demo WHERE pk = '5'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("5")));
-		System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("5")));System.out.println("Record: " + record);
 
 
 
 		// SELECT bn2, bn3, bn4 FROM test.demo WHERE pk = '6'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("6")));
-		System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("6")), "bn2", "bn3", "bn4");System.out.println("Record: " + record);
 
 
 
 		// SELECT * FROM test.demo WHERE pk = '7'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("7")));
-		System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("7")));System.out.println("Record: " + record);
 
 
 
 		// SELECT bn2, bn3 FROM test.demo WHERE pk = '8'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("8")));
-		System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("8")), "bn2", "bn3");System.out.println("Record: " + record);
 
 
 
 		// SELECT * FROM test.demo WHERE pk = '9'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("9")));
-		System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("9")));System.out.println("Record: " + record);
 
 
 
 		// SELECT bn2 FROM test.demo WHERE pk = '10'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("10")));
-		System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("10")), "bn2");System.out.println("Record: " + record);
 
 
 
@@ -255,5 +247,13 @@ public class PkTest {
 			System.out.println();
 		}
 		
+	}
+	protected String infoAll(String cmd) throws AerospikeException{
+		Node[] nodes = client.getNodes();
+		StringBuilder results = new StringBuilder();
+		for (Node node : nodes){
+			results.append(Info.request(node.getHost().name, node.getHost().port, cmd)).append("\n");
+		}
+		return results.toString();
 	}
 }

@@ -22,6 +22,7 @@ import com.aerospike.client.query.ResultSet;
 import com.aerospike.client.query.Statement;
 import com.aerospike.client.task.RegisterTask;
 import com.aerospike.client.task.IndexTask;
+import com.aerospike.client.cluster.Node;
 import com.aerospike.client.lua.LuaConfig;
 
 public class QueryFilter {
@@ -41,7 +42,7 @@ public class QueryFilter {
 	}
 
 	public static void main(String[] args) throws AerospikeException{
-		QueryFilter worker = new QueryFilter("192.168.51.197", 3000);
+		QueryFilter worker = new QueryFilter("P3", 3000);
 		worker.run();
 	}
 	public void run() throws AerospikeException {
@@ -56,6 +57,8 @@ public class QueryFilter {
 		RegisterTask task =	null;
 		IndexTask indexTask = null;
 		LuaConfig.SourceDirectory = "udf"; // change this to match your UDF directory 
+		String udfString;
+		String[] udfparts;
 		// print 'register udf/filter_example.lua'
 		System.out.println("register udf/filter_example.lua");
 
@@ -187,5 +190,13 @@ public class QueryFilter {
 			System.out.println();
 		}
 		
+	}
+	protected String infoAll(String cmd) throws AerospikeException{
+		Node[] nodes = client.getNodes();
+		StringBuilder results = new StringBuilder();
+		for (Node node : nodes){
+			results.append(Info.request(node.getHost().name, node.getHost().port, cmd)).append("\n");
+		}
+		return results.toString();
 	}
 }

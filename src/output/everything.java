@@ -22,6 +22,7 @@ import com.aerospike.client.query.ResultSet;
 import com.aerospike.client.query.Statement;
 import com.aerospike.client.task.RegisterTask;
 import com.aerospike.client.task.IndexTask;
+import com.aerospike.client.cluster.Node;
 import com.aerospike.client.lua.LuaConfig;
 
 public class everything {
@@ -56,9 +57,10 @@ public class everything {
 		RegisterTask task =	null;
 		IndexTask indexTask = null;
 		LuaConfig.SourceDirectory = "udf"; // change this to match your UDF directory 
+		String udfString;
+		String[] udfparts;
 		// select * from test.people where pk = 'toby'
-		record = client.get(this.policy, new Key("test", "people", Value.get("toby")));
-		System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "people", Value.get("toby")));System.out.println("Record: " + record);
 
 
 
@@ -231,8 +233,7 @@ public class everything {
 
 
 		// SELECT * FROM test.demo WHERE PK = '10'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("10")));
-		System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("10")));System.out.println("Record: " + record);
 
 
 
@@ -330,11 +331,84 @@ public class everything {
 
 
 		// SELECT bn2,bn3,bn4  FROM test.demo WHERE PK = '10'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("10")));
-		System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("10")), "bn2", "bn3", "bn4");System.out.println("Record: " + record);
 
 
 
+		// REGISTER module 'src/test/resources/example1.lua'
+		udfFile = new File("src/test/resources/example1.lua");
+		task = this.client.register(null, 
+			udfFile.getPath(), 
+			udfFile.getName(), 
+			Language.LUA); 
+		task.waitTillComplete();
+
+		// REGISTER module 'src/test/resources/sum_example.lua'
+		udfFile = new File("src/test/resources/sum_example.lua");
+		task = this.client.register(null, 
+			udfFile.getPath(), 
+			udfFile.getName(), 
+			Language.LUA); 
+		task.waitTillComplete();
+
+		// REGISTER module 'src/test/resources/average_example.lua'
+		udfFile = new File("src/test/resources/average_example.lua");
+		task = this.client.register(null, 
+			udfFile.getPath(), 
+			udfFile.getName(), 
+			Language.LUA); 
+		task.waitTillComplete();
+
+		// SHOW modules
+		printInfo("Packages", Info.request(this.seedHost, this.port, "udf-list"));
+
+		// desc module example1.lua
+		System.out.println("Module: example1.lua");
+		udfString = Info.request(this.seedHost, this.port, "udf-get:filename=example1.lua");
+		udfparts = udfString.split(";");
+		System.out.println(new String(Base64.decode(udfparts[2].getBytes(), 8, udfparts[2].length()-2)));
+
+		// desc module average_example.lua
+		System.out.println("Module: average_example.lua");
+		udfString = Info.request(this.seedHost, this.port, "udf-get:filename=average_example.lua");
+		udfparts = udfString.split(";");
+		System.out.println(new String(Base64.decode(udfparts[2].getBytes(), 8, udfparts[2].length()-2)));
+
+		// EXECUTE example1.foo('arg1','arg2',3) ON test.demo WHERE PK = '1'
+		Object result = client.execute(this.policy, 
+			new Key("test", "demo", Value.get("1")), 
+			"example1", "foo" );
+		System.out.println("UDF result: " + result);
+
+		// drop module example1.lua
+		System.out.println("Drop module example1.lua: " + Info.request(this.seedHost, this.port, "udf-remove:filename=example1.lua"));
+
+		// AGGREGATE sum_example.sum_single_bin('bn4') ON test.demo WHERE bn4 BETWEEN 1 AND 2
+		stmt = new Statement();
+		stmt.setNamespace("test");
+		stmt.setSetName("demo");
+		stmt.setFilters(Filter.range("bn4", Value.get(1), Value.get(2)));
+		resultSet = client.queryAggregate(null, stmt, 
+			"sum_example", "sum_single_bin" , Value.get("bn4"));
+				
+		try {
+			int count = 0;
+			
+			while (resultSet.next()) {
+				Object object = resultSet.getObject();
+				System.out.println("Result: " + object);
+				count++;
+			}
+			
+			if (count == 0) {
+				System.out.println("No results returned.");			
+			}
+		}
+		finally {
+			resultSet.close();
+		}
+
+						
 		// SHOW NAMESPACES
 		printInfo("Name Spaces", Info.request(this.seedHost, this.port, "namespaces"));
 
@@ -358,86 +432,13 @@ public class everything {
 		// DESC INDEX test index_bn2
 		printInfo("Describe Index", Info.request(this.seedHost, this.port, "sindex-describe"));
 
-		// DESC module bob.lua
-		System.out.println("Module: bob.lua");
-		String udfString = Info.request(this.seedHost, this.port, "udf-get:filename=bob.lua");
-		String[] udfparts = udfString.split(";");
-		System.out.println(new String(Base64.decode(udfparts[2].getBytes(), 8, udfparts[2].length()-2)));
+		// STAT INDEX test index_bn3
 
-		// REGISTER module '/AerospikeAQLGrammar/TestData/example1-udf.lua'
-		udfFile = new File("/AerospikeAQLGrammar/TestData/example1-udf.lua");
-		task = this.client.register(null, 
-			udfFile.getPath(), 
-			udfFile.getName(), 
-			Language.LUA); 
-		task.waitTillComplete();
+		// STAT QUERY
+		printInfo("Query statistics", Info.request(this.seedHost, this.port, "query-stat"));
 
-		// SHOW modules
-		printInfo("Packages", Info.request(this.seedHost, this.port, "udf-list"));
-
-		// EXECUTE example-udf.foo('arg1','arg2',3) ON test.demo
-		// TODO no Scan UDF API in Java
-
-		// EXECUTE example-udf.foo('arg1','arg2',3) ON test.demo WHERE PK = '10'
-		Object result = client.execute(this.policy, 
-			new Key("test", "demo", Value.get("10")), 
-			"example-udf", "foo" );
-		System.out.println("UDF result: " + result);
-
-		// AGGREGATE example-udf.foo('arg1','arg2',3) ON test.demo WHERE bn3 = 'smith'
-		stmt = new Statement();
-		stmt.setNamespace("test");
-		stmt.setSetName("demo");
-		stmt.setFilters(Filter.equal("bn3", Value.get("smith")));
-		resultSet = client.queryAggregate(null, stmt, 
-			"example-udf", "foo" , Value.get("arg1"), Value.get("arg2"), Value.get(3));
-				
-		try {
-			int count = 0;
-			
-			while (resultSet.next()) {
-				Object object = resultSet.getObject();
-				System.out.println("Result: " + object);
-				count++;
-			}
-			
-			if (count == 0) {
-				System.out.println("No results returned.");			
-			}
-		}
-		finally {
-			resultSet.close();
-		}
-
-						
-		// AGGREGATE example-udf.foo('arg1','arg2',3) ON test.demo WHERE bn4 BETWEEN 1 AND 2
-		stmt = new Statement();
-		stmt.setNamespace("test");
-		stmt.setSetName("demo");
-		stmt.setFilters(Filter.range("bn4", Value.get(1), Value.get(2)));
-		resultSet = client.queryAggregate(null, stmt, 
-			"example-udf", "foo" , Value.get("arg1"), Value.get("arg2"), Value.get(3));
-				
-		try {
-			int count = 0;
-			
-			while (resultSet.next()) {
-				Object object = resultSet.getObject();
-				System.out.println("Result: " + object);
-				count++;
-			}
-			
-			if (count == 0) {
-				System.out.println("No results returned.");			
-			}
-		}
-		finally {
-			resultSet.close();
-		}
-
-						
-		// DrOp module example-udf.lua
-		System.out.println("Drop module example-udf.lua: " + Info.request(this.seedHost, this.port, "udf-remove:filename=example-udf.lua"));
+		// STAT SYSTEM
+		printInfo("Statistics", Info.request(this.seedHost, this.port, "Statistics"));
 
 		// PRINT 'text_string'
 		System.out.println("text_string");
@@ -450,9 +451,9 @@ public class everything {
 
 		// SET ECHO false
 
-		// SET TIMEOUT 150
-		this.policy.timeout = 150;
-		this.writePolicy.timeout = 150;
+		// SET TIMEOUT 1500
+		this.policy.timeout = 1500;
+		this.writePolicy.timeout = 1500;
 
 		// SET RECORD_TTL 0
 		this.writePolicy.expiration = 0;
@@ -461,8 +462,8 @@ public class everything {
 
 		// SET VIEW JSON
 
-		// cats
-		LuaConfig.SourceDirectory = "mice"; 
+		// SET LUA_USERPATH '/opt/citrusleaf/usr/udf/lua'
+		LuaConfig.SourceDirectory = "/opt/citrusleaf/usr/udf/lua"; 
 
 		// SET LUA_SYSPATH '/opt/citrusleaf/sys/udf/lua'
 
@@ -483,21 +484,6 @@ public class everything {
 		System.out.println("Lua source directory: " + LuaConfig.SourceDirectory);
 
 		// GET LUA_SYSPATH
-
-		// KILL_QUERY 12345
-		Info.request(this.seedHost, this.port, "query-kill=12345");
-
-		// KILL_SCAN 54321
-		Info.request(this.seedHost, this.port, "scan-kill=54321");
-
-		// KILL QUERY 12345
-		Info.request(this.seedHost, this.port, "query-kill=12345");
-
-		// KILL SCAN 54321
-		Info.request(this.seedHost, this.port, "scan-kill=54321");
-
-		// RUN 'filename'
-		System.out.println("Run file: " + "filename");
 
 		// DELETE FROM test.demo WHERE PK = '1'
 		this.client.delete(this.writePolicy, 
@@ -547,7 +533,7 @@ public class everything {
 
 
 		
-		// Total AQL statements: 77
+		// Total AQL statements: 75
 	}
 	
 	protected void finalize() throws Throwable {
@@ -568,5 +554,13 @@ public class everything {
 			System.out.println();
 		}
 		
+	}
+	protected String infoAll(String cmd) throws AerospikeException{
+		Node[] nodes = client.getNodes();
+		StringBuilder results = new StringBuilder();
+		for (Node node : nodes){
+			results.append(Info.request(node.getHost().name, node.getHost().port, cmd)).append("\n");
+		}
+		return results.toString();
 	}
 }

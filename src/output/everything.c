@@ -347,6 +347,126 @@ main(int argc, char* argv[]) // Main routing for everything
 	}
 
 
+	// REGISTER module 'src/test/resources/example1.lua'
+	int rc = 0;
+	as_bytes content;
+	uint32_t content_len = 0;
+	as_bytes_init(&content);
+
+	rc = read_file("src/test/resources/example1.lua", &content, &content_len); 	   
+
+	if ( rc == 0 ) {
+		as_bytes udf_content;
+		as_bytes_init_wrap(&udf_content, content, content_len, true /*is_malloc*/);  // want to re-use content
+
+		rc = citrusleaf_udf_put(asc, basename(filename), &udf_content, AS_UDF_LUA, &error);
+		if ( rc != 0 ) {
+			fprintf(stderr, "error: unable to upload module: %s\n", filename); 
+			fprintf(stderr, "error: (%d) %s\n", rc, error); 
+			free(error);
+			error = NULL;
+		}
+		else {
+			fprintf(stderr, "info: module uploaded: %s\n",filename); 
+		}
+		
+		as_bytes_destroy(&udf_content);
+	}
+	else {   
+		fprintf(stderr, "error: unable to read module: %s\n", filename);
+	}
+
+	// REGISTER module 'src/test/resources/sum_example.lua'
+	int rc = 0;
+	as_bytes content;
+	uint32_t content_len = 0;
+	as_bytes_init(&content);
+
+	rc = read_file("src/test/resources/sum_example.lua", &content, &content_len); 	   
+
+	if ( rc == 0 ) {
+		as_bytes udf_content;
+		as_bytes_init_wrap(&udf_content, content, content_len, true /*is_malloc*/);  // want to re-use content
+
+		rc = citrusleaf_udf_put(asc, basename(filename), &udf_content, AS_UDF_LUA, &error);
+		if ( rc != 0 ) {
+			fprintf(stderr, "error: unable to upload module: %s\n", filename); 
+			fprintf(stderr, "error: (%d) %s\n", rc, error); 
+			free(error);
+			error = NULL;
+		}
+		else {
+			fprintf(stderr, "info: module uploaded: %s\n",filename); 
+		}
+		
+		as_bytes_destroy(&udf_content);
+	}
+	else {   
+		fprintf(stderr, "error: unable to read module: %s\n", filename);
+	}
+
+	// REGISTER module 'src/test/resources/average_example.lua'
+	int rc = 0;
+	as_bytes content;
+	uint32_t content_len = 0;
+	as_bytes_init(&content);
+
+	rc = read_file("src/test/resources/average_example.lua", &content, &content_len); 	   
+
+	if ( rc == 0 ) {
+		as_bytes udf_content;
+		as_bytes_init_wrap(&udf_content, content, content_len, true /*is_malloc*/);  // want to re-use content
+
+		rc = citrusleaf_udf_put(asc, basename(filename), &udf_content, AS_UDF_LUA, &error);
+		if ( rc != 0 ) {
+			fprintf(stderr, "error: unable to upload module: %s\n", filename); 
+			fprintf(stderr, "error: (%d) %s\n", rc, error); 
+			free(error);
+			error = NULL;
+		}
+		else {
+			fprintf(stderr, "info: module uploaded: %s\n",filename); 
+		}
+		
+		as_bytes_destroy(&udf_content);
+	}
+	else {   
+		fprintf(stderr, "error: unable to read module: %s\n", filename);
+	}
+
+	// SHOW modules
+
+	// desc module example1.lua
+	if ( aerospike_info_foreach(&as, &err, NULL, "udf-get:filename=example1.lua", info_cb, NULL) != AEROSPIKE_OK ) {
+	    // handle error
+	}
+
+	// desc module average_example.lua
+	if ( aerospike_info_foreach(&as, &err, NULL, "udf-get:filename=average_example.lua", info_cb, NULL) != AEROSPIKE_OK ) {
+	    // handle error
+	}
+
+	// EXECUTE example1.foo('arg1','arg2',3) ON test.demo WHERE PK = '1'
+	test
+	demo
+	"1"
+	example1
+	foo
+
+
+	// drop module example1.lua
+
+	// AGGREGATE sum_example.sum_single_bin('bn4') ON test.demo WHERE bn4 BETWEEN 1 AND 2
+	as_query query;
+	as_query_init(&query, "test", "demo");
+	as_query_where_inita(&query, 1);
+	as_query_where(&query, "bn4", integer_range(1, 2));
+
+
+	sum_example
+	sum_single_bin
+	, Value.get("bn4")
+			
 	// SHOW NAMESPACES
 	if ( aerospike_info_foreach(&as, &err, NULL, "namespaces", info_cb, NULL) != AEROSPIKE_OK ) {
 	    // handle error
@@ -379,80 +499,11 @@ main(int argc, char* argv[]) // Main routing for everything
 
 	// DESC INDEX test index_bn2
 
-	// DESC module bob.lua
-	if ( aerospike_info_foreach(&as, &err, NULL, "udf-get:filename=bob.lua", info_cb, NULL) != AEROSPIKE_OK ) {
-	    // handle error
-	}
+	// STAT INDEX test index_bn3
 
-	// REGISTER module '/AerospikeAQLGrammar/TestData/example1-udf.lua'
-	int rc = 0;
-	as_bytes content;
-	uint32_t content_len = 0;
-	as_bytes_init(&content);
+	// STAT QUERY
 
-	rc = read_file("/AerospikeAQLGrammar/TestData/example1-udf.lua", &content, &content_len); 	   
-
-	if ( rc == 0 ) {
-		as_bytes udf_content;
-		as_bytes_init_wrap(&udf_content, content, content_len, true /*is_malloc*/);  // want to re-use content
-
-		rc = citrusleaf_udf_put(asc, basename(filename), &udf_content, AS_UDF_LUA, &error);
-		if ( rc != 0 ) {
-			fprintf(stderr, "error: unable to upload module: %s\n", filename); 
-			fprintf(stderr, "error: (%d) %s\n", rc, error); 
-			free(error);
-			error = NULL;
-		}
-		else {
-			fprintf(stderr, "info: module uploaded: %s\n",filename); 
-		}
-		
-		as_bytes_destroy(&udf_content);
-	}
-	else {   
-		fprintf(stderr, "error: unable to read module: %s\n", filename);
-	}
-
-	// SHOW modules
-
-	// EXECUTE example-udf.foo('arg1','arg2',3) ON test.demo
-	// Scan UDF 
-	test
-	demo
-	example-udf
-	foo
-
-	// EXECUTE example-udf.foo('arg1','arg2',3) ON test.demo WHERE PK = '10'
-	test
-	demo
-	"10"
-	example-udf
-	foo
-
-
-	// AGGREGATE example-udf.foo('arg1','arg2',3) ON test.demo WHERE bn3 = 'smith'
-	as_query query;
-	as_query_init(&query, "test", "demo");
-	as_query_where_inita(&query, 1);
-	as_query_where(&query, "bn3", integer_equals("smith"));
-
-
-	example-udf
-	foo
-	, Value.get("arg1"), Value.get("arg2"), Value.get(3)
-			
-	// AGGREGATE example-udf.foo('arg1','arg2',3) ON test.demo WHERE bn4 BETWEEN 1 AND 2
-	as_query query;
-	as_query_init(&query, "test", "demo");
-	as_query_where_inita(&query, 1);
-	as_query_where(&query, "bn4", integer_range(1, 2));
-
-
-	example-udf
-	foo
-	, Value.get("arg1"), Value.get("arg2"), Value.get(3)
-			
-	// DrOp module example-udf.lua
+	// STAT SYSTEM
 
 	// PRINT 'text_string'
 	fprintf(stderr, ""text_string"\n");
@@ -465,7 +516,7 @@ main(int argc, char* argv[]) // Main routing for everything
 
 	// SET ECHO false
 
-	// SET TIMEOUT 150
+	// SET TIMEOUT 1500
 
 	// SET RECORD_TTL 0
 
@@ -473,7 +524,7 @@ main(int argc, char* argv[]) // Main routing for everything
 
 	// SET VIEW JSON
 
-	// cats
+	// SET LUA_USERPATH '/opt/citrusleaf/usr/udf/lua'
 
 	// SET LUA_SYSPATH '/opt/citrusleaf/sys/udf/lua'
 
@@ -490,29 +541,6 @@ main(int argc, char* argv[]) // Main routing for everything
 	// GET LUA_USERPATH
 
 	// GET LUA_SYSPATH
-
-	// KILL_QUERY 12345
-	if ( aerospike_info_foreach(&as, &err, NULL, "query-kill=12345", info_cb, NULL) != AEROSPIKE_OK ) {
-	    // handle error
-	}
-
-	// KILL_SCAN 54321
-	if ( aerospike_info_foreach(&as, &err, NULL, "scan-kill=54321", info_cb, NULL) != AEROSPIKE_OK ) {
-	    // handle error
-	}
-
-	// KILL QUERY 12345
-	if ( aerospike_info_foreach(&as, &err, NULL, "query-kill=12345", info_cb, NULL) != AEROSPIKE_OK ) {
-	    // handle error
-	}
-
-	// KILL SCAN 54321
-	if ( aerospike_info_foreach(&as, &err, NULL, "scan-kill=54321", info_cb, NULL) != AEROSPIKE_OK ) {
-	    // handle error
-	}
-
-	// RUN 'filename'
-	printf(stderr, "Run file: RUN 'filename'\n");
 
 	// DELETE FROM test.demo WHERE PK = '1'
 	as_key_init_int64(&key, "test", "demo", "1");

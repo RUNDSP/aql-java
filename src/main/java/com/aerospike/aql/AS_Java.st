@@ -59,6 +59,8 @@ public class <className> {
 		RegisterTask task =	null;
 		IndexTask indexTask = null;
 		LuaConfig.SourceDirectory = "udf"; // change this to match your UDF directory 
+		String udfString;
+		String[] udfparts;
 		<statements>
 		
 		// Total AQL statements: <length(statements)>
@@ -119,7 +121,7 @@ select(source, nameSpace, setName, binNames, as, where, key) ::= <<
 // <source>
 <if(key)>
 <if(binNames)>
-record = client.get(this.policy, new Key("<nameSpace>", "<setName>", Value.get(<key>), <first(binNames):{b|"<b>"}><rest(binNames):{b|, "<b>"}>);
+record = client.get(this.policy, new Key("<nameSpace>", "<setName>", Value.get(<key>)), <first(binNames):{b|"<b>"}><rest(binNames):{b|, "<b>"}>);
 <else>
 record = client.get(this.policy, new Key("<nameSpace>", "<setName>", Value.get(<key>)));
 <endif>
@@ -450,8 +452,8 @@ printInfo("Describe Index", Info.request(this.seedHost, this.port, "sindex-descr
 descPackage(source, name) ::= <<
 // <source>
 System.out.println("Module: <name>");
-String udfString = Info.request(this.seedHost, this.port, "udf-get:filename=<name>");
-String[] udfparts = udfString.split(";");
+udfString = Info.request(this.seedHost, this.port, "udf-get:filename=<name>");
+udfparts = udfString.split(";");
 System.out.println(new String(Base64.decode(udfparts[2].getBytes(), 8, udfparts[2].length()-2)));
 
 >>
