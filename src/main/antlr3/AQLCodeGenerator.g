@@ -206,6 +206,7 @@ INFO:
 show 
 	: ^(SHOW INDEXES nameSet?) -> showIndex(source={$SHOW.source}, nameSpace = {$nameSet.nameSpace}, setName = {$nameSet.setName})
 	|	^(SHOW MODULES) 				-> showPackages(source={$SHOW.source})
+  | ^(SHOW PACKAGES)         -> showPackages(source={$SHOW.source})
 	| ^(SHOW NAMESPACES)			-> showNamespaces(source={$SHOW.source})
 	| ^(SHOW SETS)						-> showSets(source={$SHOW.source})
 	| ^(SHOW BINS)						-> showBins(source={$SHOW.source})

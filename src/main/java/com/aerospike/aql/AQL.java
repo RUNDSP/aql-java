@@ -256,6 +256,7 @@ public class AQL {
 				nodes.setTokenStream(this.tokenStream);
 				AQLExecutor walker = new AQLExecutor(nodes, this.client);
 				walker.setErrorReporter(errorReporter);
+				walker.setResultReporter(resultReporter);
 				walker.aqlFile();
 				if (walker.getNumberOfSyntaxErrors() > 0) {
 					log.error("Errors in AST tree: " + walker.getNumberOfSyntaxErrors());

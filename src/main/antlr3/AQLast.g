@@ -194,6 +194,9 @@ ON
 OUTPUT
   = 'output'
   ;
+PACKAGES
+  = 'packages'
+  ;
 INTO
 	= 'into'
 	;
@@ -556,6 +559,8 @@ show
 		-> ^(SHOW SCANS)
 	| QUERIES
 		-> ^(SHOW QUERIES)
+  | PACKAGES
+    -> ^(SHOW PACKAGES)
 	)
 	;
 	

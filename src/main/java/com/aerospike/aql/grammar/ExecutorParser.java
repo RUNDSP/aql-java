@@ -4,6 +4,7 @@ import gnu.crypto.util.Base64;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,16 +118,35 @@ public class ExecutorParser extends TreeParser{
 		if (infoString == null || infoString.isEmpty())
 			return;
 		String[] outerParts = infoString.split(";");
-		System.out.println(title);
-		for (String s : outerParts){
+		this.resultReporter.report(title);
+		String rowFormat = null;
+		for (int i = 0; i < outerParts.length; i++){
 
-			String[] innerParts = s.split(":");
-			for (String parts : innerParts){
-				System.out.println("\t" + parts);
+			String[] innerParts = outerParts[i].split(":");
+			
+			if (i == 0){
+				StringBuffer sb = new StringBuffer("| ");
+				for (int j = 0; j < innerParts.length; j++){
+					sb.append("%").append(innerParts[j].length()).append("s | ");
+				}
+				rowFormat = sb.toString();
+				this.resultReporter.report(String.format(rowFormat, nameValueParts(innerParts, true)));
 			}
-			System.out.println();
+			this.resultReporter.report(String.format(rowFormat, nameValueParts(innerParts, false)));
 		}
 
+	}
+	private String[] nameValueParts(String[] parts, boolean headerRow){
+		String[] nvs = new String[parts.length];
+		for (int i = 0; i < parts.length; i++) {
+			String[] nv = parts[i].split("=");
+			if (headerRow){
+				nvs[i] = nv[0];
+			} else if (nv.length > 1){
+				nvs[i] = nv[1];
+			}
+		}
+		return nvs;
 	}
 
 	public IErrorReporter getErrorReporter() {
@@ -414,7 +434,7 @@ public class ExecutorParser extends TreeParser{
 		this.client.dropIndex(policy, namespace, set, index);
 		this.resultReporter.report("Index " + namespace + "." + set + "." + index + " - dropped");
 	}
-	
+
 	public void dropSet(String namespace, String set) throws AerospikeException{
 		String result = infoAll("set-config:context=namespace;id="+namespace+";set="+set+";set-delete=true;");
 		printInfo("Drop set:", result);

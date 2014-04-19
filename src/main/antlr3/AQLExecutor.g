@@ -246,6 +246,7 @@ INFO:
 show throws AerospikeException
 	: ^(SHOW INDEXES nameSet) {showIndexes();}
 	|	^(SHOW MODULES) 	{showPackages();}	
+  | ^(SHOW PACKAGES)   {showPackages();} 
 	| ^(SHOW NAMESPACES)	{ showNameSpaces(); }
 	| ^(SHOW SETS) { showSets(); }
 	| ^(SHOW BINS) { showBins();}					
