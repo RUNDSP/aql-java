@@ -76,6 +76,9 @@ public class Admin {
 		printInfo("Queries", Info.request(this.seedHost, this.port, "jobs:module=query"));
 
 
+		// SHOW packages
+		printInfo("Packages", Info.request(this.seedHost, this.port, "udf-list"));
+
 		// SHOW INDEXES test.demo
 		printInfo("Indexes", Info.request(this.seedHost, this.port, "sindex"));
 
@@ -137,7 +140,7 @@ public class Admin {
 
 
 		
-		// Total AQL statements: 28
+		// Total AQL statements: 29
 	}
 	
 	protected void finalize() throws Throwable {
