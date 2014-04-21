@@ -13,4 +13,6 @@ public interface IResultReporter {
 	public void report(Level level, String message, boolean clear);
 	public void report(Record record, boolean clear);
 	public void report(RecordSet recordSet, boolean clear);
+	public void reportInfo(String inforMessage, String...seperators);
+	public void reportInfo(String inforMessage, boolean clear, String...seperators);
 }
