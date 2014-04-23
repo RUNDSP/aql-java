@@ -123,7 +123,7 @@ public class ExecutorParser extends TreeParser{
 		for (int i = 0; i < outerParts.length; i++){
 
 			String[] innerParts = outerParts[i].split(":");
-			
+
 			if (i == 0){
 				StringBuffer sb = new StringBuffer("| ");
 				for (int j = 0; j < innerParts.length; j++){
@@ -287,7 +287,13 @@ public class ExecutorParser extends TreeParser{
 	}
 
 	protected Key newKey(String namespace, String set, String keyvalue) throws AerospikeException {
-		Key key = new Key(namespace, set, getValue(keyvalue));
+		Key key = null;
+		if (keyvalue.startsWith("'")){
+			keyvalue = keyvalue.substring(1, keyvalue.length()-1);
+			key = new Key(namespace, set, Value.get(keyvalue));
+		} else {
+			key = new Key(namespace, set, getValue(keyvalue));
+		}
 		return key;
 	}
 

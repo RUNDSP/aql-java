@@ -16,7 +16,7 @@ There are 3 grammars that generate parsers:
 * AQLExecutor - This is a tree walker that walks the AST and executes the statements using the Java API
  
 ###Code generation
-Gode generation is achieved using [StringTemplates](http://www.stringtemplate.org/). There is a StringTemplate for each target language, these are:
+code generation is achieved using [StringTemplates](http://www.stringtemplate.org/). There is a StringTemplate for each target language, these are:
 * AS_C_Sharp.st - for C#
 * AS_C.st - for C
 * AS_Java.st - for Java
