@@ -8,6 +8,7 @@ import java.io.File;
 import com.aerospike.client.AerospikeClient;
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Bin;
+import com.aerospike.client.Host;
 import com.aerospike.client.Info;
 import com.aerospike.client.Key;
 import com.aerospike.client.Language;
@@ -26,6 +27,7 @@ import com.aerospike.client.task.RegisterTask;
 import com.aerospike.client.task.IndexTask;
 import com.aerospike.client.cluster.Node;
 import com.aerospike.client.lua.LuaConfig;
+import com.aerospike.client.policy.ClientPolicy;
 
 public class <className> {
 	private AerospikeClient client;
@@ -43,7 +45,22 @@ public class <className> {
 		
 	}
 
+	public <className>(Host[] hosts) throws AerospikeException{
+		this.policy = new Policy();
+		this.writePolicy = new WritePolicy();
+		this.seedHost = hosts[0].name;
+		this.port = hosts[0].port;
+		this.client = new AerospikeClient(new ClientPolicy(), hosts);
+		
+	}
+
 	public static void main(String[] args) throws AerospikeException{
+		/*
+		Host[] hosts = new Host[] {new Host("a.host", 3000),
+									new Host("another.host", 3000),
+									new Host("and.another.host", 300)};
+		<className> worker = new <className>(hosts);
+		*/
 		<className> worker = new <className>("<host>", <port>);
 		worker.run();
 	}
@@ -125,6 +142,7 @@ record = client.get(this.policy, new Key("<nameSpace>", "<setName>", Value.get(<
 <else>
 record = client.get(this.policy, new Key("<nameSpace>", "<setName>", Value.get(<key>)));
 <endif>
+
 System.out.println("Record: " + record);
 <elseif(where)>
 <where>
