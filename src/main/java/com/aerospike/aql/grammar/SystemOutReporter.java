@@ -8,7 +8,7 @@ import com.aerospike.client.command.Buffer;
 import com.aerospike.client.query.RecordSet;
 
 public class SystemOutReporter implements IResultReporter {
-
+	boolean cancelled = false;
 	public SystemOutReporter() {
 	}
 
@@ -148,6 +148,17 @@ public class SystemOutReporter implements IResultReporter {
 			}
 		}
 		return nvs;
+	}
+
+	@Override
+	public void cancel() {
+		this.cancelled = true;
+	}
+
+	@Override
+	public boolean isCancelled() {
+		return this.cancelled;
+		
 	}
 
 }

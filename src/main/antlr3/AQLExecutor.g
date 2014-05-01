@@ -152,8 +152,12 @@ expressions [String nameSpace, String setName] returns [Filter fil]
 	;
 filter returns [Filter filter]
 	: ^(EQ bin value) {$filter = Filter.equal($bin.name, $value.asValue);}
-	| ^(BETWEEN b2=bin low=INTLITERAL high=INTLITERAL)  {$filter = Filter.range($bin.name, Value.get(Integer.parseInt($low.text)), Value.get(Integer.parseInt($high.text)));}
+	| ^(BETWEEN b2=bin low=INTLITERAL high=INTLITERAL)  {$filter = Filter.range($bin.name, Value.get(Long.parseLong($low.text)), Value.get(Long.parseLong($high.text)));}
+  | ^(BETWEEN b2=bin lowF=function highF=function) //TODO {$filter = Filter.range($bin.name, $lowF.text, $highF.text);}
 	;
+function
+  : ^(FUNCTION id=IDENTIFIER value) //TODO {Utils.$id(Long.parseLong($value.text)))}
+  ;
 
 binNameList returns [List<String> bins]
 @init {

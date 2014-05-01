@@ -200,6 +200,9 @@ PACKAGES
 INTO
 	= 'into'
 	;
+FUNCTION
+  = 'function'
+  ;
 FROM
 	= 'from'
 	;
@@ -462,8 +465,12 @@ expressions
 filter 
 	: bin '=' value -> ^(EQ bin value)
 	| b2=bin BETWEEN low=INTLITERAL AND high=INTLITERAL -> ^(BETWEEN $b2 $low $high)
+  | b2=bin BETWEEN lowF=function AND highF=function -> ^(BETWEEN $b2 $low $high)
 	;
 
+function
+  : id=IDENTIFIER '(' value ')' -> ^(FUNCTION $id value)
+  ;
 nameSet 
 	: namespace_name ('.' set_name)?
 		-> ^(NAMESET namespace_name set_name?)
@@ -508,7 +515,7 @@ AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin BETWEEN
 */
 aggregate
 @after{$aggregate.tree.source = $aggregate.text;}
-	: AGGREGATE moduleFunction '(' valueList? ')' ON nameSet WHERE expressions
+	: AGGREGATE moduleFunction ('(' valueList ')')? ON nameSet WHERE expressions
 		-> ^(AGGREGATE nameSet moduleFunction expressions valueList?)
 	;
 
@@ -796,7 +803,7 @@ FLOATLITERAL
   ;
    
 INTLITERAL
-    :   ('+'|'-')? IntegerNumber 
+    :   ('+'|'-')? IntegerNumber 'L'?
     ;
     
 HEXLITERAL

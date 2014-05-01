@@ -6,6 +6,7 @@ import java.io.File;
 import com.aerospike.client.AerospikeClient;
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Bin;
+import com.aerospike.client.Host;
 import com.aerospike.client.Info;
 import com.aerospike.client.Key;
 import com.aerospike.client.Language;
@@ -24,6 +25,7 @@ import com.aerospike.client.task.RegisterTask;
 import com.aerospike.client.task.IndexTask;
 import com.aerospike.client.cluster.Node;
 import com.aerospike.client.lua.LuaConfig;
+import com.aerospike.client.policy.ClientPolicy;
 
 public class everything {
 	private AerospikeClient client;
@@ -41,7 +43,22 @@ public class everything {
 		
 	}
 
+	public everything(Host[] hosts) throws AerospikeException{
+		this.policy = new Policy();
+		this.writePolicy = new WritePolicy();
+		this.seedHost = hosts[0].name;
+		this.port = hosts[0].port;
+		this.client = new AerospikeClient(new ClientPolicy(), hosts);
+		
+	}
+
 	public static void main(String[] args) throws AerospikeException{
+		/*
+		Host[] hosts = new Host[] {new Host("a.host", 3000),
+									new Host("another.host", 3000),
+									new Host("and.another.host", 300)};
+		everything worker = new everything(hosts);
+		*/
 		everything worker = new everything("192.168.51.188", 3000);
 		worker.run();
 	}
@@ -56,11 +73,13 @@ public class everything {
 		File udfFile = null;
 		RegisterTask task =	null;
 		IndexTask indexTask = null;
+		Object result;
 		LuaConfig.SourceDirectory = "udf"; // change this to match your UDF directory 
 		String udfString;
 		String[] udfparts;
 		// select * from test.people where pk = 'toby'
-		record = client.get(this.policy, new Key("test", "people", Value.get("toby")));System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "people", Value.get("toby")));
+		System.out.println("Record: " + record);
 
 
 
@@ -233,7 +252,8 @@ public class everything {
 
 
 		// SELECT * FROM test.demo WHERE PK = '10'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("10")));System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("10")));
+		System.out.println("Record: " + record);
 
 
 
@@ -331,7 +351,8 @@ public class everything {
 
 
 		// SELECT bn2,bn3,bn4  FROM test.demo WHERE PK = '10'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("10")), "bn2", "bn3", "bn4");System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("10")), "bn2", "bn3", "bn4");
+		System.out.println("Record: " + record);
 
 
 
@@ -375,7 +396,7 @@ public class everything {
 		System.out.println(new String(Base64.decode(udfparts[2].getBytes(), 8, udfparts[2].length()-2)));
 
 		// EXECUTE example1.foo('arg1','arg2',3) ON test.demo WHERE PK = '1'
-		Object result = client.execute(this.policy, 
+		result = client.execute(this.policy, 
 			new Key("test", "demo", Value.get("1")), 
 			"example1", "foo" );
 		System.out.println("UDF result: " + result);

@@ -75,6 +75,7 @@ public class <className> {
 		File udfFile = null;
 		RegisterTask task =	null;
 		IndexTask indexTask = null;
+		Object result;
 		LuaConfig.SourceDirectory = "udf"; // change this to match your UDF directory 
 		String udfString;
 		String[] udfparts;
@@ -271,7 +272,7 @@ printInfo("Drop set:",infoAll("set-config:context=namespace;id="+namespace+";set
 execute(source, nameSpace, setName, key, package, udf, arguments) ::= <<
 // <source>
 <if(key)>
-Object result = client.execute(this.policy, 
+result = client.execute(this.policy, 
 	new Key("<nameSpace>", "<setName>", Value.get(<key>)), 
 	"<package>", "<udf>" <if(arguments)>, first(arguments):{v|Value.get(<v>)}><rest(arguments):{v|, Value.get(<v>)}><endif>);
 System.out.println("UDF result: " + result);

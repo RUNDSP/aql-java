@@ -123,8 +123,12 @@ expressions [String nameSpace, String setName]
 filter 
 	: ^(EQ bin value) ->filterEquals(bin={$bin.name}, value={$value.text})
 	| ^(BETWEEN b2=bin low=INTLITERAL high=INTLITERAL) ->filterRange(bin={$bin.name}, low={$low.text}, high={$high.text})
+  | ^(BETWEEN b2=bin lowF=function highF=function) ->filterRangeFunction(bin={$bin.name}, low={$low.text}, high={$high.text})
 	;
 
+function
+  : ^(FUNCTION id=IDENTIFIER value) -> function(name={$id}, value={$value.text})
+  ;
 binNameList returns [List<String> bins]
 @init {
 	retval.bins = new ArrayList<String>();

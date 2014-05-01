@@ -6,6 +6,7 @@ import java.io.File;
 import com.aerospike.client.AerospikeClient;
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Bin;
+import com.aerospike.client.Host;
 import com.aerospike.client.Info;
 import com.aerospike.client.Key;
 import com.aerospike.client.Language;
@@ -24,6 +25,7 @@ import com.aerospike.client.task.RegisterTask;
 import com.aerospike.client.task.IndexTask;
 import com.aerospike.client.cluster.Node;
 import com.aerospike.client.lua.LuaConfig;
+import com.aerospike.client.policy.ClientPolicy;
 
 public class Select {
 	private AerospikeClient client;
@@ -41,7 +43,22 @@ public class Select {
 		
 	}
 
+	public Select(Host[] hosts) throws AerospikeException{
+		this.policy = new Policy();
+		this.writePolicy = new WritePolicy();
+		this.seedHost = hosts[0].name;
+		this.port = hosts[0].port;
+		this.client = new AerospikeClient(new ClientPolicy(), hosts);
+		
+	}
+
 	public static void main(String[] args) throws AerospikeException{
+		/*
+		Host[] hosts = new Host[] {new Host("a.host", 3000),
+									new Host("another.host", 3000),
+									new Host("and.another.host", 300)};
+		Select worker = new Select(hosts);
+		*/
 		Select worker = new Select("P3", 3000);
 		worker.run();
 	}
@@ -56,6 +73,7 @@ public class Select {
 		File udfFile = null;
 		RegisterTask task =	null;
 		IndexTask indexTask = null;
+		Object result;
 		LuaConfig.SourceDirectory = "udf"; // change this to match your UDF directory 
 		String udfString;
 		String[] udfparts;

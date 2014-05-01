@@ -4,7 +4,6 @@ import gnu.crypto.util.Base64;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -223,6 +222,10 @@ public class ExecutorParser extends TreeParser{
 			int count = 0;
 
 			while (resultSet.next()) {
+				if (this.resultReporter.isCancelled()){
+					this.resultReporter.report("Aggregation cancelled."); 
+					break;
+				}
 				Object object = resultSet.getObject();
 				this.resultReporter.report("Result: " + object);
 				count++;
@@ -369,6 +372,10 @@ public class ExecutorParser extends TreeParser{
 			// Process the record set
 			try {
 				while (recordSet != null && recordSet.next()) {
+					if (this.resultReporter.isCancelled()){
+						this.resultReporter.report("Query cancelled."); 
+						break;
+					}
 					Key key = recordSet.getKey();
 					Record record = recordSet.getRecord();
 

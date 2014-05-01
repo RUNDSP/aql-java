@@ -27,7 +27,7 @@ The templates are located in the same directory as AQL.java at: src/main/java/co
 ##Why
 Developers work on many platforms. Most developers are use SQL and AQL will be very familiar to them. A quick way to learn Aerospike and get a prototype up and running is to:
  1. Write an AQL script interact with Aerospike matching the use case.
- 2. Use Portable AQL to test the AQL starements interactively
+ 2. Use Portable AQL to test the AQL statements interactively
  3. Use Portable AQL to generate a runnable application in Java, C or C#
  4. Take the generated code and include it in the "real" application
  
@@ -37,7 +37,7 @@ The code can be built with Maven.
 	mvn clean package
 
 ##Dependencies
-* Aerospike Java client 3.0.22
+* Aerospike Java client 3.0.23
 * Apache commons cli 1.2
 * Log4j 1.2.14
 * ANTLR 3.4
@@ -53,14 +53,14 @@ The code can be built with Maven.
 ##Future dreaming
 It would be easy to add something like this to the Aerospike APIs:
 ```java
-PreparedStatement - ps = client.prepare(“select * from test.cats where pk = ’27’”);
+PreparedStatement ps = client.prepare("select * from test.cats where pk = '27'");
 ResultSet rs = client.execute(ps);
 ```
 
 ## Usage
 The packaged Jar can be run with the following:
 ```
-java -jar aql-3.0.0-jar-with-dependencies.jar -h 192.168.21.150 -p 3000 -c test/resources/PkTest.aql -o output/PkTest.java -l JAVA
+java -jar aql-3.0.0-jar-full.jar -h 192.168.21.150 -p 3000 -c test/resources/PkTest.aql -o output/PkTest.java -l JAVA
 ```	
 Where:
 ```	

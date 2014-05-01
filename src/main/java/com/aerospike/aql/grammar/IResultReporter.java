@@ -15,4 +15,6 @@ public interface IResultReporter {
 	public void report(RecordSet recordSet, boolean clear);
 	public void reportInfo(String inforMessage, String...seperators);
 	public void reportInfo(String inforMessage, boolean clear, String...seperators);
+	public void cancel();
+	public boolean isCancelled();
 }

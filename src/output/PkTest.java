@@ -6,6 +6,7 @@ import java.io.File;
 import com.aerospike.client.AerospikeClient;
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Bin;
+import com.aerospike.client.Host;
 import com.aerospike.client.Info;
 import com.aerospike.client.Key;
 import com.aerospike.client.Language;
@@ -24,6 +25,7 @@ import com.aerospike.client.task.RegisterTask;
 import com.aerospike.client.task.IndexTask;
 import com.aerospike.client.cluster.Node;
 import com.aerospike.client.lua.LuaConfig;
+import com.aerospike.client.policy.ClientPolicy;
 
 public class PkTest {
 	private AerospikeClient client;
@@ -41,7 +43,22 @@ public class PkTest {
 		
 	}
 
+	public PkTest(Host[] hosts) throws AerospikeException{
+		this.policy = new Policy();
+		this.writePolicy = new WritePolicy();
+		this.seedHost = hosts[0].name;
+		this.port = hosts[0].port;
+		this.client = new AerospikeClient(new ClientPolicy(), hosts);
+		
+	}
+
 	public static void main(String[] args) throws AerospikeException{
+		/*
+		Host[] hosts = new Host[] {new Host("a.host", 3000),
+									new Host("another.host", 3000),
+									new Host("and.another.host", 300)};
+		PkTest worker = new PkTest(hosts);
+		*/
 		PkTest worker = new PkTest("P3", 3000);
 		worker.run();
 	}
@@ -56,11 +73,13 @@ public class PkTest {
 		File udfFile = null;
 		RegisterTask task =	null;
 		IndexTask indexTask = null;
+		Object result;
 		LuaConfig.SourceDirectory = "udf"; // change this to match your UDF directory 
 		String udfString;
 		String[] udfparts;
 		// select * from test.demo where pk = 'tpby'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("tpby")));System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("tpby")));
+		System.out.println("Record: " + record);
 
 
 
@@ -135,52 +154,62 @@ public class PkTest {
 			);
 					
 		// SELECT * FROM test.demo WHERE pk = '1'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("1")));System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("1")));
+		System.out.println("Record: " + record);
 
 
 
 		// SELECT bn2, bn3, bn4 FROM test.demo WHERE pk = '2'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("2")), "bn2", "bn3", "bn4");System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("2")), "bn2", "bn3", "bn4");
+		System.out.println("Record: " + record);
 
 
 
 		// SELECT * FROM test.demo WHERE pk = '3'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("3")));System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("3")));
+		System.out.println("Record: " + record);
 
 
 
 		// SELECT bn2, bn3, bn4 FROM test.demo WHERE pk = '4'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("4")), "bn2", "bn3", "bn4");System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("4")), "bn2", "bn3", "bn4");
+		System.out.println("Record: " + record);
 
 
 
 		// SELECT * FROM test.demo WHERE pk = '5'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("5")));System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("5")));
+		System.out.println("Record: " + record);
 
 
 
 		// SELECT bn2, bn3, bn4 FROM test.demo WHERE pk = '6'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("6")), "bn2", "bn3", "bn4");System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("6")), "bn2", "bn3", "bn4");
+		System.out.println("Record: " + record);
 
 
 
 		// SELECT * FROM test.demo WHERE pk = '7'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("7")));System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("7")));
+		System.out.println("Record: " + record);
 
 
 
 		// SELECT bn2, bn3 FROM test.demo WHERE pk = '8'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("8")), "bn2", "bn3");System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("8")), "bn2", "bn3");
+		System.out.println("Record: " + record);
 
 
 
 		// SELECT * FROM test.demo WHERE pk = '9'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("9")));System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("9")));
+		System.out.println("Record: " + record);
 
 
 
 		// SELECT bn2 FROM test.demo WHERE pk = '10'
-		record = client.get(this.policy, new Key("test", "demo", Value.get("10")), "bn2");System.out.println("Record: " + record);
+		record = client.get(this.policy, new Key("test", "demo", Value.get("10")), "bn2");
+		System.out.println("Record: " + record);
 
 
 
