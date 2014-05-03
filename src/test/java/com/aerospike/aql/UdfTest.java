@@ -4,6 +4,11 @@ import org.junit.Test;
 
 
 public class UdfTest extends AQLTest{
+	
+	public UdfTest(){
+		super();
+		this.seedNode = "P3";
+	}
 
 
 	@Test
@@ -34,17 +39,17 @@ public class UdfTest extends AQLTest{
 	@Test
 	public void testUDFFile() throws Exception {
 		System.out.println("----- testUDFFile -----");
-		testFileSyntax("Udf.aql");
+		testFileSyntax("UdfAll.aql");
 	}
 	@Test
 	public void testUDFFileGeneration() throws Exception {
 		System.out.println("----- testUDFFileGeneration -----");
-		testFileGeneration("Udf.aql", AQL.Language.JAVA);
+		testFileGeneration("UdfAll.aql", AQL.Language.JAVA);
 	}
-	//@Test
+	@Test
 	public void testUDFOnCluster() throws Exception {
 		System.out.println("----- testUDFOnCluster -----");
-		testFileExecution("Udf.aql");
+		testFileExecution("UdfAll.aql");
 
 	}
 

@@ -103,15 +103,15 @@ public class AQLTest {
 
 
 	protected void testFileGeneration(String name, AQL.Language stType) throws Exception{
-		String extenstion = null;
+		String extension = null;
 		String langDir = null;
 		switch(stType){
 		case JAVA:
-			extenstion = ".java";
+			extension = ".java";
 			langDir = "java/";
 			break;
 		case C:
-			extenstion = ".c";
+			extension = ".c";
 			langDir = "c/";
 			break;
 		default:
@@ -121,7 +121,8 @@ public class AQLTest {
 		if (!dir.exists())
 			dir.mkdirs();
 		// if file doesnt exists, then create it
-		File file = new File(workingDir +"/CodeGeneration/" + langDir + name + extenstion);
+		String outFileName = name.substring(0, name.lastIndexOf(".")) + extension;
+		File file = new File(workingDir +"/CodeGeneration/" + langDir + outFileName);
 		if (!file.exists()) {
 			file.createNewFile();
 		}

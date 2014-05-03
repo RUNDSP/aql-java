@@ -91,6 +91,10 @@ public class <className> {
 	    }
 	}
 	protected void printInfo(String title, String infoString){
+		if (infoString == null){
+			System.out.println("Null info string");
+			return;
+		}
 		String[] outerParts = infoString.split(";");
 		System.out.println(title);
 		for (String s : outerParts){
@@ -402,7 +406,7 @@ printInfo("Query statistics", Info.request(this.seedHost, this.port, "query-stat
 
 statSystem(source) ::= <<
 // <source>
-printInfo("Statistics", Info.request(this.seedHost, this.port, "Statistics"));
+printInfo("Statistics", Info.request(this.seedHost, this.port, "statistics"));
 
 >>
 

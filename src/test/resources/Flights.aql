@@ -1,0 +1,2 @@
+select * from test.flights where FL_DATE_BIN between 1325404800 and 1325404800
+

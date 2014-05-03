@@ -1,0 +1,1 @@
+AGGREGATE simple_aggregation.late_flights_by_airline() ON test.flights WHERE FL_DATE_BIN BETWEEN 1325404800 AND 1325404800

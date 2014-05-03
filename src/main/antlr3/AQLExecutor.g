@@ -271,7 +271,7 @@ desc throws AerospikeException
 stat throws AerospikeException
 	: ^(STAT ^(INDEX namespace_name index_name))
 	|	^(STAT QUERY) {printInfo("Query statistics", info("query-stat"));}
-	|	^(STAT SYSTEM) {printInfo("Statistics", info("Statistics"));}
+	|	^(STAT SYSTEM) {printInfo("Statistics", info("statistics"));}
 	;
 /*
 ADMIN:

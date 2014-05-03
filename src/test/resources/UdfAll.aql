@@ -1,4 +1,4 @@
-SET LUA_USERPATH 'src/udf' 
+SET LUA_USERPATH 'src/test/resources' 
 CREATE INDEX index_bn4 ON test.demo (bn4) NUMERIC
 # add data
 INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('1', 1, '1', 1)
