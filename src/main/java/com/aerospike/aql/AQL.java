@@ -9,11 +9,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.Arrays;
 
 import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
+import org.antlr.runtime.Token;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 import org.antlr.stringtemplate.StringTemplate;
@@ -87,22 +87,42 @@ public class AQL {
 		return this.parser;
 	}
 
-	public void compile(File sqlFile, IErrorReporter reporter, IResultReporter resultReporter) throws IOException{
+	public aqlFile_return compile(File sqlFile, IErrorReporter reporter, IResultReporter resultReporter) throws IOException{
 		CharStream stream = new NoCaseFileStream(sqlFile);
-		AQLastLexer lexer = new AQLastLexer(stream);
-		CommonTokenStream tokenStream = new CommonTokenStream(lexer);
-		AQLastParser parser = new AQLastParser(tokenStream);
-		parser.setTreeAdaptor(new AQLTreeAdaptor());
-		parser.setErrorReporter(reporter);
-		parser.setResultReporter(resultReporter);
-		try {
-			parser.aqlFile();
-		} catch (RecognitionException e) {
-			reporter.reportError(e.line, e.charPositionInLine, e.charPositionInLine+e.token.getText().length(), e.getMessage());
-		}
+		return compileStream(stream, reporter, resultReporter);
 	}
 
+	public aqlFile_return compile(String sqlString, IErrorReporter reporter, IResultReporter resultReporter) throws IOException{
+		CharStream stream = new NoCaseStringStream(sqlString);
+		return compileStream(stream, reporter, resultReporter);
+	}
+	public aqlFile_return compileStream(CharStream stream, IErrorReporter errorReporter, IResultReporter resultReporter) throws IOException{
+		try {
+			AQLastLexer lexer = new AQLastLexer(stream);
+			CommonTokenStream tokenStream = new CommonTokenStream(lexer);
+			AQLastParser parser = new AQLastParser(tokenStream);
+			parser.setTreeAdaptor(new AQLTreeAdaptor());
+			parser.setErrorReporter(errorReporter);
+			parser.setResultReporter(resultReporter);
+			aqlFile_return ast = parser.aqlFile();
+			return ast;
+		} catch (RecognitionException e) {
+			errorReporter.reportError(e.line, e.charPositionInLine, e.charPositionInLine+e.token.getText().length(), e.getMessage());
+		}
+		return null;
+	}
 
+	//TODO return token at offset
+	public Token tokenAt(String sqlString) throws IOException{
+		aqlFile_return result = this.compile(sqlString, null, null);
+		CommonTree tree = (CommonTree) result.getTree();
+		log.debug("AST tree:");
+		log.debug(tree.toStringTree());
+		CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
+		nodes.setTokenStream(this.tokenStream);
+		return null;
+	}
+	
 	public void compileAndGenerate(File sqlFile, File outputDirectory,
 			Language language, String host, int port) throws Exception {
 		compileAndGenerate(sqlFile, outputDirectory,
@@ -220,7 +240,7 @@ public class AQL {
 		}
 		return moduleName;
 	}
-	
+
 	public void execute(File file, IResultReporter resultReporter, IErrorReporter errorReporter) {
 		if (this.client == null){
 			if (resultReporter != null)

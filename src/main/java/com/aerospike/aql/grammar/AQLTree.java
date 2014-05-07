@@ -8,7 +8,7 @@ import org.antlr.runtime.tree.CommonTree;
  *
  */
 public class AQLTree extends CommonTree {
-	
+
 	protected String source;
 
 	public AQLTree() {
@@ -31,5 +31,30 @@ public class AQLTree extends CommonTree {
 		this.source = source;
 	}
 
-	
+	public static Token findTokenByOffset(AQLTree tree, int lineInFile, int positionOffset){
+		if (tree == null)
+			return null;
+		
+		Token token = tree.getToken();
+
+		if (token != null){
+			int line = token.getLine();
+			String text = token.getText();
+			int length = text.length();
+			int pos = token.getCharPositionInLine();
+			if (lineInFile == line && 
+					(positionOffset >= pos && positionOffset <= (pos + length))){
+				return token;
+			}
+		}
+		if (tree.getChildCount() > 0){
+			for (Object kid : tree.children){
+				Token kidToken = findTokenByOffset((AQLTree)kid, lineInFile, positionOffset);
+				if (kidToken != null){
+					return kidToken;
+				}
+			}
+		} 
+		return null;
+	}
 }
