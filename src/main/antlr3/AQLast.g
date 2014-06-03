@@ -515,12 +515,12 @@ AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin BETWEEN
 */
 aggregate
 @after{$aggregate.tree.source = $aggregate.text;}
-	: AGGREGATE moduleFunction ('(' valueList ')')? ON nameSet WHERE expressions
+	: AGGREGATE moduleFunction ('(' (valueList)? ')')? ON nameSet WHERE expressions
 		-> ^(AGGREGATE nameSet moduleFunction expressions valueList?)
 	;
 
 moduleFunction
-	: packageName=IDENTIFIER '.' functionName=IDENTIFIER
+	: packageName=IDENTIFIER '.' functionName=(IDENTIFIER|SCAN|GET|REMOVE)
 	;
 	
 binNameList 

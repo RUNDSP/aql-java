@@ -30,7 +30,7 @@ public class AQLCompileJavaTest {
 	}
 	@Test
 	public void testUdf() throws Exception {
-		AQLrun.main(new String[]{"-h", HOST , "-p", PORT, "-c", "src/test/resources/Udf.aql", "-o", "src/output/Udf.java", "-l", "JAVA"});
+		AQLrun.main(new String[]{"-h", HOST , "-p", PORT, "-c", "src/test/resources/UdfAll.aql", "-o", "src/output/UdfAll.java", "-l", "JAVA"});
 		//AQLrun.main(new String[]{"-h", HOST , "-p", PORT, "-c", "src/test/resources/Udf.aql", "-o", "src/output/Udf.c", "-l", "C"});
 
 	}
@@ -48,6 +48,11 @@ public class AQLCompileJavaTest {
 	@Test
 	public void testExample2() throws Exception {
 		AQLrun.main(new String[]{"-h", HOST , "-p", PORT, "-c", "src/test/resources/Example2.aql", "-o", "src/output/Example2.java", "-l", "JAVA"});
+
+	}
+	@Test
+	public void testLMap() throws Exception {
+		AQLrun.main(new String[]{"-h", HOST , "-p", PORT, "-c", "src/test/resources/LMap.aql", "-o", "src/output/LMap.java", "-l", "JAVA"});
 
 	}
 }

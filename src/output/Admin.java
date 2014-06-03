@@ -109,7 +109,7 @@ public class Admin {
 		printInfo("Query statistics", Info.request(this.seedHost, this.port, "query-stat"));
 
 		// STAT SYSTEM
-		printInfo("Statistics", Info.request(this.seedHost, this.port, "Statistics"));
+		printInfo("Statistics", Info.request(this.seedHost, this.port, "statistics"));
 
 		// PRINT 'text_string'
 		System.out.println("text_string");
@@ -168,6 +168,10 @@ public class Admin {
 	    }
 	}
 	protected void printInfo(String title, String infoString){
+		if (infoString == null){
+			System.out.println("Null info string");
+			return;
+		}
 		String[] outerParts = infoString.split(";");
 		System.out.println(title);
 		for (String s : outerParts){

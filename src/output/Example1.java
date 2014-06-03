@@ -413,7 +413,7 @@ public class Example1 {
 		System.out.println("Drop module example1-udf.lua: " + Info.request(this.seedHost, this.port, "udf-remove:filename=example1-udf.lua"));
 
 		// STAT SYSTEM
-		printInfo("Statistics", Info.request(this.seedHost, this.port, "Statistics"));
+		printInfo("Statistics", Info.request(this.seedHost, this.port, "statistics"));
 
 		// STAT QUERY
 		printInfo("Query statistics", Info.request(this.seedHost, this.port, "query-stat"));
@@ -440,6 +440,10 @@ public class Example1 {
 	    }
 	}
 	protected void printInfo(String title, String infoString){
+		if (infoString == null){
+			System.out.println("Null info string");
+			return;
+		}
 		String[] outerParts = infoString.split(";");
 		System.out.println(title);
 		for (String s : outerParts){

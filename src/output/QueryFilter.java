@@ -197,6 +197,10 @@ public class QueryFilter {
 	    }
 	}
 	protected void printInfo(String title, String infoString){
+		if (infoString == null){
+			System.out.println("Null info string");
+			return;
+		}
 		String[] outerParts = infoString.split(";");
 		System.out.println(title);
 		for (String s : outerParts){

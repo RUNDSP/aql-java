@@ -226,7 +226,7 @@ aggregate throws AerospikeException
 	
 
 packageFunction returns [String packageName, String functionName]
-	: p=IDENTIFIER '.' f=IDENTIFIER
+	: p=IDENTIFIER '.' f=(IDENTIFIER|SCAN|GET|REMOVE)
 	{$packageName = $p.text; $functionName = $f.text;}
 	;
 	
