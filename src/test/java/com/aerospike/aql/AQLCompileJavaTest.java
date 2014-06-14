@@ -7,6 +7,11 @@ public class AQLCompileJavaTest {
 	public static final String HOST = "P3";
 	public static final String PORT = "3000";
 	@Test
+	public void testNewline() throws Exception {
+		AQLrun.main(new String[]{"-h", HOST , "-p", PORT, "-c", "src/test/resources/Newline.aql", "-o", "src/output/Newline.java", "-l", "JAVA"});
+
+	}
+	@Test
 	public void testPrimaryKey() throws Exception {
 		AQLrun.main(new String[]{"-h", HOST , "-p", PORT, "-c", "src/test/resources/PkTest.aql", "-o", "src/output/PkTest.java", "-l", "JAVA"});
 
@@ -53,6 +58,11 @@ public class AQLCompileJavaTest {
 	@Test
 	public void testLMap() throws Exception {
 		AQLrun.main(new String[]{"-h", HOST , "-p", PORT, "-c", "src/test/resources/LMap.aql", "-o", "src/output/LMap.java", "-l", "JAVA"});
+
+	}
+	@Test
+	public void testSelectPK() throws Exception {
+		AQLrun.main(new String[]{"-h", HOST , "-p", PORT, "-c", "src/test/resources/SelectPK.aql", "-o", "src/output/SelectPK.java", "-l", "JAVA"});
 
 	}
 }

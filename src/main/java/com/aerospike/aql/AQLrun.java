@@ -127,7 +127,7 @@ public class AQLrun {
 
 				log.debug("Output: " + outputFileName);
 				log.debug("Language: " + language);
-
+				aql.generateDOT = log.isDebugEnabled();
 				aql.compileAndGenerate(inputFile, outputFile, language, host, portString);
 				log.info("Completed compile of " + inputFileName);
 			} else {

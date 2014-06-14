@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 
 import org.antlr.runtime.CharStream;
@@ -16,6 +17,8 @@ import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.Token;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
+import org.antlr.runtime.tree.DOTTreeGenerator;
+import org.antlr.runtime.tree.Tree;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.apache.log4j.Logger;
@@ -47,6 +50,8 @@ public class AQL {
 	private AQLastParser parser;
 	private StringTemplateGroup group;
 	private AerospikeClient client = null;
+	public	boolean generateDOT = log.isDebugEnabled();
+	private DOTTreeGenerator dot = new DOTTreeGenerator();
 
 	public AQL(){
 		super();
@@ -78,25 +83,62 @@ public class AQL {
 		this.parser = new AQLastParser(tokenStream);
 		this.parser.setTreeAdaptor(new AQLTreeAdaptor());
 		this.parser.setErrorReporter(new IErrorReporter() {
-
+			int errors = 0;
 			@Override
 			public void reportError(int line, int charStart, int charEnd, String message) {
 				log.error(line+":"+charStart+" "+message);
+				errors++;
 			}
+			@Override
+			public int getErrors() {
+				return errors;
+			}
+
 		});
 		return this.parser;
 	}
 
 	public aqlFile_return compile(File sqlFile, IErrorReporter reporter, IResultReporter resultReporter) throws IOException{
 		CharStream stream = new NoCaseFileStream(sqlFile);
-		return compileStream(stream, reporter, resultReporter);
+		aqlFile_return ast = compileFileStream(stream, reporter, resultReporter);
+		if (generateDOT){
+			StringTemplate st = asDOT((Tree)ast.getTree());
+			String name = sqlFile.getName();
+			name = name.substring(0, name.lastIndexOf("."));
+			name = name + ".dot";
+			File file = new File(name);
+			String content = st.toString();
+			writeFile(file, content);
+		}
+		CommonTree tree = (CommonTree) ast.getTree();
+		log.debug("AST tree:");
+		log.debug(tree.toStringTree());
+		return ast;
 	}
 
-	public aqlFile_return compile(String sqlString, IErrorReporter reporter, IResultReporter resultReporter) throws IOException{
+	public aqlStatements_return compile(String sqlString, IErrorReporter reporter, IResultReporter resultReporter) throws IOException{
 		CharStream stream = new NoCaseStringStream(sqlString);
-		return compileStream(stream, reporter, resultReporter);
+		return compileStringStream(stream, reporter, resultReporter);
 	}
-	public aqlFile_return compileStream(CharStream stream, IErrorReporter errorReporter, IResultReporter resultReporter) throws IOException{
+	public aqlStatements_return compileStringStream(CharStream stream, IErrorReporter errorReporter, IResultReporter resultReporter) throws IOException{
+		try {
+			AQLastLexer lexer = new AQLastLexer(stream);
+			CommonTokenStream tokenStream = new CommonTokenStream(lexer);
+			AQLastParser parser = new AQLastParser(tokenStream);
+			parser.setTreeAdaptor(new AQLTreeAdaptor());
+			parser.setErrorReporter(errorReporter);
+			parser.setResultReporter(resultReporter);
+			aqlStatements_return ast = parser.aqlStatements();
+			CommonTree tree = (CommonTree) ast.getTree();
+			log.debug("AST tree:");
+			log.debug(tree.toStringTree());
+			return ast;
+		} catch (RecognitionException e) {
+			errorReporter.reportError(e.line, e.charPositionInLine, e.charPositionInLine+e.token.getText().length(), e.getMessage());
+		}
+		return null;
+	}
+	public aqlFile_return compileFileStream(CharStream stream, IErrorReporter errorReporter, IResultReporter resultReporter) throws IOException{
 		try {
 			AQLastLexer lexer = new AQLastLexer(stream);
 			CommonTokenStream tokenStream = new CommonTokenStream(lexer);
@@ -105,6 +147,7 @@ public class AQL {
 			parser.setErrorReporter(errorReporter);
 			parser.setResultReporter(resultReporter);
 			aqlFile_return ast = parser.aqlFile();
+			log.debug(ast.getTree().toString());
 			return ast;
 		} catch (RecognitionException e) {
 			errorReporter.reportError(e.line, e.charPositionInLine, e.charPositionInLine+e.token.getText().length(), e.getMessage());
@@ -112,9 +155,13 @@ public class AQL {
 		return null;
 	}
 
+	public StringTemplate asDOT(Tree tree){
+		return dot.toDOT(tree);
+	}
+
 	//TODO return token at offset
 	public Token tokenAt(String sqlString) throws IOException{
-		aqlFile_return result = this.compile(sqlString, null, null);
+		aqlStatements_return result = this.compile(sqlString, null, null);
 		CommonTree tree = (CommonTree) result.getTree();
 		log.debug("AST tree:");
 		log.debug(tree.toStringTree());
@@ -122,7 +169,7 @@ public class AQL {
 		nodes.setTokenStream(this.tokenStream);
 		return null;
 	}
-	
+
 	public void compileAndGenerate(File sqlFile, File outputDirectory,
 			Language language, String host, int port) throws Exception {
 		compileAndGenerate(sqlFile, outputDirectory,
@@ -148,6 +195,16 @@ public class AQL {
 
 		this.group = new StringTemplateGroup(new InputStreamReader(url.openStream()));
 		outputString = parseAndWalk(parser, result, moduleName, host, portString);
+		if (generateDOT){
+			StringTemplate st = asDOT((Tree)result.getTree());
+			String name = inputFile.getName();
+			name = name.substring(0, name.lastIndexOf("."));
+			name = name + ".dot";
+			File file = new File(name);
+			String content = st.toString();
+			writeFile(file, content);
+		}
+
 		return outputString;
 	}
 	public String compileAndGenerateString(String inputString, String moduleName, Language language, String host, String portString) throws Exception{
@@ -181,16 +238,20 @@ public class AQL {
 			nodes.setTokenStream(this.tokenStream);
 			AQLCodeGenerator walker = new AQLCodeGenerator(nodes);
 			walker.setTemplateLib(this.group);
-			com.aerospike.aql.grammar.AQLCodeGenerator.aqlFile_return returnValue = walker.aqlFile(moduleName, host, portString);
-			log.debug("Walked tree:");
-			log.debug(result.toString());
-			StringTemplate st = (StringTemplate)returnValue.getTemplate();
-			outputString = st.toString();
-			if (walker.getNumberOfSyntaxErrors() > 0) {
-				outputString = "Errors in AST tree";
-				log.error(outputString);
+			try{
+				com.aerospike.aql.grammar.AQLCodeGenerator.aqlFile_return returnValue = walker.aqlFile(moduleName, host, portString);
+				log.debug("Walked tree:");
+				log.debug(result.toString());
+				StringTemplate st = (StringTemplate)returnValue.getTemplate();
+				outputString = st.toString();
+				if (walker.getNumberOfSyntaxErrors() > 0) {
+					outputString = "Errors in AST tree";
+					log.error(outputString);
+				}
+			}catch (RuntimeException e){
+				log.error("AST tree error:", e);
+				throw e;
 			}
-
 		} else {
 			outputString = "Syntax errors: " + this.parser.getNumberOfSyntaxErrors();
 			log.error(outputString);
@@ -222,17 +283,19 @@ public class AQL {
 		}
 
 		String content = compileAndGenerateString(inputfile, language, host, portString);
+		writeFile(outputFile, content);
 
-		if (!outputFile.exists()){
-			outputFile.createNewFile();
+	}
+	private void writeFile(File file, String content) throws IOException{
+		if (!file.exists()){
+			file.createNewFile();
 		}
-
-		FileWriter fw = new FileWriter(outputFile.getAbsoluteFile());
+		FileWriter fw = new FileWriter(file.getAbsoluteFile());
 		BufferedWriter bw = new BufferedWriter(fw);
 		bw.write(content);
 		bw.close();	
-
 	}
+
 	private String moduleFromFile(String fileName){
 		String moduleName = fileName;
 		if (moduleName.contains(".")){
@@ -324,11 +387,17 @@ public class AQL {
 						nodes.setTokenStream(this.tokenStream);
 						AQLExecutor walker = new AQLExecutor(nodes, this.client);
 						walker.setErrorReporter(new IErrorReporter() {
-
+							int errors=0;
 							@Override
 							public void reportError(int line, int charStart, int charEnd, String message) {
 								log.error(line+":"+charStart+" "+message);
+								errors++;
 							}
+							@Override
+							public int getErrors() {
+								return errors;
+							}
+
 						});
 						walker.aqlStatement();
 						if (walker.getNumberOfSyntaxErrors() > 0) {

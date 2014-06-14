@@ -767,23 +767,28 @@ FALSE
 	: 'false'
 	;
 
-	
 WS  
     :   (
              ' '
         |    '\r'
         |    '\t'
         |    '\u000C'
-        |    NL
-        ) {$channel = HIDDEN;}
+        |    '\n'
+        ) 
+            {$channel = HIDDEN;}          
     ;
+
     
 /**
 # text_string - comment in script, line skipped.
 */
 COMMENT
-    :   '#' .* NL {$channel = HIDDEN;}
+    :   '#' ~('\n'|'\r')*  ('\r\n' | '\r' | '\n') 
+            {$channel = HIDDEN;}
+    |   '#' ~('\n'|'\r')*     // a line comment could appear at the end of the file without CR/LF
+            {$channel = HIDDEN;}
     ;   
+
 
 IDENTIFIER : ( LETTER | UNDERSCORE )( LETTER| DIGIT | UNDERSCORE | HYPHEN)*;
 
@@ -813,17 +818,14 @@ HEXLITERAL
 //PATHSEGMENT
 //  : (LETTER | DIGIT | '.' | '_')+
 //  ;
+
+
 fragment
 IntegerNumber
     :   '0' 
     |   '1'..'9' ('0'..'9')*    
     |   '0' ('0'..'7')+         
     ;
-fragment
-NL
-  : '\r\n' 
-  | '\n'
-  ;
   
 fragment
 HexPrefix

@@ -7,8 +7,9 @@ import com.aerospike.client.Record;
 import com.aerospike.client.command.Buffer;
 import com.aerospike.client.query.RecordSet;
 
-public class SystemOutReporter implements IResultReporter {
+public class SystemOutReporter implements IResultReporter, IErrorReporter {
 	boolean cancelled = false;
+	int errors = 0;
 	public SystemOutReporter() {
 	}
 
@@ -161,4 +162,15 @@ public class SystemOutReporter implements IResultReporter {
 		
 	}
 
+	@Override
+	public void reportError(int line, int charStart, int charEnd, String message) {
+		this.errors++;
+		System.out.println(String.format("Error on Line: %d at %d, %s", line, charStart, charEnd, message));
+	}
+
+	public int getErrors() {
+		return errors;
+	}
+
+	
 }

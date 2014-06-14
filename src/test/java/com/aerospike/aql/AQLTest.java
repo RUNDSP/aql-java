@@ -20,11 +20,18 @@ import com.aerospike.aql.grammar.AQLExecutor;
 import com.aerospike.aql.grammar.AQLTreeAdaptor;
 import com.aerospike.aql.grammar.AQLastLexer;
 import com.aerospike.aql.grammar.AQLastParser;
+import com.aerospike.aql.grammar.AQLastParser.aqlFile_return;
+import com.aerospike.aql.grammar.AQLastParser.aqlStatements_return;
 import com.aerospike.aql.grammar.IErrorReporter;
+import com.aerospike.aql.grammar.IResultReporter;
 import com.aerospike.aql.grammar.NoCaseFileStream;
 import com.aerospike.aql.grammar.NoCaseStringStream;
 import com.aerospike.aql.grammar.SystemOutReporter;
 import com.aerospike.client.AerospikeClient;
+import com.aerospike.client.Log;
+import com.aerospike.client.Record;
+import com.aerospike.client.Log.Level;
+import com.aerospike.client.query.RecordSet;
 
 public class AQLTest {
 	public static final int JAVA = 1;
@@ -43,6 +50,7 @@ public class AQLTest {
 	private String templatePath;
 	private String testDataPath;
 	private AerospikeClient client;
+	protected SystemOutReporter reporter = new SystemOutReporter();
 
 	public AQLTest() {
 		workingDir = System.getProperty("user.dir");
@@ -89,13 +97,7 @@ public class AQLTest {
 		this.tokenStream = new CommonTokenStream(lexer);
 		this.parser = new AQLastParser(tokenStream);
 		this.parser.setTreeAdaptor(new AQLTreeAdaptor());
-		this.parser.setErrorReporter(new IErrorReporter() {
-			
-			@Override
-			public void reportError(int line, int charStart, int charEnd, String message) {
-				System.out.println(line+":"+charStart+" "+message);
-			}
-		});
+		this.parser.setErrorReporter(this.reporter);
 		return this.parser;
 	}
 
@@ -144,24 +146,27 @@ public class AQLTest {
 	}
 	
 	protected void testFileSyntax(String name) throws Exception{
-		getFileParser(name);
-		this.parser.aqlFile();
-		checkErrors(parser);
+		AQL aql = new AQL();
+		aqlFile_return result = aql.compile(findFile( name ), reporter, reporter);
+//		CommonTree tree = (CommonTree) result.getTree();
+//		System.out.println(tree.toStringTree());
+
 
 	}
 	
 	protected void testStringGeneration(String source, AQL.Language language) throws Exception{
 		AQL aql = new AQL();
-		
 		aql.compileAndGenerateString(source, "TestModule", language, this.seedNode, String.valueOf(this.port));
 
 	}
 
 	protected void testStringSyntax(String source) throws Exception{
-		getStringParser(source);
-		com.aerospike.aql.grammar.AQLastParser.aqlFile_return result =  this.parser.aqlFile();
-		checkErrors(parser);
-
+		AQL aql = new AQL();
+		aqlStatements_return result = aql.compile(source, 
+				reporter, 
+				reporter);
+//		CommonTree tree = (CommonTree) result.getTree();
+//		System.out.println(tree.toStringTree());
 	}
 
 	
@@ -204,6 +209,11 @@ public class AQLTest {
 
 	public void checkErrors(AQLCodeGenerator walker){
 		if (walker.getNumberOfSyntaxErrors() > 0) {
+			Assert.fail();
+		}
+	}
+	public void checkErrors(IErrorReporter reporter){
+		if (reporter.getErrors() > 0) {
 			Assert.fail();
 		}
 	}
