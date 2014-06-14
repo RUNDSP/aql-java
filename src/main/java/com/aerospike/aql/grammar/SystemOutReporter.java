@@ -165,7 +165,7 @@ public class SystemOutReporter implements IResultReporter, IErrorReporter {
 	@Override
 	public void reportError(int line, int charStart, int charEnd, String message) {
 		this.errors++;
-		System.out.println(String.format("Error on Line: %d at %d, %s", line, charStart, charEnd, message));
+		System.out.println(String.format("Error on Line: %d at %d, %s", line, charStart, message));
 	}
 
 	public int getErrors() {

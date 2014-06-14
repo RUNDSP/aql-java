@@ -154,10 +154,10 @@ public class AQLTest {
 
 	}
 	
-	protected void testStringGeneration(String source, AQL.Language language) throws Exception{
+	protected String testStringGeneration(String source, AQL.Language language) throws Exception{
 		AQL aql = new AQL();
-		aql.compileAndGenerateString(source, "TestModule", language, this.seedNode, String.valueOf(this.port));
-
+		String result = aql.compileAndGenerateString(source, "TestModule", language, this.seedNode, String.valueOf(this.port));
+		return result;
 	}
 
 	protected void testStringSyntax(String source) throws Exception{

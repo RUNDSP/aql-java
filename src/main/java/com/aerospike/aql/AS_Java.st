@@ -79,9 +79,12 @@ public class <className> {
 		LuaConfig.SourceDirectory = "udf"; // change this to match your UDF directory 
 		String udfString;
 		String[] udfparts;
+		
+		// AQL statements - start
+		
 		<statements>
 		
-		// Total AQL statements: <length(statements)>
+		// AQL statements - finish, total: <length(statements)>
 	}
 	
 	protected void finalize() throws Throwable {
@@ -116,6 +119,7 @@ public class <className> {
 		return results.toString();
 	}
 }
+
 >>
 
 statement(stmt) ::= <<
@@ -124,7 +128,7 @@ statement(stmt) ::= <<
 >>
 
 insertStmt(source, nameSpace, setName, primaryKey, binNames, values) ::= <<
-// <source>
+/* <source> */
 this.client.put(this.writePolicy, new Key("<nameSpace>", "<setName>", Value.get(<primaryKey>)), 
 	<first(binNames),first(values):{z,vv|new Bin("<z>", Value.get(<vv>))}><rest(binNames),rest(values):{z,vv|,
 new Bin("<z>", Value.get(<vv>))}>
@@ -133,14 +137,14 @@ new Bin("<z>", Value.get(<vv>))}>
 >>
 
 deleteStmt(source, nameSpace, setName, primaryKey) ::= <<
-// <source>
+/* <source> */
 this.client.delete(this.writePolicy, 
 	new Key("<nameSpace>", "<setName>", Value.get(<primaryKey>)));
 
 >>
 
 select(source, nameSpace, setName, binNames, as, where, key) ::= <<
-// <source>
+/* <source> */
 <if(key)>
 <if(binNames)>
 record = client.get(this.policy, new Key("<nameSpace>", "<setName>", Value.get(<key>)), <first(binNames):{b|"<b>"}><rest(binNames):{b|, "<b>"}>);
@@ -197,7 +201,7 @@ this.client.scanAll(scanPolicy, "<nameSpace>", "<setName>", new ScanCallback() {
 aggregate(source, nameSpace, setName, 
 				package, function,  
 				arguments, where) ::= <<
-// <source>
+/* <source> */
 <where>
 resultSet = client.queryAggregate(null, stmt, 
 	"<package>", "<function>" <if(arguments)><arguments:{qq|, Value.get(<qq>)}><endif>);
@@ -227,31 +231,31 @@ finally {
 
 
 create(source, indexName, nameSpace, setName, binName, type) ::= <<
-// <source>
+/* <source> */
 indexTask = this.client.createIndex(this.policy, "<nameSpace>", "<setName>", "<indexName>", "<binName>", IndexType.<type>);
 indexTask.waitTillComplete();
 				
 >>
 
 drop(source, indexName, nameSpace, setName) ::= <<
-// <source>
+/* <source> */
 this.client.dropIndex(this.policy, "<nameSpace>", "<setName>", "<indexName>");
 
 >>
 
 showIndex(source, nameSpace, setName) ::= <<
-// <source>
+/* <source> */
 printInfo("Indexes", Info.request(this.seedHost, this.port, "sindex"));
 
 >>
 
 statIndex(source, nameSpace, indexName) ::= <<
-// <source>
+/* <source> */
 
 >>
 
 register(source, path) ::= <<
-// <source>
+/* <source> */
 udfFile = new File("<path>");
 task = this.client.register(null, 
 	udfFile.getPath(), 
@@ -262,19 +266,19 @@ task.waitTillComplete();
 >>
 
 remove(source, package) ::= <<
-// <source>
+/* <source> */
 System.out.println("Drop module <package>: " + Info.request(this.seedHost, this.port, "udf-remove:filename=<package>"));
 
 >>
 
 deleteSet(source, namespace, set)::= <<
-// <source>
+/* <source> */
 printInfo("Drop set:",infoAll("set-config:context=namespace;id="+namespace+";set="+set+";set-delete=true;"));
 
 >>
 
 execute(source, nameSpace, setName, key, package, udf, arguments) ::= <<
-// <source>
+/* <source> */
 <if(key)>
 result = client.execute(this.policy, 
 	new Key("<nameSpace>", "<setName>", Value.get(<key>)), 
@@ -318,94 +322,94 @@ descend(bin) ::= <<
 >>
 
 setTimeOut(source, value) ::= <<
-// <source>
+/* <source> */
 this.policy.timeout = <value>;
 this.writePolicy.timeout = <value>;
 
 >>
  
 setVerbose(source, value) ::= <<
-// <source>
+/* <source> */
 
 >>
 
 setEcho(source, value) ::= <<
-// <source>
+/* <source> */
 
 >>
 
 setTTL(source, value) ::= <<
-// <source>
+/* <source> */
 this.writePolicy.expiration = <value>;
 
 >>
 
 setView(source, type) ::= <<
-// <source>
+/* <source> */
 
 >>
 
 useSmd(source, value) ::= <<
-// <source>
+/* <source> */
 
 >>
 
 setUserPath(source, value) ::= <<
-// <source>
+/* <source> */
 LuaConfig.SourceDirectory = "<value>"; 
 
 >>
 
 setSystemPath(source, value) ::= <<
-// <source>
+/* <source> */
 
 >>
 
 getTimeout(source) ::= <<
-// <source>
+/* <source> */
 System.out.println("Policy timeout: " + this.policy.timeout);
 System.out.println("Write policy timeout: " + this.writePolicy.timeout);
 
 >>
 getVerbose(source) ::= <<
-// <source>
+/* <source> */
 
 >>
 getEcho(source) ::= <<
-// <source>
+/* <source> */
 
 >>
 getTTL(source) ::= <<
-// <source>
+/* <source> */
 System.out.println("Write policy expiration: " + this.writePolicy.expiration);
 
 >>
 getView(source) ::= <<
-// <source>
+/* <source> */
 
 >>
 getUseSMD(source) ::= <<
-// <source>
+/* <source> */
 
 >>
 getUserPath(source) ::= <<
-// <source>
+/* <source> */
 System.out.println("Lua source directory: " + LuaConfig.SourceDirectory);
 
 >>
 getSystemPath(source) ::= <<
-// <source>
+/* <source> */
 
 >>
 
 statQuery(source) ::= <<
-// <source>
+/* <source> */
 printInfo("Query statistics", Info.request(this.seedHost, this.port, "query-stat"));
 
 >>
 
 statSystem(source) ::= <<
-// <source>
+/* <source> */
 printInfo("Statistics", Info.request(this.seedHost, this.port, "statistics"));
 
 >>
@@ -428,52 +432,52 @@ stringValueText(value) ::= <<
 >>
 
 showPackages(source) ::= <<
-// <source>
+/* <source> */
 printInfo("Packages", Info.request(this.seedHost, this.port, "udf-list"));
 
 >>
 
 showNamespaces(source) ::= <<
-// <source>
+/* <source> */
 printInfo("Name Spaces", Info.request(this.seedHost, this.port, "namespaces"));
 
 >>
 
 showSets(source) ::= <<
-// <source>
+/* <source> */
 printInfo("Sets", Info.request(this.seedHost, this.port, "sets"));
 
 >>
 
 showBins(source) ::= <<
-// <source>
+/* <source> */
 printInfo("Bins", Info.request(this.seedHost, this.port, "bins"));
 
 
 >>
 
 showScans(source) ::= <<
-// <source>
+/* <source> */
 printInfo("Scans", Info.request(this.seedHost, this.port, "jobs:module=scan"));
 
 >>
 
 showQueries(source) ::= <<
-// <source>
+/* <source> */
 printInfo("Queries", Info.request(this.seedHost, this.port, "jobs:module=query"));
 
 
 >>
 
 descIndex(source, nameSpace, indexName) ::= <<
-// <source>
+/* <source> */
 printInfo("Describe Index", Info.request(this.seedHost, this.port, "sindex-describe"));
 
 >>
 
 
 descPackage(source, name) ::= <<
-// <source>
+/* <source> */
 System.out.println("Module: <name>");
 udfString = Info.request(this.seedHost, this.port, "udf-get:filename=<name>");
 udfparts = udfString.split(";");
@@ -482,24 +486,24 @@ System.out.println(new String(Base64.decode(udfparts[2].getBytes(), 8, udfparts[
 >>
 
 killQuery(source, id) ::= <<
-// <source>
+/* <source> */
 Info.request(this.seedHost, this.port, "query-kill=<id>");
 
 >>
 
 killScan(source, id) ::= <<
-// <source>
+/* <source> */
 Info.request(this.seedHost, this.port, "scan-kill=<id>");
 
 >>
 
 run(source, fileName) ::= <<
-// <source>
+/* <source> */
 System.out.println("Run file: " + <fileName>);
 
 >>
 print(source, value) ::= <<
-// <source>
+/* <source> */
 System.out.println(<value>);
 
 >>
