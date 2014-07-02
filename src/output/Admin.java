@@ -77,88 +77,91 @@ public class Admin {
 		LuaConfig.SourceDirectory = "udf"; // change this to match your UDF directory 
 		String udfString;
 		String[] udfparts;
-		// SHOW NAMESPACES
+		
+		// AQL statements - start
+		
+		/* SHOW NAMESPACES */
 		printInfo("Name Spaces", Info.request(this.seedHost, this.port, "namespaces"));
 
-		// show SETS
+		/* show SETS */
 		printInfo("Sets", Info.request(this.seedHost, this.port, "sets"));
 
-		// sHoW BiNS
+		/* sHoW BiNS */
 		printInfo("Bins", Info.request(this.seedHost, this.port, "bins"));
 
 
-		// SHOW SCAnS
+		/* SHOW SCAnS */
 		printInfo("Scans", Info.request(this.seedHost, this.port, "jobs:module=scan"));
 
-		// shoW qUERIES
+		/* shoW qUERIES */
 		printInfo("Queries", Info.request(this.seedHost, this.port, "jobs:module=query"));
 
 
-		// SHOW packages
+		/* SHOW packages */
 		printInfo("Packages", Info.request(this.seedHost, this.port, "udf-list"));
 
-		// SHOW INDEXES test.demo
+		/* SHOW INDEXES test.demo */
 		printInfo("Indexes", Info.request(this.seedHost, this.port, "sindex"));
 
-		// DESC INDEX test index_bn2
+		/* DESC INDEX test index_bn2 */
 		printInfo("Describe Index", Info.request(this.seedHost, this.port, "sindex-describe"));
 
-		// STAT INDEX test index_bn3
+		/* STAT INDEX test index_bn3 */
 
-		// STAT QUERY
+		/* STAT QUERY */
 		printInfo("Query statistics", Info.request(this.seedHost, this.port, "query-stat"));
 
-		// STAT SYSTEM
+		/* STAT SYSTEM */
 		printInfo("Statistics", Info.request(this.seedHost, this.port, "statistics"));
 
-		// PRINT 'text_string'
+		/* PRINT 'text_string' */
 		System.out.println("text_string");
 
-		// SET VERBOSE true
+		/* SET VERBOSE true */
 
-		// SET VERBOSE false
+		/* SET VERBOSE false */
 
-		// SET ECHO true
+		/* SET ECHO true */
 
-		// SET ECHO false
+		/* SET ECHO false */
 
-		// SET TIMEOUT 150
+		/* SET TIMEOUT 150 */
 		this.policy.timeout = 150;
 		this.writePolicy.timeout = 150;
 
-		// SET RECORD_TTL 0
+		/* SET RECORD_TTL 0 */
 		this.writePolicy.expiration = 0;
 
-		// SET VIEW TABLE
+		/* SET VIEW TABLE */
 
-		// SET VIEW JSON
+		/* SET VIEW JSON */
 
-		// SET LUA_USERPATH '/opt/citrusleaf/usr/udf/lua'
+		/* SET LUA_USERPATH '/opt/citrusleaf/usr/udf/lua' */
 		LuaConfig.SourceDirectory = "/opt/citrusleaf/usr/udf/lua"; 
 
-		// SET LUA_SYSPATH '/opt/citrusleaf/sys/udf/lua'
+		/* SET LUA_SYSPATH '/opt/citrusleaf/sys/udf/lua' */
 
-		// GET VERBOSE
+		/* GET VERBOSE */
 
-		// GET ECHO
+		/* GET ECHO */
 
-		// GET TIMEOUT
+		/* GET TIMEOUT */
 		System.out.println("Policy timeout: " + this.policy.timeout);
 		System.out.println("Write policy timeout: " + this.writePolicy.timeout);
 
-		// GET RECORD_TTL
+		/* GET RECORD_TTL */
 		System.out.println("Write policy expiration: " + this.writePolicy.expiration);
 
-		// GET VIEW
+		/* GET VIEW */
 
-		// GET LUA_USERPATH
+		/* GET LUA_USERPATH */
 		System.out.println("Lua source directory: " + LuaConfig.SourceDirectory);
 
-		// GET LUA_SYSPATH
+		/* GET LUA_SYSPATH */
 
 
 		
-		// Total AQL statements: 29
+		// AQL statements - finish, total: 29
 	}
 	
 	protected void finalize() throws Throwable {

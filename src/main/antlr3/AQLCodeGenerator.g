@@ -110,7 +110,7 @@ from returns [StringTemplate where, StringTemplate orderBy]
 orderby
 	: list+=order+ -> orderBy(list={$list})
 	;
-
+ 
 order
 	: ^(ASC bin) -> ascend(bin = {$bin.name})
 	| ^(DESC bin) -> descend(bin = {$bin.name})
@@ -168,10 +168,10 @@ registerPackage
 
 //		EXECUTE pkgname.funcname(arg1,arg2,,) ON namespace[.setname]
 //		EXECUTE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE PK = 'X'	
-execute // TODO optional where clause
+execute 
 	: ^(EXECUTE nameSet packageFunction primaryKey? valueList?)
 		-> execute(source={$EXECUTE.source}, nameSpace={$nameSet.nameSpace}, setName={$nameSet.setName}, key={$primaryKey.value},
-					package={$packageFunction.packageName}, udf={$packageFunction.functionName}, values={$valueList.st})	
+					package={$packageFunction.packageName}, udf={$packageFunction.functionName}, arguments={$valueList.values}) 	
 	;
 
 //	AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin = nnn
@@ -183,7 +183,6 @@ aggregate
 				package={$packageFunction.packageName}, function={$packageFunction.functionName},  
 				arguments={$valueList.values}, where={$expressions.st})
 	;
-	
 
 packageFunction returns [String packageName, String functionName]
 	: p=IDENTIFIER '.' f=(IDENTIFIER|SCAN|GET|REMOVE)

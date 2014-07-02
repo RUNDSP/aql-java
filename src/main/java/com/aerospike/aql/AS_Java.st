@@ -227,9 +227,6 @@ finally {
 >>
 
 
-
-
-
 create(source, indexName, nameSpace, setName, binName, type) ::= <<
 /* <source> */
 indexTask = this.client.createIndex(this.policy, "<nameSpace>", "<setName>", "<indexName>", "<binName>", IndexType.<type>);
@@ -279,14 +276,32 @@ printInfo("Drop set:",infoAll("set-config:context=namespace;id="+namespace+";set
 
 execute(source, nameSpace, setName, key, package, udf, arguments) ::= <<
 /* <source> */
+// <nameSpace>, <setName>, <key>, <package>, <udf>, <arguments>
 <if(key)>
 result = client.execute(this.policy, 
 	new Key("<nameSpace>", "<setName>", Value.get(<key>)), 
-	"<package>", "<udf>" <if(arguments)>, first(arguments):{v|Value.get(<v>)}><rest(arguments):{v|, Value.get(<v>)}><endif>);
+	"<package>", "<udf>" <if(arguments)>, <first(arguments):{z|Value.get(<z>)}><rest(arguments):{x|, Value.get(<x>)}><endif> );
 System.out.println("UDF result: " + result);
 
 <else>
-// TODO no Scan UDF API in Java
+stmt = new Statement();
+stmt.setNamespace("<nameSpace>");
+stmt.setSetName("<setName>");
+recordSet = client.query(null, stmt);
+
+// Process the record set
+try {
+	while (recordSet != null && recordSet.next()) {
+		key = recordSet.getKey();
+		record = recordSet.getRecord();
+		
+		System.out.println("Record: " + record);
+		
+	}
+}
+finally {
+	recordSet.close();
+}
 
 <endif>
 

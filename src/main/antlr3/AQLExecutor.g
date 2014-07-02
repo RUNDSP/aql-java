@@ -1,4 +1,3 @@
-
 tree grammar AQLExecutor;
 
 options {
@@ -52,7 +51,6 @@ public AQLExecutor(TreeNodeStream input, AerospikeClient client) {
 aqlFile throws AerospikeException
 	: aqlStatement+ 
 	;
-	
 	
 aqlStatement throws AerospikeException
 	: {reportStatement($aqlStatement.text);} create 

@@ -77,10 +77,13 @@ public class QueryFilter {
 		LuaConfig.SourceDirectory = "udf"; // change this to match your UDF directory 
 		String udfString;
 		String[] udfparts;
-		// print 'register udf/filter_example.lua'
+		
+		// AQL statements - start
+		
+		/* print 'register udf/filter_example.lua' */
 		System.out.println("register udf/filter_example.lua");
 
-		// REGISTER module 'udf/filter_example.lua'
+		/* REGISTER module 'udf/filter_example.lua' */
 		udfFile = new File("udf/filter_example.lua");
 		task = this.client.register(null, 
 			udfFile.getPath(), 
@@ -88,50 +91,50 @@ public class QueryFilter {
 			Language.LUA); 
 		task.waitTillComplete();
 
-		// print 'create index profileindex'
+		/* print 'create index profileindex' */
 		System.out.println("create index profileindex");
 
-		// CREATE INDEX profileindex ON test.profile (username) STRING
+		/* CREATE INDEX profileindex ON test.profile (username) STRING */
 		indexTask = this.client.createIndex(this.policy, "test", "profile", "profileindex", "username", IndexType.STRING);
 		indexTask.waitTillComplete();
 						
-		// print 'add records'
+		/* print 'add records' */
 		System.out.println("add records");
 
-		// insert into test.profile (PK, username, password) values ('1', 'Charlie', 'cpass')
+		/* insert into test.profile (PK, username, password) values ('1', 'Charlie', 'cpass') */
 		this.client.put(this.writePolicy, new Key("test", "profile", Value.get("1")), 
 			new Bin("username", Value.get("Charlie")),
 			new Bin("password", Value.get("cpass"))
 			);
 					
-		// insert into test.profile (PK, username, password) values ('2', 'Bill', 'hknfpkj')
+		/* insert into test.profile (PK, username, password) values ('2', 'Bill', 'hknfpkj') */
 		this.client.put(this.writePolicy, new Key("test", "profile", Value.get("2")), 
 			new Bin("username", Value.get("Bill")),
 			new Bin("password", Value.get("hknfpkj"))
 			);
 					
-		// insert into test.profile (PK, username, password) values ('3', 'Doug', 'dj6554')
+		/* insert into test.profile (PK, username, password) values ('3', 'Doug', 'dj6554') */
 		this.client.put(this.writePolicy, new Key("test", "profile", Value.get("3")), 
 			new Bin("username", Value.get("Doug")),
 			new Bin("password", Value.get("dj6554"))
 			);
 					
-		// insert into test.profile (PK, username, password) values ('4', 'Mary', 'ghjks')
+		/* insert into test.profile (PK, username, password) values ('4', 'Mary', 'ghjks') */
 		this.client.put(this.writePolicy, new Key("test", "profile", Value.get("4")), 
 			new Bin("username", Value.get("Mary")),
 			new Bin("password", Value.get("ghjks"))
 			);
 					
-		// insert into test.profile (PK, username, password) values ('5', 'Julie', 'zzxzxvv')
+		/* insert into test.profile (PK, username, password) values ('5', 'Julie', 'zzxzxvv') */
 		this.client.put(this.writePolicy, new Key("test", "profile", Value.get("5")), 
 			new Bin("username", Value.get("Julie")),
 			new Bin("password", Value.get("zzxzxvv"))
 			);
 					
-		// print 'query on username'
+		/* print 'query on username' */
 		System.out.println("query on username");
 
-		// select * from test.profile where username = 'mary'
+		/* select * from test.profile where username = 'mary' */
 		stmt = new Statement();
 		stmt.setNamespace("test");
 		stmt.setSetName("profile");
@@ -156,10 +159,10 @@ public class QueryFilter {
 
 
 
-		// print 'query for Mary'
+		/* print 'query for Mary' */
 		System.out.println("query for Mary");
 
-		// aggregate filter_example.profile_filter('ghjks') on test.profile where username = 'Mary'
+		/* aggregate filter_example.profile_filter('ghjks') on test.profile where username = 'Mary' */
 		stmt = new Statement();
 		stmt.setNamespace("test");
 		stmt.setSetName("profile");
@@ -187,7 +190,7 @@ public class QueryFilter {
 						
 
 		
-		// Total AQL statements: 14
+		// AQL statements - finish, total: 14
 	}
 	
 	protected void finalize() throws Throwable {
