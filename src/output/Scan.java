@@ -3595,6 +3595,39 @@ public class Scan {
 
 
 
+		/* REGISTER module 'src/test/resources/scanudf.lua' */
+		udfFile = new File("src/test/resources/scanudf.lua");
+		task = this.client.register(null, 
+			udfFile.getPath(), 
+			udfFile.getName(), 
+			Language.LUA); 
+		task.waitTillComplete();
+
+		/* aggregate scanudf.range(200,300) on test.demo */
+		stmt = new Statement();
+		stmt.setNamespace("test");
+		stmt.setSetName("demo");
+		resultSet = client.queryAggregate(null, stmt, 
+			"scanudf", "range" , Value.get(200), Value.get(300));
+				
+		try {
+			int count = 0;
+			
+			while (resultSet.next()) {
+				Object object = resultSet.getObject();
+				System.out.println("Result: " + object);
+				count++;
+			}
+			
+			if (count == 0) {
+				System.out.println("No results returned.");			
+			}
+		}
+		finally {
+			resultSet.close();
+		}
+
+						
 		/* delete from test.demo where pk = '1' */
 		this.client.delete(this.writePolicy, 
 			new Key("test", "demo", Value.get("1")));
@@ -5597,7 +5630,7 @@ public class Scan {
 
 
 		
-		// AQL statements - finish, total: 1001
+		// AQL statements - finish, total: 1003
 	}
 	
 	protected void finalize() throws Throwable {

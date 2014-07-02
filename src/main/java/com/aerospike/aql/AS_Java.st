@@ -202,7 +202,15 @@ aggregate(source, nameSpace, setName,
 				package, function,  
 				arguments, where) ::= <<
 /* <source> */
+<if(where)>
 <where>
+
+<else>
+stmt = new Statement();
+stmt.setNamespace("<nameSpace>");
+stmt.setSetName("<setName>");
+
+<endif>
 resultSet = client.queryAggregate(null, stmt, 
 	"<package>", "<function>" <if(arguments)><arguments:{qq|, Value.get(<qq>)}><endif>);
 		

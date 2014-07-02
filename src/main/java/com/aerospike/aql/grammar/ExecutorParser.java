@@ -213,7 +213,13 @@ public class ExecutorParser extends TreeParser{
 		Statement stmt = new Statement();
 		stmt.setNamespace(namespace);
 		stmt.setSetName(set);
-		stmt.setFilters(filter);
+		/*
+		 * if there is a filter, then execute an aggregation
+		 * if the filter is missing its a ScanUDF
+		 */
+		if (filter != null)
+			stmt.setFilters(filter);
+		long startValue = startTimer();
 		ResultSet resultSet = client.queryAggregate(null, stmt, 
 				packageName, 
 				functionName, 
@@ -238,17 +244,21 @@ public class ExecutorParser extends TreeParser{
 		finally {
 			resultSet.close();
 		}
+		stopTimerAndReport(startValue);
 	}
 
 	public void executeRecordUDF(String packageName, String function, String namespace, 
 				String set, String keyValue, List<Value> values) throws AerospikeException{
 		Key key = newKey(namespace, set, keyValue);
 		int item = 0;
+		long startValue = startTimer();
 		Object result = client.execute(this.policy, key, 
 				packageName, 
 				function, 
 				values.toArray(new Value[values.size()]));
+		
 		this.resultReporter.report(result.toString());
+		stopTimerAndReport(startValue);
 
 	}
 	public void registerPackage(String packagePath) throws AerospikeException{
@@ -261,15 +271,18 @@ public class ExecutorParser extends TreeParser{
 			this.resultReporter.report("UDF file does not exist: " + packagePath); 
 			return;
 		}
+		long startValue = startTimer();
 		RegisterTask task = this.client.register(null, 
 				udfFile.getPath(), 
 				udfFile.getName(),
 				Language.LUA); 
 		task.waitTillComplete();
+		stopTimerAndReport(startValue);
 
 	}
 
 	public void removePackage(String packageName) throws AerospikeException{
+		long startValue = startTimer();
 		Node node = this.client.getNodes()[0];
 		String msg = Info.request(node, "udf-remove:filename=" + packageName);
 		if (msg.contains("error")){
@@ -277,6 +290,7 @@ public class ExecutorParser extends TreeParser{
 		} else {
 			this.resultReporter.report("Delete module: " +  packageName);
 		}
+		stopTimerAndReport(startValue);
 
 	}
 
@@ -302,7 +316,9 @@ public class ExecutorParser extends TreeParser{
 	}
 
 	public void deleteRecord(String namespace, String set, String keyvalue) throws AerospikeException{
+		long startValue = startTimer();
 		this.client.delete(this.writePolicy, newKey(namespace, set, keyvalue));
+		stopTimerAndReport(startValue);
 	}
 	protected Bin[] binList(List<String> binNames, List<Value> binValues){
 		Bin[] bins = new Bin[binNames.size()];
@@ -319,36 +335,26 @@ public class ExecutorParser extends TreeParser{
 	public void insertRecord(String namespace, String set, String keyvalue, List<String> binNames, List<Value> binValues) throws AerospikeException{
 		Bin[] bins = binList(binNames, binValues);
 		Key key = newKey(namespace, set, keyvalue);
-		StringBuilder sb = new StringBuilder();
-		long start_time = System.nanoTime();
+		long startValue = startTimer();
 		if (bins.length > 0)
 			client.put(this.writePolicy, key, bins);
 		else 
 			client.put(this.writePolicy, key);
-		long end_time = System.nanoTime();
-		double difference = (end_time-start_time)/1000000.0;
-		sb.append("Success in ");
-		sb.append(difference);
-		sb.append("ms");
-		this.resultReporter.report(sb.toString());
+		stopTimerAndReport(startValue);
 
 	}
 
 	public void createIndex(String namespace, String set, String indexName, String binName, String type) throws AerospikeException{
 		if (isConnected()) {
-			long start_time = System.nanoTime();
+			long startValue = startTimer();
 			this.client.createIndex(policy, namespace, set, indexName, binName, (type.equalsIgnoreCase("string")) ? IndexType.STRING : IndexType.NUMERIC);
-			long end_time = System.nanoTime();
-			double difference = (end_time-start_time)/1000000.0;
-			this.resultReporter.report("Index " + namespace + "." + set + "." + indexName + " - created in " + difference + "ms");
+			stopTimerAndReport(startValue);
 		}	
 
 	}
 
 	public void selectRecord(String namespace, String set, List<String> binNames, String keyString, Filter filter) throws AerospikeException{
-		StringBuilder sb = new StringBuilder();
-		long start_time = System.nanoTime();
-		long end_time = 0;
+		long startValue = startTimer();
 		if (keyString != null && !keyString.isEmpty()){
 			// singleton
 			Record record = null;
@@ -357,7 +363,7 @@ public class ExecutorParser extends TreeParser{
 			} else {
 				record = client.get(this.policy, newKey(namespace, set, keyString));
 			}
-			end_time = System.nanoTime();
+			
 			this.resultReporter.report("Record: " + record);
 
 		} else if (filter != null){
@@ -388,7 +394,6 @@ public class ExecutorParser extends TreeParser{
 				recordSet.close();
 			}
 
-			end_time = System.nanoTime();
 		} else {
 			// scan
 			ScanPolicy scanPolicy = new ScanPolicy();
@@ -400,14 +405,8 @@ public class ExecutorParser extends TreeParser{
 
 				}
 			});
-			end_time = System.nanoTime();
 		}
-
-		double difference = (end_time-start_time)/1000000.0;
-		sb.append("Success in ");
-		sb.append(difference);
-		sb.append("ms");
-		this.resultReporter.report(sb.toString());
+		stopTimerAndReport(startValue);
 	}
 
 	public void printHelp(){
@@ -445,12 +444,26 @@ public class ExecutorParser extends TreeParser{
 	}
 
 	public void dropIndex(String index, String namespace, String set) throws AerospikeException{
+		long startValue = startTimer();
 		this.client.dropIndex(policy, namespace, set, index);
-		this.resultReporter.report("Index " + namespace + "." + set + "." + index + " - dropped");
+		stopTimerAndReport(startValue);
 	}
 
 	public void dropSet(String namespace, String set) throws AerospikeException{
+		long startValue = startTimer();
 		String result = infoAll("set-config:context=namespace;id="+namespace+";set="+set+";set-delete=true;");
 		printInfo("Drop set:", result);
+		stopTimerAndReport(startValue);
+	}
+	
+	protected double stopTimerAndReport(long startValue){
+		long end_time = System.nanoTime();
+		double difference = (end_time-startValue)/1000000.0;
+		this.resultReporter.report(String.format("Success in %.3fms", difference));
+		return difference;
+	}
+	
+	protected long startTimer(){
+		return System.nanoTime();
 	}
 }

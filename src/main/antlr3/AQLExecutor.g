@@ -216,9 +216,11 @@ execute throws AerospikeException
 //	AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin = nnn
 //	AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin BETWEEN nnn AND mmm
 aggregate throws AerospikeException
-	: ^(AGGREGATE nameSet packageFunction expressions[$nameSet.nameSpace, $nameSet.setName] valueList?)
+	: ^(AGGREGATE nameSet packageFunction expressions[$nameSet.nameSpace, $nameSet.setName]? valueList?)
 	{
-	executeAggregation($nameSet.nameSpace, $nameSet.setName, $packageFunction.packageName, $packageFunction.functionName, $valueList.list, $expressions.fil);
+	executeAggregation($nameSet.nameSpace, $nameSet.setName, $packageFunction.packageName, $packageFunction.functionName, 
+	  $valueList.list,  
+	  $expressions.fil);
 	}
 	;
 	

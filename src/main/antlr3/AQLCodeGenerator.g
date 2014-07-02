@@ -178,7 +178,7 @@ execute
 //	AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin BETWEEN nnn AND mmm
 aggregate
 	: ^(AGGREGATE nameSet  
-				packageFunction expressions[$nameSet.nameSpace, $nameSet.setName] valueList?)
+				packageFunction expressions[$nameSet.nameSpace, $nameSet.setName]? valueList?)
 		-> aggregate(source={$AGGREGATE.source}, nameSpace={$nameSet.nameSpace}, setName={$nameSet.setName}, 
 				package={$packageFunction.packageName}, function={$packageFunction.functionName},  
 				arguments={$valueList.values}, where={$expressions.st})

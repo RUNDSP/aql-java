@@ -354,9 +354,10 @@ public class Example1 {
 		task.waitTillComplete();
 
 		/* EXECUTE example1-udf.foo() ON test.newtest WHERE PK='rec1' */
+		// test, newtest, "rec1", example1-udf, foo, 
 		result = client.execute(this.policy, 
 			new Key("test", "newtest", Value.get("rec1")), 
-			"example1-udf", "foo" );
+			"example1-udf", "foo"  );
 		System.out.println("UDF result: " + result);
 
 		/* PRINT */
@@ -366,6 +367,7 @@ public class Example1 {
 		System.out.println(">>> Must return numeric 5");
 
 		/* EXECUTE example1-udf.foo() ON test.newtest */
+		// test, newtest, , example1-udf, foo, 
 		stmt = new Statement();
 		stmt.setNamespace("test");
 		stmt.setSetName("newtest");

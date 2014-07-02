@@ -452,6 +452,7 @@ main(int argc, char* argv[]) // Main routing for everything
 	"1"
 	example1
 	foo
+	"arg1""arg2"3
 
 
 	// drop module example1.lua
