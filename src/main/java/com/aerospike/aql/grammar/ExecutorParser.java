@@ -248,15 +248,22 @@ public class ExecutorParser extends TreeParser{
 	}
 
 	public void executeRecordUDF(String packageName, String function, String namespace, 
-				String set, String keyValue, List<Value> values) throws AerospikeException{
+			String set, String keyValue, List<Value> values) throws AerospikeException{
 		Key key = newKey(namespace, set, keyValue);
-		int item = 0;
 		long startValue = startTimer();
-		Object result = client.execute(this.policy, key, 
-				packageName, 
-				function, 
-				values.toArray(new Value[values.size()]));
-		
+
+		Object result = null;
+
+		if (values != null){
+			result = client.execute(this.policy, key, 
+					packageName, 
+					function, 
+					values.toArray(new Value[values.size()]));
+		} else {
+			result = client.execute(this.policy, key, 
+					packageName, 
+					function);
+		}
 		this.resultReporter.report(result.toString());
 		stopTimerAndReport(startValue);
 
@@ -363,7 +370,7 @@ public class ExecutorParser extends TreeParser{
 			} else {
 				record = client.get(this.policy, newKey(namespace, set, keyString));
 			}
-			
+
 			this.resultReporter.report("Record: " + record);
 
 		} else if (filter != null){
@@ -455,14 +462,14 @@ public class ExecutorParser extends TreeParser{
 		printInfo("Drop set:", result);
 		stopTimerAndReport(startValue);
 	}
-	
+
 	protected double stopTimerAndReport(long startValue){
 		long end_time = System.nanoTime();
 		double difference = (end_time-startValue)/1000000.0;
 		this.resultReporter.report(String.format("Success in %.3fms", difference));
 		return difference;
 	}
-	
+
 	protected long startTimer(){
 		return System.nanoTime();
 	}
