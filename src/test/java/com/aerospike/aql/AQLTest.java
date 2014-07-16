@@ -156,7 +156,7 @@ public class AQLTest {
 	
 	protected String testStringGeneration(String source, AQL.Language language) throws Exception{
 		AQL aql = new AQL();
-		String result = aql.compileAndGenerateString(source, "TestModule", language, this.seedNode, String.valueOf(this.port));
+		String result = aql.compileAndGenerateSnipets(source, language);
 		return result;
 	}
 

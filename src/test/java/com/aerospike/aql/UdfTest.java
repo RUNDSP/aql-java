@@ -7,7 +7,7 @@ public class UdfTest extends AQLTest{
 	
 	public UdfTest(){
 		super();
-		this.seedNode = "P3";
+		this.seedNode = "192.168.180.140";
 	}
 
 

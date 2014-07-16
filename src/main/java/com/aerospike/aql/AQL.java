@@ -24,6 +24,7 @@ import org.antlr.stringtemplate.StringTemplateGroup;
 import org.apache.log4j.Logger;
 
 import com.aerospike.aql.grammar.AQLCodeGenerator;
+import com.aerospike.aql.grammar.AQLCodeGenerator.aqlStatement_return;
 import com.aerospike.aql.grammar.AQLExecutor;
 import com.aerospike.aql.grammar.AQLTreeAdaptor;
 import com.aerospike.aql.grammar.AQLastLexer;
@@ -176,6 +177,17 @@ public class AQL {
 				language, host, String.valueOf(port));
 
 	}
+	
+	/**
+	 * Generates source code from AQL file. The output source file will have
+	 * the same name as the AQL file.
+	 * @param inputFile
+	 * @param language
+	 * @param host
+	 * @param portString
+	 * @return
+	 * @throws Exception
+	 */
 	public String compileAndGenerateString(File inputFile, Language language, String host, String portString) throws Exception{
 		URL url = null;
 		String outputString = null;
@@ -207,7 +219,7 @@ public class AQL {
 
 		return outputString;
 	}
-	public String compileAndGenerateString(String inputString, String moduleName, Language language, String host, String portString) throws Exception{
+	public String compileAndGenerateSnipets(String inputString, Language language) throws Exception{
 		URL url = null;
 		String outputString = null;
 
@@ -224,10 +236,42 @@ public class AQL {
 		}
 
 		this.group = new StringTemplateGroup(new InputStreamReader(url.openStream()));
-		com.aerospike.aql.grammar.AQLastParser.aqlFile_return result =  getStringParser(inputString).aqlFile();
-		outputString = parseAndWalk(parser, result, moduleName, host, portString);
+		aqlStatements_return result =  getStringParser(inputString).aqlStatements();
+		outputString = parseAndWalkSnipets(parser, result);
 		return outputString;
 	}
+	
+	private String parseAndWalkSnipets(AQLastParser parser, aqlStatements_return result) throws RecognitionException{
+		String outputString = null;
+		if (parser.getNumberOfSyntaxErrors() == 0){
+			CommonTree tree = (CommonTree) result.getTree();
+			log.debug("AST tree:");
+			log.debug(tree.toStringTree());
+			CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
+			nodes.setTokenStream(this.tokenStream);
+			AQLCodeGenerator walker = new AQLCodeGenerator(nodes);
+			walker.setTemplateLib(this.group);
+			try{
+				aqlStatement_return returnValue = walker.aqlStatement();
+				log.debug("Walked tree:");
+				log.debug(result.toString());
+				StringTemplate st = (StringTemplate)returnValue.getTemplate();
+				outputString = st.toString();
+				if (walker.getNumberOfSyntaxErrors() > 0) {
+					outputString = "Errors in AST tree";
+					log.error(outputString);
+				}
+			}catch (RuntimeException e){
+				log.error("AST tree error:", e);
+				throw e;
+			}
+		} else {
+			outputString = "Syntax errors: " + this.parser.getNumberOfSyntaxErrors();
+			log.error(outputString);
+		}		
+		return outputString;
+	}
+
 	private String parseAndWalk(AQLastParser parser, com.aerospike.aql.grammar.AQLastParser.aqlFile_return result, String moduleName, String host, String portString) throws RecognitionException{
 		String outputString = null;
 		if (parser.getNumberOfSyntaxErrors() == 0){

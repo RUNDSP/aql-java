@@ -89,7 +89,7 @@ drop  throws AerospikeException
 	: ^(DROP 
 	  (
 	    ^(INDEX index_name ins=nameSet)	{ dropIndex($index_name.text, $ins.nameSpace, $ins.setName);}
-	  | ^(MODULE moduleName)  { removePackage($moduleName.text);}
+	  | ^(MODULE moduleName)  { removePackage($moduleName.value);}
 	  | ^(SET sns=nameSet) {dropSet($sns.nameSpace, $sns.setName);}
 	  ))
  	;
