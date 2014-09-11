@@ -20,13 +20,11 @@ public class AllSyntax extends AQLTest{
 		System.out.println("----- allSyntaxFileGenerationC -----");
 		testFileGeneration("everything.aql", AQL.Language.C);
 	}
-	//@Test
-	public void allSyntaxOnCluster() throws Exception {
-		System.out.println("----- allSyntaxOnCluster -----");
-		testFileExecution("everything.aql");
-			
+	@Test
+	public void allSyntaxFileGenerationPython() throws Exception {
+		System.out.println("----- allSyntaxFileGenerationC -----");
+		testFileGeneration("everything.aql", AQL.Language.PYTHON);
 	}
-
 
 
 }

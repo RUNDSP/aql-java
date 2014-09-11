@@ -1,9 +1,6 @@
 package com.aerospike.aql;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.net.URL;
 
 import junit.framework.Assert;
@@ -12,7 +9,6 @@ import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
-import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 
 import com.aerospike.aql.grammar.AQLCodeGenerator;
@@ -23,15 +19,10 @@ import com.aerospike.aql.grammar.AQLastParser;
 import com.aerospike.aql.grammar.AQLastParser.aqlFile_return;
 import com.aerospike.aql.grammar.AQLastParser.aqlStatements_return;
 import com.aerospike.aql.grammar.IErrorReporter;
-import com.aerospike.aql.grammar.IResultReporter;
 import com.aerospike.aql.grammar.NoCaseFileStream;
 import com.aerospike.aql.grammar.NoCaseStringStream;
 import com.aerospike.aql.grammar.SystemOutReporter;
 import com.aerospike.client.AerospikeClient;
-import com.aerospike.client.Log;
-import com.aerospike.client.Record;
-import com.aerospike.client.Log.Level;
-import com.aerospike.client.query.RecordSet;
 
 public class AQLTest {
 	public static final int JAVA = 1;
@@ -108,6 +99,10 @@ public class AQLTest {
 		String extension = null;
 		String langDir = null;
 		switch(stType){
+		case PYTHON:
+			extension = ".py";
+			langDir = "python/";
+			break;
 		case JAVA:
 			extension = ".java";
 			langDir = "java/";
@@ -117,7 +112,7 @@ public class AQLTest {
 			langDir = "c/";
 			break;
 		default:
-			throw new Exception("Invalid Template Type. Myst be JAVA or C");
+			throw new Exception("Invalid Template Type. Myst be PYTHON, JAVA or C");
 		}
 		File dir = new File(workingDir +"/CodeGeneration/" + langDir);
 		if (!dir.exists())

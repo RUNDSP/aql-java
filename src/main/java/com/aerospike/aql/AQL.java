@@ -8,7 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 
 import org.antlr.runtime.CharStream;
@@ -38,10 +37,12 @@ import com.aerospike.aql.grammar.NoCaseInputStream;
 import com.aerospike.aql.grammar.NoCaseStringStream;
 import com.aerospike.client.AerospikeClient;
 import com.aerospike.client.AerospikeException;
+import com.aerospike.client.policy.ClientPolicy;
+import com.aerospike.client.policy.InfoPolicy;
 
 public class AQL {
 	public enum Language {
-		C, CSHARP, JAVA;
+		C, CSHARP, JAVA, PYTHON;
 	}
 
 	private static Logger log = Logger.getLogger(AQL.class);
@@ -51,6 +52,8 @@ public class AQL {
 	private AQLastParser parser;
 	private StringTemplateGroup group;
 	private AerospikeClient client = null;
+	private ClientPolicy cPolicy = null;
+	private InfoPolicy infoPolicy = null;
 	public	boolean generateDOT = log.isDebugEnabled();
 	private DOTTreeGenerator dot = new DOTTreeGenerator();
 
@@ -61,6 +64,8 @@ public class AQL {
 	public AQL(AerospikeClient client){
 		this();
 		this.client = client;
+		this.cPolicy = new ClientPolicy();
+		this.infoPolicy = new InfoPolicy();
 	}
 
 	protected AQLastParser getFileParser(File file) throws IOException {
@@ -197,6 +202,9 @@ public class AQL {
 		case CSHARP:
 			url = getClass().getResource("AS_C_Sharp.st");
 			break;
+		case PYTHON:
+			url = getClass().getResource("AS_Python.st");
+			break;
 		case C:
 			url = getClass().getResource("AS_C.st");
 			break;
@@ -228,6 +236,9 @@ public class AQL {
 			url = getClass().getResource("AS_C_Sharp.st");
 			break;
 		case C:
+			url = getClass().getResource("AS_C.st");
+			break;
+		case PYTHON:
 			url = getClass().getResource("AS_C.st");
 			break;
 		default:
@@ -308,8 +319,12 @@ public class AQL {
 		String outputFileName = "output";
 		String extension = null;
 		switch (language){
+		
 		case CSHARP:
 			extension = ".cs";
+			break;
+		case PYTHON:
+			extension = ".py";
 			break;
 		case C:
 			extension = ".c";
