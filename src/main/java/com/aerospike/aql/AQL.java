@@ -39,10 +39,11 @@ import com.aerospike.client.AerospikeClient;
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.policy.ClientPolicy;
 import com.aerospike.client.policy.InfoPolicy;
+import com.aerospike.client.policy.Policy;
 
 public class AQL {
 	public enum Language {
-		C, CSHARP, JAVA, PYTHON;
+		C, CSHARP, JAVA, PYTHON, GO, PHP, NODE, RUBY;
 	}
 
 	private static Logger log = Logger.getLogger(AQL.class);
@@ -122,10 +123,6 @@ public class AQL {
 		return ast;
 	}
 
-	public aqlStatements_return compile(String sqlString, IErrorReporter reporter, IResultReporter resultReporter) throws IOException{
-		CharStream stream = new NoCaseStringStream(sqlString);
-		return compileStringStream(stream, reporter, resultReporter);
-	}
 	public aqlStatements_return compileStringStream(CharStream stream, IErrorReporter errorReporter, IResultReporter resultReporter) throws IOException{
 		try {
 			AQLastLexer lexer = new AQLastLexer(stream);
@@ -182,7 +179,7 @@ public class AQL {
 				language, host, String.valueOf(port));
 
 	}
-	
+
 	/**
 	 * Generates source code from AQL file. The output source file will have
 	 * the same name as the AQL file.
@@ -194,24 +191,10 @@ public class AQL {
 	 * @throws Exception
 	 */
 	public String compileAndGenerateString(File inputFile, Language language, String host, String portString) throws Exception{
-		URL url = null;
+		URL url = getTemplateURL(language);
 		String outputString = null;
 		String moduleName = moduleFromFile(inputFile.getName());
 		com.aerospike.aql.grammar.AQLastParser.aqlFile_return result =  getFileParser(inputFile).aqlFile();
-		switch (language){
-		case CSHARP:
-			url = getClass().getResource("AS_C_Sharp.st");
-			break;
-		case PYTHON:
-			url = getClass().getResource("AS_Python.st");
-			break;
-		case C:
-			url = getClass().getResource("AS_C.st");
-			break;
-		default:
-			url = getClass().getResource("AS_Java.st");
-			break;
-		}
 
 		this.group = new StringTemplateGroup(new InputStreamReader(url.openStream()));
 		outputString = parseAndWalk(parser, result, moduleName, host, portString);
@@ -227,9 +210,9 @@ public class AQL {
 
 		return outputString;
 	}
-	public String compileAndGenerateSnipets(String inputString, Language language) throws Exception{
+
+	private URL getTemplateURL(Language language){
 		URL url = null;
-		String outputString = null;
 
 		switch (language){
 		case CSHARP:
@@ -239,19 +222,54 @@ public class AQL {
 			url = getClass().getResource("AS_C.st");
 			break;
 		case PYTHON:
-			url = getClass().getResource("AS_C.st");
+			url = getClass().getResource("AS_Python.st");
+			break;
+		case GO:
+			url = getClass().getResource("AS_Go.st");
+			break;
+		case PHP:
+			url = getClass().getResource("AS_PHP.st");
+			break;
+		case NODE:
+			url = getClass().getResource("AS_Node.st");
 			break;
 		default:
 			url = getClass().getResource("AS_Java.st");
 			break;
 		}
-
-		this.group = new StringTemplateGroup(new InputStreamReader(url.openStream()));
-		aqlStatements_return result =  getStringParser(inputString).aqlStatements();
-		outputString = parseAndWalkSnipets(parser, result);
-		return outputString;
+		return url;
 	}
-	
+
+	private String GetFileExtension(Language language){
+		String extension = null;
+		switch (language){
+
+		case CSHARP:
+			extension = ".cs";
+			break;
+		case PYTHON:
+			extension = ".py";
+			break;
+		case C:
+			extension = ".c";
+			break;
+		case GO:
+			extension = ".go";
+			break;
+		case NODE:
+			extension = ".js";
+			break;
+		case PHP:
+			extension = ".php";
+			break;
+		default:
+			extension = ".java";
+			break;
+		}
+		return extension;
+
+	}
+
 	private String parseAndWalkSnipets(AQLastParser parser, aqlStatements_return result) throws RecognitionException{
 		String outputString = null;
 		if (parser.getNumberOfSyntaxErrors() == 0){
@@ -317,23 +335,7 @@ public class AQL {
 		getFileParser(inputfile);
 		String moduleName = moduleFromFile(inputfile.getName());
 		String outputFileName = "output";
-		String extension = null;
-		switch (language){
-		
-		case CSHARP:
-			extension = ".cs";
-			break;
-		case PYTHON:
-			extension = ".py";
-			break;
-		case C:
-			extension = ".c";
-			break;
-		default:
-			extension = ".java";
-			break;
-		}
-
+		String extension = GetFileExtension(language);
 		if (outputFile == null){
 			outputFileName = moduleName + extension;
 			outputFile = new File(outputFileName);
@@ -345,6 +347,8 @@ public class AQL {
 		writeFile(outputFile, content);
 
 	}
+
+
 	private void writeFile(File file, String content) throws IOException{
 		if (!file.exists()){
 			file.createNewFile();
@@ -361,6 +365,112 @@ public class AQL {
 			moduleName = moduleName.substring(0, moduleName.lastIndexOf("."));
 		}
 		return moduleName;
+	}
+
+	public String compileAndGenerateSnipets(String inputString, Language language) throws Exception{
+		URL url = getTemplateURL(language);
+		if (url != null){
+			this.group = new StringTemplateGroup(new InputStreamReader(url.openStream()));
+			aqlStatements_return result =  getStringParser(inputString).aqlStatements();
+			String outputString = parseAndWalkSnipets(parser, result);
+			return outputString;
+		}
+		return null;
+	}
+	/**
+	 * Compile AQL string and produce statement AST
+	 * @param sqlString
+	 * @param reporter
+	 * @param resultReporter
+	 * @return
+	 * @throws IOException
+	 */
+	public aqlStatements_return compile(String sqlString, IErrorReporter reporter, IResultReporter resultReporter) throws IOException{
+		CharStream stream = new NoCaseStringStream(sqlString);
+		return compileStringStream(stream, reporter, resultReporter);
+	}
+	/**
+	 * Generate a code string from an AST
+	 * @param ast
+	 * @param resultReporter
+	 * @return
+	 */
+	public String generate(aqlStatements_return ast, IResultReporter resultReporter, Language language){
+		URL url = getTemplateURL(language);
+		if (url == null){
+			String msg = "Cannot find template for " + language;
+			resultReporter.report(msg);
+			log.error(msg);
+			return null;
+		}
+		try{
+			String outputString = parseAndWalkSnipets(parser, ast);
+			return outputString;
+		} catch (RecognitionException e) {
+			resultReporter.report(e.getMessage());
+			log.error(e.getMessage(), e);
+		}	
+		return null;
+	}
+	public void execute(PreparedStatement statement, IResultReporter resultReporter, IErrorReporter errorReporter) throws RecognitionException, AerospikeException{
+		execute(statement.getAst(), resultReporter, errorReporter);
+	}
+	/**
+	 * Execute 
+	 * @param ast
+	 * @param resultReporter
+	 * @param errorReporter
+	 * @throws AerospikeException 
+	 * @throws RecognitionException 
+	 */
+	public void execute(aqlStatements_return ast, IResultReporter resultReporter, IErrorReporter errorReporter) throws RecognitionException, AerospikeException{
+		//TODO add policy
+		if (this.client == null){
+			if (resultReporter != null)
+				resultReporter.report("Aerospike client is null");
+			else
+				log.error("Aerospike client is null");
+			return;
+		}
+		if (ast == null){
+			if (resultReporter != null)
+				resultReporter.report("Error: No AST");
+			else
+				log.error("Error: No AST");
+			return;
+		}
+			CommonTree tree = (CommonTree) ast.getTree();
+			if (tree == null)
+				return;
+			log.debug("AST tree:");
+			log.debug(tree.toStringTree());
+			CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
+			nodes.setTokenStream(this.tokenStream);
+			AQLExecutor walker = new AQLExecutor(nodes, this.client);
+			walker.setErrorReporter(errorReporter);
+			walker.setResultReporter(resultReporter);
+			walker.aqlStatement();
+			if (walker.getNumberOfSyntaxErrors() > 0) {
+				log.error("Errors in AST tree: " + walker.getNumberOfSyntaxErrors());
+			}
+	}
+	/** Prepares an AQL statement for execution
+	 * 
+	 * @param aqlString
+	 * @param reporter
+	 * @param resultReporter
+	 * @return
+	 */
+	public PreparedStatement prepare(String aqlString, IErrorReporter reporter, IResultReporter resultReporter){
+		aqlStatements_return ast;
+		try {
+			ast = compile(aqlString, reporter, resultReporter);
+			PreparedStatement statement = new PreparedStatement(ast);
+			return statement;
+		} catch (IOException e) {
+			log.error("Could not prepare AQL", e);
+			throw new AQLException("Could not prepare AQL", e);
+		}
 	}
 
 	public void execute(File file, IResultReporter resultReporter, IErrorReporter errorReporter) {

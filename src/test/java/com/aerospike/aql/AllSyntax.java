@@ -25,6 +25,11 @@ public class AllSyntax extends AQLTest{
 		System.out.println("----- allSyntaxFileGenerationC -----");
 		testFileGeneration("everything.aql", AQL.Language.PYTHON);
 	}
+	@Test
+	public void allSyntaxFileGenerationGo() throws Exception {
+		System.out.println("----- allSyntaxFileGenerationC -----");
+		testFileGeneration("everything.aql", AQL.Language.GO);
+	}
 
 
 }

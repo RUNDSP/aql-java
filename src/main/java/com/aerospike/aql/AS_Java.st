@@ -193,7 +193,6 @@ this.client.scanAll(scanPolicy, "<nameSpace>", "<setName>", new ScanCallback() {
 <endif>
 <as>
 
-
 >>
 
 
@@ -278,7 +277,7 @@ System.out.println("Drop module <package>: " + Info.request(this.seedHost, this.
 
 deleteSet(source, namespace, set)::= <<
 /* <source> */
-printInfo("Drop set:",infoAll("set-config:context=namespace;id="+namespace+";set="+set+";set-delete=true;"));
+printInfo("Drop set:",infoAll("set-config:context=namespace;id=<namespace>;set=<set>;set-delete=true;"));
 
 >>
 

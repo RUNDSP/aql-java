@@ -3,7 +3,12 @@ package com.aerospike.aql.grammar;
 import com.aerospike.client.Record;
 import com.aerospike.client.Log.Level;
 import com.aerospike.client.query.RecordSet;
-
+/**
+ * This interface is used to report results to
+ * the calling application
+ * @author peter
+ *
+ */
 public interface IResultReporter {
 	public void report(String message);
 	public void report(Level level, String message);

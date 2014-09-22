@@ -103,6 +103,18 @@ public class AQLTest {
 			extension = ".py";
 			langDir = "python/";
 			break;
+		case PHP:
+			extension = ".php";
+			langDir = "php/";
+			break;
+		case GO:
+			extension = ".go";
+			langDir = "go/";
+			break;
+		case NODE:
+			extension = ".js";
+			langDir = "node/";
+			break;
 		case JAVA:
 			extension = ".java";
 			langDir = "java/";
