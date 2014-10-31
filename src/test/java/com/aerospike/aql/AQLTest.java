@@ -5,6 +5,7 @@ import java.net.URL;
 
 import junit.framework.Assert;
 
+import org.antlr.grammar.v3.ANTLRParser;
 import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.CommonTree;

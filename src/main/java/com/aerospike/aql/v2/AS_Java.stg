@@ -1,0 +1,625 @@
+aqlFile(className, statements, host, port) ::= <<
+
+import gnu.crypto.util.Base64;
+
+import java.io.File;
+
+import com.aerospike.client.AerospikeClient;
+import com.aerospike.client.AerospikeException;
+import com.aerospike.client.Bin;
+import com.aerospike.client.Host;
+import com.aerospike.client.Info;
+import com.aerospike.client.Key;
+import com.aerospike.client.Language;
+import com.aerospike.client.Record;
+import com.aerospike.client.Operation;
+import com.aerospike.client.ScanCallback;
+import com.aerospike.client.Value;
+import com.aerospike.client.policy.Policy;
+import com.aerospike.client.policy.ScanPolicy;
+import com.aerospike.client.policy.WritePolicy;
+import com.aerospike.client.policy.QueryPolicy;
+import com.aerospike.client.policy.InfoPolicy;
+import com.aerospike.client.policy.ScanPolicy;
+import com.aerospike.client.policy.RecordExistsAction;
+import com.aerospike.client.policy.GenerationPolicy;
+import com.aerospike.client.query.Filter;
+import com.aerospike.client.query.IndexType;
+import com.aerospike.client.query.RecordSet;
+import com.aerospike.client.query.ResultSet;
+import com.aerospike.client.query.Statement;
+import com.aerospike.client.task.RegisterTask;
+import com.aerospike.client.task.IndexTask;
+import com.aerospike.client.cluster.Node;
+import com.aerospike.client.lua.LuaConfig;
+import com.aerospike.client.policy.ClientPolicy;
+
+public class <className> {
+
+
+	public <className>() throws AerospikeException{
+		super();
+	}
+
+	public static void main(String[] args) throws AerospikeException{
+		<className> worker = new <className>();
+		worker.run();
+	}
+	public void run() throws AerospikeException {
+		<statements>
+	}
+	
+	protected void printInfo(String title, String infoString){
+		if (infoString == null){
+			System.out.println("Null info string");
+			return;
+		}
+		String[] outerParts = infoString.split(";");
+		System.out.println(title);
+		for (String s : outerParts){
+
+			String[] innerParts = s.split(":");
+			for (String parts : innerParts){
+				System.out.println("\t" + parts);
+			}
+			System.out.println();
+		}
+		
+	}
+	protected String infoAll(AerospikeClient client, String cmd) throws AerospikeException{
+		Node[] nodes = client.getNodes();
+		StringBuilder results = new StringBuilder();
+		for (Node node : nodes){
+			results.append(Info.request(node.getHost().name, node.getHost().port, cmd)).append("\n");
+		}
+		return results.toString();
+	}
+}
+
+>>
+
+statements(statementList, variables) ::= <<
+// Variables for statements
+
+<variables>
+// AQL statements - start
+
+<statementList>
+// AQL statements - finish, total: <length(statementList)>
+
+>>
+
+client(host, port)::=<<
+/*
+Host[] hosts = new Host[] {new Host("a.host", 3000),
+							new Host("another.host", 3000),
+							new Host("and.another.host", 300)};
+AerospikeClient client = new AerospikeClient(clientPolicy, hosts);
+*/
+AerospikeClient client = new AerospikeClient(clientPolicy, "<host>", <port>);
+
+>>
+
+clientPolicy()::=<<
+ClientPolicy clientPolicy = new ClientPolicy();
+
+>>
+
+queryPolicy()::=<<
+QueryPolicy queryPolicy = new QueryPolicy();
+
+>>
+
+readPolicy()::=<<
+Policy policy = new Policy();
+
+>>
+
+infoPolicy()::=<<
+InfoPolicy infoPolicy = new InfoPolicy();
+
+>>
+
+infoString()::=<<
+String infoResult = null;
+
+>>
+
+record()::=<<
+Record record = null;
+
+>>
+
+recordSet()::=<<
+RecordSet recordSet = null;
+
+>>
+
+resultSet()::=<<
+ResultSet resultSet = null;
+
+>>
+
+scanPolicy()::=<<
+ScanPolicy scanPolicy = new ScanPolicy();
+
+>>
+
+writePolicy()::=<<
+WritePolicy writePolicy = new WritePolicy();
+
+>>
+
+stmt()::=<<
+Statement stmt = new Statement();
+
+>>
+
+udfFile()::=<<
+File udfFile = null;
+
+>>
+
+registerTask()::=<<
+RegisterTask task =	null;
+
+>>
+
+indexTask()::=<<
+IndexTask indexTask = null;
+
+>>
+
+insertStmt(source, primaryKey, binNames, values) ::= <<
+/* <source> */
+writePolicy.recordExistsAction = RecordExistsAction.CREATE_ONLY;
+client.put(writePolicy, <primaryKey>, 
+	<first(binNames),first(values):{z,vv|new Bin("<z>", <vv>)}><rest(binNames),rest(values):{z,vv|, new Bin("<z>", <vv>)}>);
+			
+>>
+
+updateStmt(source, primaryKey, binList, generation)::=<<
+/* <source> */
+<if(generation)>
+<generation>
+<endif>
+writePolicy.recordExistsAction = RecordExistsAction.UPDATE;
+client.put(writePolicy, <primaryKey>, <first(binList):{z|<z>}><rest(binList):{z|, <z>}>);
+
+>>
+
+binList(bins) ::=<<
+<first(binList):{z|<z>}><rest(binList):{z|, <z>}>
+>>
+
+binValue(binName, binValue) ::= <<
+new Bin("<binName>", <binValue>)
+>>
+
+deleteStmt(source, primaryKey) ::= <<
+/* <source> */
+client.delete(writePolicy, <primaryKey>);
+
+>>
+
+select(source, nameSpace, setName, binNames, as, where, key) ::= <<
+/* <source> */
+<if(key)>
+<if(binNames)>
+record = client.get(policy, new Key("<nameSpace>", "<setName>", Value.get(<key>)), <first(binNames):{b|"<b>"}><rest(binNames):{b|, "<b>"}>);
+<else>
+record = client.get(policy, new Key("<nameSpace>", "<setName>", Value.get(<key>)));
+<endif>
+
+System.out.println("Record: " + record);
+<elseif(where)>
+<where>
+<if(binNames)>
+stmt.setBinNames(<first(binNames):{b|"<b>"}><rest(binNames):{b|, "<b>"}>);
+<endif>
+
+// Execute the query
+recordSet = client.query(null, stmt);
+
+// Process the record set
+try {
+	while (recordSet != null && recordSet.next()) {
+		Key key = recordSet.getKey();
+		record = recordSet.getRecord();
+		
+		System.out.println("Record: " + record);
+		
+	}
+}
+finally {
+	recordSet.close();
+}
+
+
+<else>
+scanPolicy = new ScanPolicy();
+client.scanAll(scanPolicy, "<nameSpace>", "<setName>", new ScanCallback() {
+			
+	@Override
+	public void scanCallback(Key key, Record record) throws AerospikeException {
+		System.out.println("Record: " + record);
+		
+	}
+});
+
+
+
+<endif>
+<as>
+
+>>
+
+aggregate(source, nameSpace, setName, 
+				package, function,  
+				arguments, where) ::= <<
+/* <source> */
+<if(where)>
+<where>
+
+<else>
+stmt = new Statement();
+stmt.setNamespace("<nameSpace>");
+stmt.setSetName("<setName>");
+
+<endif>
+resultSet = client.queryAggregate(null, stmt, 
+	"<package>", "<function>" <if(arguments)><arguments:{qq|, Value.get(<qq>)}><endif>);
+		
+try {
+	int count = 0;
+	
+	while (resultSet.next()) {
+		Object object = resultSet.getObject();
+		System.out.println("Result: " + object);
+		count++;
+	}
+	
+	if (count == 0) {
+		System.out.println("No results returned.");			
+	}
+}
+finally {
+	resultSet.close();
+}
+				
+>>
+
+
+create(source, indexName, nameSpace, setName, binName, type) ::= <<
+/* <source> */
+indexTask = client.createIndex(policy, "<nameSpace>", "<setName>", "<indexName>", "<binName>", IndexType.<type>);
+indexTask.waitTillComplete(10);
+				
+>>
+
+dropIndex(source, indexName, nameSpace, setName) ::= <<
+/* <source> */
+client.dropIndex(policy, "<nameSpace>", "<setName>", "<indexName>");
+
+>>
+
+showIndex(source, nameSpace, setName) ::= <<
+/* <source> */
+infoResult = Info.request(infoPolicy, client.getNodes()[0], "sindex");
+
+>>
+
+statIndex(source, nameSpace, indexName) ::= <<
+/* <source> */
+
+>>
+
+register(source, path) ::= <<
+/* <source> */
+udfFile = new File("<path>");
+task = client.register(null, 
+	udfFile.getPath(), 
+	udfFile.getName(), 
+	Language.LUA); 
+task.waitTillComplete(10);
+
+>>
+
+removeModule(source, module) ::= <<
+/* <source> */
+infoResult = Info.request(infoPolicy, client.getNodes()[0], "udf-remove:filename=<module>");
+
+>>
+
+operateStatement(source, operations, key, generation)::=<<
+/* <source> */
+<if(generation)>
+<generation>
+<endif>
+record = client.operate(writePolicy, <key>, <first(operations):{b|<b>}><rest(operations):{b|, <b>}>);
+
+>>
+
+deleteSet(source, namespace, set)::= <<
+/* <source> */
+String[] infoResults = infoAll("set-config:context=namespace;id=<namespace>;set=<set>;set-delete=true;"));
+
+>>
+
+execute(source, nameSpace, nameSpace, setName, key, module, udf, arguments) ::= <<
+/* <source> */
+// <nameSpace>, <setName>, <key>, <module>, <udf>, <arguments>
+<if(key)>
+result = client.execute(policy, <key>, "<package>", "<udf>" <if(arguments)>, <first(arguments):{z|<z>}><rest(arguments):{x|, <x>}><endif> );
+System.out.println("UDF result: " + result);
+
+<else>
+stmt = new Statement();
+stmt.setNamespace("<nameSpace>");
+stmt.setSetName("<setName>");
+recordSet = client.query(null, stmt);
+
+// Process the record set
+try {
+	while (recordSet != null && recordSet.next()) {
+		Key key = recordSet.getKey();
+		record = recordSet.getRecord();
+		
+		System.out.println("Record: " + record);
+		
+	}
+}
+finally {
+	recordSet.close();
+}
+
+<endif>
+
+>>
+
+wherePK(value) ::= <<
+new Key(<value>);
+>>
+
+
+
+whereFilter(nameSpace, setName, filters, binNames) ::= <<
+stmt = new Statement();
+stmt.setNamespace("<nameSpace>");
+stmt.setSetName("<setName>");
+<if(binNames)>
+stmt.setBinNames(<first(binNames):{z|"<z>"}><rest(binNames):{x|, "<x>"}>);
+<endif>
+<if(filters)>
+stmt.setFilters(<first(filters):{f|<f>}><rest(filters):{f|, <f>}>);
+<endif>
+
+>>
+
+orderBy(list) ::= <<
+/* Ordeby not supported <list> */
+>>
+
+ascend(bin) ::= <<
+/* ASC not supported <bin> */
+>>
+
+descend(bin) ::= <<
+/* DESC not supported <bin> */
+>>
+
+setTimeOut(source, value) ::= <<
+/* <source> */
+clientPolicy.timeout = <value>;
+policy.timeout = <value>;
+writePolicy.timeout = <value>;
+
+>>
+ 
+setVerbose(source, value) ::= <<
+/* <source> */
+
+>>
+
+setEcho(source, value) ::= <<
+/* <source> */
+
+>>
+
+setTTL(source, value) ::= <<
+/* <source> */
+writePolicy.expiration = <value>;
+
+>>
+
+setView(source, type) ::= <<
+/* <source> */
+
+>>
+
+useSmd(source, value) ::= <<
+/* <source> */
+
+>>
+
+setUserPath(source, value) ::= <<
+/* <source> */
+LuaConfig.SourceDirectory = "<value>"; 
+
+>>
+
+setSystemPath(source, value) ::= <<
+/* <source> */
+
+>>
+
+getTimeout(source) ::= <<
+/* <source> */
+System.out.println("Policy timeout: " + policy.timeout);
+System.out.println("Write policy timeout: " + writePolicy.timeout);
+
+>>
+getVerbose(source) ::= <<
+/* <source> */
+
+>>
+getEcho(source) ::= <<
+/* <source> */
+
+>>
+getTTL(source) ::= <<
+/* <source> */
+System.out.println("Write policy expiration: " + writePolicy.expiration);
+
+>>
+getView(source) ::= <<
+/* <source> */
+
+>>
+getUseSMD(source) ::= <<
+/* <source> */
+
+>>
+getUserPath(source) ::= <<
+/* <source> */
+System.out.println("Lua source directory: " + LuaConfig.SourceDirectory);
+
+>>
+getSystemPath(source) ::= <<
+/* <source> */
+
+>>
+
+statQuery(source) ::= <<
+/* <source> */
+infoResult = Info.request(infoPolicy, client.getNodes()[0], "query-stat");
+
+>>
+
+statSystem(source) ::= <<
+/* <source> */
+infoResult = Info.request(infoPolicy, client.getNodes()[0], "statistics");
+
+>>
+
+
+filterEquals(bin, value) ::= <<
+Filter.equal("<bin>", Value.get(<value>))
+>>
+
+filterRange(bin, low, high) ::= <<
+Filter.range("<bin>", Value.get(<low>), Value.get(<high>))
+>>
+
+primaryKey(namespace, set, key) ::=<<
+new Key("<namespace>", "<set>", <key>)
+>> 
+
+value(value) ::= <<
+Value.get(<value>)
+>>
+
+stringValue(value) ::= <<
+Value.get("<value>")
+>>
+
+generationPredicate(generation) ::=<<
+writePolicy.generation = <generation>;
+writePolicy.generationPolicy = GenerationPolicy.EXPECT_GEN_EQUAL;
+
+>>
+
+operateFunction(functionName, bin, value) ::=<<
+<if(value)>
+Operation.<functionName>(new Bin("<bin>", <value>))
+<elseif(bin)>
+Operation.<functionName>("<bin>")
+<else>
+Operation.<functionName>()
+<endif>
+>>
+
+
+showModules(source) ::= <<
+/* <source> */
+infoResult = Info.request(infoPolicy, client.getNodes()[0], "udf-list");
+
+>>
+
+showNamespaces(source) ::= <<
+/* <source> */
+infoResult = Info.request(infoPolicy, client.getNodes()[0], "namespaces");
+
+>>
+
+showSets(source) ::= <<
+/* <source> */
+infoResult = Info.request(infoPolicy, client.getNodes()[0], "sets");
+
+>>
+
+showIndexes(source) ::= <<
+/* <source> */
+infoResult = Info.request(infoPolicy, client.getNodes()[0], "indexes");
+
+>>
+
+showBins(source) ::= <<
+/* <source> */
+infoResult = Info.request(infoPolicy, client.getNodes()[0], "bins");
+
+>>
+
+showScans(source) ::= <<
+/* <source> */
+infoResult = Info.request(infoPolicy, client.getNodes()[0], "jobs:module=scan");
+
+>>
+
+showQueries(source) ::= <<
+/* <source> */
+infoResult = Info.request(infoPolicy, client.getNodes()[0], "jobs:module=query");
+
+
+>>
+
+descIndex(source, nameSpace, indexName) ::= <<
+/* <source> */
+infoResult = Info.request(infoPolicy, client.getNodes()[0], "sindex-describe");
+
+>>
+
+
+descModule(source, name) ::= <<
+/* <source> */
+System.out.println("Module: <name>");
+infoResult = Info.request(infoPolicy, client.getNodes()[0], "udf-get:filename=<name>");
+{
+	String[] udfparts = infoResult.split(";");
+	System.out.println(new String(Base64.decode(udfparts[2].getBytes(), 8, udfparts[2].length()-2)));
+}
+
+>>
+
+killQuery(source, id) ::= <<
+/* <source> */
+Info.request(infoPolicy, client.getNodes()[0], "query-kill=<id>");
+
+>>
+
+killScan(source, id) ::= <<
+/* <source> */
+Info.request(infoPolicy, client.getNodes()[0], "scan-kill=<id>");
+
+>>
+
+run(source, fileName) ::= <<
+/* <source> */
+System.out.println("Run file: " + <fileName>);
+
+>>
+print(source, value) ::= <<
+/* <source> */
+System.out.println("<value>");
+
+>>

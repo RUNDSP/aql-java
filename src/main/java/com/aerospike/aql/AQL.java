@@ -412,9 +412,6 @@ public class AQL {
 		}	
 		return null;
 	}
-	public void execute(PreparedStatement statement, IResultReporter resultReporter, IErrorReporter errorReporter) throws RecognitionException, AerospikeException{
-		execute(statement.getAst(), resultReporter, errorReporter);
-	}
 	/**
 	 * Execute 
 	 * @param ast
@@ -453,24 +450,6 @@ public class AQL {
 			if (walker.getNumberOfSyntaxErrors() > 0) {
 				log.error("Errors in AST tree: " + walker.getNumberOfSyntaxErrors());
 			}
-	}
-	/** Prepares an AQL statement for execution
-	 * 
-	 * @param aqlString
-	 * @param reporter
-	 * @param resultReporter
-	 * @return
-	 */
-	public PreparedStatement prepare(String aqlString, IErrorReporter reporter, IResultReporter resultReporter){
-		aqlStatements_return ast;
-		try {
-			ast = compile(aqlString, reporter, resultReporter);
-			PreparedStatement statement = new PreparedStatement(ast);
-			return statement;
-		} catch (IOException e) {
-			log.error("Could not prepare AQL", e);
-			throw new AQLException("Could not prepare AQL", e);
-		}
 	}
 
 	public void execute(File file, IResultReporter resultReporter, IErrorReporter errorReporter) {

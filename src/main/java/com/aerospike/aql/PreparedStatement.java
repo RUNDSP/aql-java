@@ -1,19 +1,20 @@
 package com.aerospike.aql;
 
+import com.aerospike.aql.grammar.AQLastParser.aqlFile_return;
 import com.aerospike.aql.grammar.AQLastParser.aqlStatements_return;
 import com.aerospike.client.query.Statement;
 
 public class PreparedStatement {
 	Statement statement;
-	aqlStatements_return ast;
-	public PreparedStatement(aqlStatements_return ast) {
+	aqlFile_return ast;
+	public PreparedStatement(aqlFile_return ast) {
 		super();
 		this.ast = ast;
 	}
 	public Statement getStatement() {
 		return statement;
 	}
-	public aqlStatements_return getAst() {
+	public aqlFile_return getAst() {
 		return ast;
 	}
 	

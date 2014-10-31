@@ -1,17 +1,25 @@
-select * from test.people where pk = 'toby'
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('1', 1, '1', 1)
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('2', 2, '2', 2)
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('3', 3, '2', 2)
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('4', 4, '2', 2)
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('5', 5, '2', 2)
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('6', 6, '2', 2)
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('7', 7, '2', 2)
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('8', 8, '2', 2)
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('9', 9, '2', 2)
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('10', 10, '2', 2)
-CREATE INDEX index_bn2 ON test.demo (bn2) NUMERIC
-CREATE INDEX index_bn3 ON test.demo (bn3) STRING
+#Insert
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('1', 1, '1', 1)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('2', 2, '2', 2)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('3', 3, '2', 2)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('4', 4, '2', 2)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('5', 5, '2', 2)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('6', 6, '2', 2)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('7', 7, '2', 2)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('8', 8, '2', 2)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('9', 9, '2', 2)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('10', 10, '2', 2)
 
+#Create
+	CREATE INDEX index_bn2 ON test.demo (bn2) NUMERIC
+	CREATE INDEX index_bn3 ON test.demo (bn3) STRING
+
+#Update
+	UPDATE test.demo SET bn2 = 9, bn3 = '22', bn4 = 22 where pk = '9'
+	UPDATE test.demo SET bn2 = 8, bn3 = '22', bn4 = 22 where pk = '8'
+	UPDATE test.demo SET bn2 = 7, bn3 = '22', bn4 = 22 where pk = '7'
+	UPDATE test.demo SET bn2 = 6, bn3 = '22', bn4 = 22 where pk = '6'
+	update test.cats SET bob = 23, sue = 'abc' where pk = '1234' and generation = 98765
 
 #QUERY:
 	SELECT * FROM test.demo
@@ -26,7 +34,9 @@ CREATE INDEX index_bn3 ON test.demo (bn3) STRING
 	SELECT bn2,bn3,bn4  FROM test.demo WHERE bn4 BETWEEN 1 AND 2
 	SELECT bn2,bn3,bn4  FROM test.demo WHERE PK = '10'
 
-
+#Operate
+	operate add(cat, 23), get(cat) on test.demo where pk = 9989
+	operate add(cat, 23), get(cat) on test.demo where pk = 9989 and generation = 20967
 
 #UDF:
 	REGISTER module 'src/test/resources/example1.lua'

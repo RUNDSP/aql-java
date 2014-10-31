@@ -16,7 +16,7 @@ public class ScanTest extends AQLTest{
 	@Test
 	public void scanFileExecution() throws Exception {
 		System.out.println("----- scanFileExecution -----");
-		testFileExecution("P3", 3000, "Scan.aql");
+		testFileExecution("localhost", 3000, "Scan.aql");
 	}
 
 }

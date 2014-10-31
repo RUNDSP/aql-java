@@ -7,8 +7,11 @@ import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CharStream;
 
 public class NoCaseInputStream extends ANTLRInputStream {
-	
-	
+
+	public NoCaseInputStream() {
+		super();
+	}
+
 	public NoCaseInputStream(InputStream arg0, int arg1, int arg2, String arg3)
 			throws IOException {
 		super(arg0, arg1, arg2, arg3);
@@ -31,7 +34,6 @@ public class NoCaseInputStream extends ANTLRInputStream {
 	public NoCaseInputStream(InputStream input) throws IOException {
 		super(input);
 	}
-
 
 	public int LA(int i) {
         if ( i==0 ) {

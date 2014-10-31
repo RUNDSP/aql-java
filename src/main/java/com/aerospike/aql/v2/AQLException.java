@@ -1,4 +1,4 @@
-package com.aerospike.aql;
+package com.aerospike.aql.v2;
 
 
 @SuppressWarnings("serial")
