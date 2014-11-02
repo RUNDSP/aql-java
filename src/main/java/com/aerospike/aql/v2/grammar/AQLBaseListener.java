@@ -22,6 +22,19 @@ public class AQLBaseListener implements AQLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterDisconnect(@NotNull AQLParser.DisconnectContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDisconnect(@NotNull AQLParser.DisconnectContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterSelect(@NotNull AQLParser.SelectContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -159,19 +172,6 @@ public class AQLBaseListener implements AQLListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCreate(@NotNull AQLParser.CreateContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterFrom(@NotNull AQLParser.FromContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitFrom(@NotNull AQLParser.FromContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -471,6 +471,19 @@ public class AQLBaseListener implements AQLListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitValue(@NotNull AQLParser.ValueContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterConnect(@NotNull AQLParser.ConnectContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitConnect(@NotNull AQLParser.ConnectContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

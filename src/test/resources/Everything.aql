@@ -1,3 +1,6 @@
+#Connect
+connect '192.168.1.15' 3000
+
 #Insert
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('1', 1, '1', 1)
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('2', 2, '2', 2)
@@ -46,9 +49,10 @@
 	desc module example1.lua
 	desc module average_example.lua
 	EXECUTE example1.foo('arg1','arg2',3) ON test.demo WHERE PK = '1' 
+	EXECUTE example1.foo('arg1','arg2',3) ON test.demo 
 	drop module example1.lua
 	AGGREGATE sum_example.sum_single_bin('bn4') ON test.demo WHERE bn4 BETWEEN 1 AND 2
-
+	aggregate filter_example.profile_filter('ghjks') on test.profile where username = 'Mary'
 
 #ADMIN:
 	SHOW NAMESPACES
@@ -56,7 +60,7 @@
 	sHoW BiNS
 	SHOW SCAnS
 	shoW qUERIES
-	#SHOW INDEXES
+	SHOW INDEXES
 	SHOW INDEXES test.demo
 	DESC INDEX test index_bn2
 	STAT INDEX test index_bn3
@@ -72,19 +76,17 @@
 	SET ECHO true
 	SET ECHO false #[default false]
 	SET TIMEOUT 1500 #[default 1500ms]
-	SET RECORD_TTL 0 #[default 0 - never expire]
+	SET TTL 0 #[default 0 - never expire]
 	SET VIEW TABLE #[default at startup - TABLE]
 	SET VIEW JSON
 	SET LUA_USERPATH '/opt/citrusleaf/usr/udf/lua' #[default /opt/citrusleaf/usr/udf/lua]
-	SET LUA_SYSPATH '/opt/citrusleaf/sys/udf/lua' #[default /opt/citrusleaf/sys/udf/lua]
 
 	GET VERBOSE 
 	GET ECHO 
 	GET TIMEOUT 
-	GET RECORD_TTL 
+	GET TTL 
 	GET VIEW  
 	GET LUA_USERPATH 
-	GET LUA_SYSPATH 
 	# Note: These are client side paths for lua files.
 
 
@@ -107,4 +109,5 @@ DROP INDEX test.demo index_bn3
 QUIT 
 EXIT
 Q
-	
+
+disconnect	

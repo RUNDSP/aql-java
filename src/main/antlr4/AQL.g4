@@ -173,38 +173,48 @@ aql
 	;
 statements
   : statement* 
-	{
-	  definitions.add(VariableDefinition.CLIENT);
-	  definitions.add(VariableDefinition.CLIENT_POLICY);
-	}
   ;
 /**
 The supported aql statements
 */	
 statement 
 locals [String source, String nameSpace, String setName]
-	: create //generator
+	: connect //generator
+	| disconnect //generator
+	| create //generator
 	| drop  //generator
 	| remove //generator
 	| insert //generator
 	| update //generator
 	| delete //generator
-	| select 
+	| select //generator
 	| register //generator
 	| execute //generator
-	| aggregate 
+	| aggregate //generator
 	| operate //generator
 	| show //generator
 	| desc //generator
 	| stat //generator
-	| set 
-	| get 
+	| set //generator
+	| get //generator
 	| run //generator
 	| kill //generator
 	| quit 
 	| help 
 	| print //generator
 	;
+
+connect
+	: CONNECT hostName=STRINGLITERAL port=INTLITERAL
+	{
+		definitions.add(VariableDefinition.CLIENT);
+	}
+	;
+	
+disconnect
+	: DISCONNECT
+	;
+
 
 /**
 CREATE INDEX indexname ON namespace[.setname] (binname) NUMERIC|STRING
@@ -298,8 +308,8 @@ delete
 */	
 select 
 	: SELECT 
-	( STAR  from 
-	| binNameList from) 
+	( STAR  
+	| binNameList) FROM nameSet where? 
 	{
 	definitions.add(VariableDefinition.READ_POLICY);
 	definitions.add(VariableDefinition.SCAN_POLICY);
@@ -308,10 +318,6 @@ select
 	}  	
 	;
 	
-	
-from
-	: FROM nameSet (where)? 
-	;
 
 where
 	: WHERE predicate
@@ -390,7 +396,7 @@ aggregate
 	;
 
 moduleFunction
-	: packageName=IDENTIFIER '.' functionName=(IDENTIFIER|SCAN|GET|REMOVE)
+	: packageName=IDENTIFIER '.' functionName=IDENTIFIER
 	;
 	
 binNameList 
@@ -429,7 +435,7 @@ binValue
 	;
 	
 rangeFilter
-	: bin BETWEEN value AND value
+	: bin BETWEEN low=integerValue AND high=integerValue
 	;
 		
 /*
@@ -531,11 +537,10 @@ set
 	(TIMEOUT timeOut=INTLITERAL 							
 	| VERBOSE verboseOn=booleanLiteral 						
 	| ECHO echoOn=booleanLiteral 							
-	| RECORD_TTL ttl=INTLITERAL		 						
+	| TTL ttl=INTLITERAL		 						
 	| VIEW viewType 										       
-  | OUTPUT viewType                             
+  	| OUTPUT viewType                             
 	| LUA_USER_PATH luaUserPath=STRINGLITERAL	
-	| LUA_SYSTEM_PATH luaSysPath=STRINGLITERAL	
 	)
 	;
 get 
@@ -543,11 +548,10 @@ get
 	( TIMEOUT  		 
 	| VERBOSE 		
 	| ECHO			
-	| RECORD_TTL 	
+	| TTL 	
 	| VIEW			
     | OUTPUT         
 	| LUA_USER_PATH 	
-	| LUA_SYSTEM_PATH
 	)
 	;
 
@@ -658,15 +662,11 @@ FALSE
 	;
 
 // real nodes
-DESC
-	: 'desc'
-	;
-INSERT
-	: 'insert'
-	;
-SELECT
-	: 'select'
-	;
+CONNECT: 'connect';
+DISCONNECT: 'disconnect';
+DESC: 'desc';
+INSERT: 'insert';
+SELECT: 'select';
 DELETE
 	: 'delete'
 	;
@@ -817,7 +817,7 @@ PRINT : 'print';
 UPDATE : 'update';
 VERBOSE : 'verbose'; 
 ECHO 		: 'echo'; 
-RECORD_TTL : 'record_ttl'; 
+TTL : 'ttl'; 
 VIEW 		: 'view'; 
 USE_SMD	: 'use_smd'; 
 LUA_USER_PATH : 'lua_userpath'; 

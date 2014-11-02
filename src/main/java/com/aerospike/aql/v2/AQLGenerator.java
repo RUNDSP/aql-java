@@ -14,14 +14,19 @@ import org.stringtemplate.v4.STGroupFile;
 
 import com.aerospike.aql.v2.grammar.AQLBaseListener;
 import com.aerospike.aql.v2.grammar.AQLParser;
+import com.aerospike.aql.v2.grammar.AQLParser.AggregateContext;
 import com.aerospike.aql.v2.grammar.AQLParser.BinContext;
 import com.aerospike.aql.v2.grammar.AQLParser.BinValueContext;
+import com.aerospike.aql.v2.grammar.AQLParser.ConnectContext;
 import com.aerospike.aql.v2.grammar.AQLParser.CreateContext;
 import com.aerospike.aql.v2.grammar.AQLParser.DeleteContext;
 import com.aerospike.aql.v2.grammar.AQLParser.DescContext;
+import com.aerospike.aql.v2.grammar.AQLParser.DisconnectContext;
 import com.aerospike.aql.v2.grammar.AQLParser.DropContext;
+import com.aerospike.aql.v2.grammar.AQLParser.EqualityFilterContext;
 import com.aerospike.aql.v2.grammar.AQLParser.ExecuteContext;
 import com.aerospike.aql.v2.grammar.AQLParser.GenerationPredicateContext;
+import com.aerospike.aql.v2.grammar.AQLParser.GetContext;
 import com.aerospike.aql.v2.grammar.AQLParser.InsertContext;
 import com.aerospike.aql.v2.grammar.AQLParser.IntegerValueContext;
 import com.aerospike.aql.v2.grammar.AQLParser.KillContext;
@@ -29,8 +34,11 @@ import com.aerospike.aql.v2.grammar.AQLParser.OperateContext;
 import com.aerospike.aql.v2.grammar.AQLParser.OperateFunctionContext;
 import com.aerospike.aql.v2.grammar.AQLParser.PrimaryKeyContext;
 import com.aerospike.aql.v2.grammar.AQLParser.PrintContext;
+import com.aerospike.aql.v2.grammar.AQLParser.RangeFilterContext;
 import com.aerospike.aql.v2.grammar.AQLParser.RegisterContext;
 import com.aerospike.aql.v2.grammar.AQLParser.RemoveContext;
+import com.aerospike.aql.v2.grammar.AQLParser.SelectContext;
+import com.aerospike.aql.v2.grammar.AQLParser.SetContext;
 import com.aerospike.aql.v2.grammar.AQLParser.ShowContext;
 import com.aerospike.aql.v2.grammar.AQLParser.StatContext;
 import com.aerospike.aql.v2.grammar.AQLParser.StatementContext;
@@ -101,6 +109,23 @@ public class AQLGenerator extends AQLBaseListener {
 	public void exitStatement(StatementContext ctx) {
 		code.put(ctx, code.get(ctx.getChild(0)));
 	}
+	
+	@Override
+	public void exitConnect(ConnectContext ctx) {
+		ST st = getTemplateFor("connect");
+		st.add("source", ((StatementContext)ctx.getParent()).source);
+		st.add("host", stripQuotes(ctx.hostName.getText()));
+		st.add("port", ctx.port.getText());
+		putCode(ctx, st);
+	}
+	
+	@Override
+	public void exitDisconnect(DisconnectContext ctx) {
+		ST st = getTemplateFor("disconnect");
+		st.add("source", ((StatementContext)ctx.getParent()).source);
+		putCode(ctx, st);
+	}
+	
 	@Override
 	public void exitCreate(CreateContext ctx) {
 		ST st = getTemplateFor("create");
@@ -117,11 +142,14 @@ public class AQLGenerator extends AQLBaseListener {
 	public void exitExecute(ExecuteContext ctx) {
 		ST st = getTemplateFor("execute");
 		st.add("source", ((StatementContext)ctx.getParent()).source);
-		st.add("nameSpace", ctx.nameSet().namespace_name().getText());
-		st.add("setName", ctx.nameSet().set_name().getText());
-		st.add("key", code.get(ctx.where()));
-		st.add("module", ctx.moduleFunction().packageName);
-		st.add("udf", ctx.moduleFunction().functionName);
+		if (ctx.where() != null)
+			st.add("key", code.get(ctx.where().predicate().primaryKeyPredicate().primaryKey()));
+		else {
+			st.add("nameSpace", ctx.nameSet().namespace_name().getText());
+			st.add("setName", ctx.nameSet().set_name().getText());
+		}
+		st.add("module", ctx.moduleFunction().packageName.getText());
+		st.add("udf", ctx.moduleFunction().functionName.getText());
 		for (ParseTree value : ctx.valueList().children){
 			st.add("arguments", code.get(value));
 		}
@@ -168,6 +196,50 @@ public class AQLGenerator extends AQLBaseListener {
 
 	}
 
+	@Override
+	public void exitSelect(SelectContext ctx) {
+		ST st = null;
+		String ns = ctx.nameSet().namespaceName;
+		String set = ctx.nameSet().setName;
+		if (ctx.where() != null){
+			if (ctx.where().predicate().primaryKeyPredicate() != null){
+				// its a get
+				st = getTemplateFor("get");
+				st.add("key", code.get(ctx.where().predicate().primaryKeyPredicate().primaryKey()));
+			} else { //its a query
+				st = getTemplateFor("query");
+				st.add("nameSpace", ns);
+				st.add("setName", set);
+				st.add("where", code.get(ctx.where().predicate().filterPredicate().getChild(0)));
+			}
+		} else { // its a scan
+			st = getTemplateFor("scan");
+			st.add("nameSpace", ns);
+			st.add("setName", set);
+		}
+		if (ctx.binNameList() != null){
+			for (BinContext value : ctx.binNameList().bin()){
+				st.add("binNames", value.getText());
+			}
+		}
+		st.add("source", ((StatementContext)ctx.getParent()).source);
+		putCode(ctx, st);
+	}
+	
+	@Override
+	public void exitAggregate(AggregateContext ctx) {
+		ST st = getTemplateFor("aggregate");
+		String ns = ctx.nameSet().namespaceName;
+		String set = ctx.nameSet().setName;
+		st.add("source", ((StatementContext)ctx.getParent()).source);
+		st.add("nameSpace", ns);
+		st.add("setName", set);
+		//st.add("module", ctx.moduleFunction().packageName.getText());
+		//st.add("function", ctx.moduleFunction().functionName.getText());
+		st.add("where", code.get(ctx.where().predicate().filterPredicate().getChild(0)));
+		putCode(ctx, st);
+	}
+	
 	@Override
 	public void exitOperate(OperateContext ctx) {
 		ST st = getTemplateFor("operateStatement");
@@ -236,8 +308,13 @@ public class AQLGenerator extends AQLBaseListener {
 		ST st = null;
 		if (ctx.NAMESPACES() != null)
 			st = getTemplateFor("showNamespaces");
-		else if (ctx.INDEXES() != null)
-			st = getTemplateFor("showIndexes"); //TODO namespace and set
+		else if (ctx.INDEXES() != null){
+			st = getTemplateFor("showIndexes"); 
+			if (ctx.nameSet() != null) {
+				st.add("nameSpace", ctx.nameSet().namespaceName);
+				st.add("setName", ctx.nameSet().setName);
+			}
+		}
 		else if (ctx.MODULES() != null)
 			st = getTemplateFor("showModules");
 		else if (ctx.BINS() != null)
@@ -284,6 +361,58 @@ public class AQLGenerator extends AQLBaseListener {
 
 		putCode(ctx, st);
 	}
+	
+	@Override
+	public void exitSet(SetContext ctx) {
+		ST st = null;
+		if (ctx.TIMEOUT() != null) {
+			st = getTemplateFor("setTimeout");
+			st.add("value", ctx.timeOut.getText());
+		} else if (ctx.VERBOSE() != null) {
+			st = getTemplateFor("setVerbose");
+			st.add("value", ctx.verboseOn.getText());
+		} else if (ctx.ECHO() != null) {
+			st = getTemplateFor("setEcho");
+			st.add("value", ctx.echoOn.getText());
+		} else if (ctx.TTL() != null) {
+			st = getTemplateFor("setTTL");
+			st.add("value", ctx.ttl.getText());
+		} else if (ctx.VIEW() != null) {
+			st = getTemplateFor("setView");
+			st.add("value", ctx.viewType().getText());
+		} else if (ctx.OUTPUT() != null) {
+			st = getTemplateFor("setView");
+			st.add("value", ctx.viewType().getText());
+		} else {// if (ctx.LUA_USER_PATH() != null) { 
+			st = getTemplateFor("setUserPath");
+			st.add("value", ctx.luaUserPath.getText());
+		} 
+		st.add("source", ((StatementContext)ctx.getParent()).source);
+		putCode(ctx, st);
+	}
+	
+	@Override
+	public void exitGet(GetContext ctx) {
+		ST st = null;
+		if (ctx.TIMEOUT() != null) {
+			st = getTemplateFor("getTimeout");
+		} else if (ctx.VERBOSE() != null) {
+			st = getTemplateFor("getVerbose");
+		} else if (ctx.ECHO() != null) {
+			st = getTemplateFor("getEcho");
+		} else if (ctx.TTL() != null) {
+			st = getTemplateFor("getTTL");
+		} else if (ctx.VIEW() != null) {
+			st = getTemplateFor("getView");
+		} else if (ctx.OUTPUT() != null) {
+			st = getTemplateFor("getView");
+		} else {// if (ctx.LUA_USER_PATH() != null) { 
+			st = getTemplateFor("getUserPath");
+		} 
+		st.add("source", ((StatementContext)ctx.getParent()).source);
+		putCode(ctx, st);
+	}
+	
 	@Override
 	public void exitKill(KillContext ctx) {
 		ST st = null;
@@ -331,7 +460,23 @@ public class AQLGenerator extends AQLBaseListener {
 		putCode(ctx, st);
 	}
 
-
+	@Override
+	public void exitEqualityFilter(EqualityFilterContext ctx) {
+		ST st = getTemplateFor("filterEquals");
+		st.add("bin", ctx.binValue().bin().getText());
+		st.add("value", code.get(ctx.binValue().value()));
+		putCode(ctx, st);
+	}
+	
+	@Override
+	public void exitRangeFilter(RangeFilterContext ctx) {
+		ST st = getTemplateFor("filterRange");
+		st.add("bin", ctx.bin().getText());
+		st.add("low", code.get(ctx.low));
+		st.add("high", code.get(ctx.high));
+		putCode(ctx, st);
+	}
+	
 	@Override
 	public void exitGenerationPredicate(GenerationPredicateContext ctx) {
 		ST st = getTemplateFor("generationPredicate");
@@ -360,11 +505,6 @@ public class AQLGenerator extends AQLBaseListener {
 		switch (var){
 		case CLIENT:
 			st = templates.getInstanceOf("client");
-			st.add("host", this.host);
-			st.add("port", this.port);
-			break;
-		case CLIENT_POLICY:
-			st = templates.getInstanceOf("clientPolicy");
 			break;
 		case QUERY_POLICY:
 			st = templates.getInstanceOf("queryPolicy");
@@ -405,7 +545,7 @@ public class AQLGenerator extends AQLBaseListener {
 		case INFO_STRING:
 			st = templates.getInstanceOf("infoString");
 			break;
-			
+
 		}
 		return st;
 	}

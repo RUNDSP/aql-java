@@ -14,6 +14,17 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  */
 public interface AQLListener extends ParseTreeListener {
 	/**
+	 * Enter a parse tree produced by {@link AQLParser#disconnect}.
+	 * @param ctx the parse tree
+	 */
+	void enterDisconnect(@NotNull AQLParser.DisconnectContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AQLParser#disconnect}.
+	 * @param ctx the parse tree
+	 */
+	void exitDisconnect(@NotNull AQLParser.DisconnectContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link AQLParser#select}.
 	 * @param ctx the parse tree
 	 */
@@ -133,17 +144,6 @@ public interface AQLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCreate(@NotNull AQLParser.CreateContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link AQLParser#from}.
-	 * @param ctx the parse tree
-	 */
-	void enterFrom(@NotNull AQLParser.FromContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AQLParser#from}.
-	 * @param ctx the parse tree
-	 */
-	void exitFrom(@NotNull AQLParser.FromContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link AQLParser#integerValue}.
@@ -397,6 +397,17 @@ public interface AQLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitValue(@NotNull AQLParser.ValueContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link AQLParser#connect}.
+	 * @param ctx the parse tree
+	 */
+	void enterConnect(@NotNull AQLParser.ConnectContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AQLParser#connect}.
+	 * @param ctx the parse tree
+	 */
+	void exitConnect(@NotNull AQLParser.ConnectContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link AQLParser#stat}.

@@ -89,19 +89,27 @@ statements(statementList, variables) ::= <<
 
 >>
 
-client(host, port)::=<<
+client()::=<<
+ClientPolicy clientPolicy;
+AerospikeClient client;
+
+>>
+connect(source, host, port)::=<<
+/* <source> */
 /*
 Host[] hosts = new Host[] {new Host("a.host", 3000),
 							new Host("another.host", 3000),
 							new Host("and.another.host", 300)};
-AerospikeClient client = new AerospikeClient(clientPolicy, hosts);
+client = new AerospikeClient(clientPolicy, hosts);
 */
-AerospikeClient client = new AerospikeClient(clientPolicy, "<host>", <port>);
+clientPolicy = new ClientPolicy();
+client = new AerospikeClient(clientPolicy, "<host>", <port>);
 
 >>
 
-clientPolicy()::=<<
-ClientPolicy clientPolicy = new ClientPolicy();
+disconnect(source)::=<<
+/* <source> */
+client.close();
 
 >>
 
@@ -202,55 +210,51 @@ client.delete(writePolicy, <primaryKey>);
 
 >>
 
-select(source, nameSpace, setName, binNames, as, where, key) ::= <<
+query(source, nameSpace, setName, binNames, where) ::= <<
 /* <source> */
-<if(key)>
-<if(binNames)>
-record = client.get(policy, new Key("<nameSpace>", "<setName>", Value.get(<key>)), <first(binNames):{b|"<b>"}><rest(binNames):{b|, "<b>"}>);
-<else>
-record = client.get(policy, new Key("<nameSpace>", "<setName>", Value.get(<key>)));
-<endif>
-
-System.out.println("Record: " + record);
-<elseif(where)>
-<where>
+stmt = new Statement();
+stmt.setNamespace("<nameSpace>");
+stmt.setSetName("<setName>");
+stmt.setFilters(<where>);
 <if(binNames)>
 stmt.setBinNames(<first(binNames):{b|"<b>"}><rest(binNames):{b|, "<b>"}>);
 <endif>
-
 // Execute the query
-recordSet = client.query(null, stmt);
-
+recordSet = client.query(queryPolicy, stmt);
 // Process the record set
 try {
 	while (recordSet != null && recordSet.next()) {
 		Key key = recordSet.getKey();
 		record = recordSet.getRecord();
-		
+		System.out.println("Key: " + key);
 		System.out.println("Record: " + record);
-		
 	}
 }
 finally {
 	recordSet.close();
 }
 
+>>
 
+get(source, binNames, key) ::= <<
+/* <source> */
+<if(binNames)>
+record = client.get(policy, <key>, <first(binNames):{b|"<b>"}><rest(binNames):{b|, "<b>"}>);
 <else>
-scanPolicy = new ScanPolicy();
+record = client.get(policy, <key>);
+<endif>
+
+>>
+
+scan(source, nameSpace, setName, binNames)::=<<
+/* <source> */
 client.scanAll(scanPolicy, "<nameSpace>", "<setName>", new ScanCallback() {
-			
 	@Override
 	public void scanCallback(Key key, Record record) throws AerospikeException {
+		System.out.println("Key: " + key);
 		System.out.println("Record: " + record);
-		
 	}
-});
-
-
-
-<endif>
-<as>
+}<if(binNames)><binNames:{b|, "<b>"}><endif>);
 
 >>
 
@@ -258,27 +262,19 @@ aggregate(source, nameSpace, setName,
 				package, function,  
 				arguments, where) ::= <<
 /* <source> */
-<if(where)>
-<where>
-
-<else>
 stmt = new Statement();
 stmt.setNamespace("<nameSpace>");
 stmt.setSetName("<setName>");
-
-<endif>
+stmt.setFilters(<where>);
 resultSet = client.queryAggregate(null, stmt, 
 	"<package>", "<function>" <if(arguments)><arguments:{qq|, Value.get(<qq>)}><endif>);
-		
 try {
 	int count = 0;
-	
 	while (resultSet.next()) {
 		Object object = resultSet.getObject();
 		System.out.println("Result: " + object);
 		count++;
 	}
-	
 	if (count == 0) {
 		System.out.println("No results returned.");			
 	}
@@ -348,64 +344,15 @@ String[] infoResults = infoAll("set-config:context=namespace;id=<namespace>;set=
 
 execute(source, nameSpace, nameSpace, setName, key, module, udf, arguments) ::= <<
 /* <source> */
-// <nameSpace>, <setName>, <key>, <module>, <udf>, <arguments>
 <if(key)>
-result = client.execute(policy, <key>, "<package>", "<udf>" <if(arguments)>, <first(arguments):{z|<z>}><rest(arguments):{x|, <x>}><endif> );
-System.out.println("UDF result: " + result);
-
+client.execute(policy, <key>, "<module>", "<udf>"<if(arguments)><arguments:{z|, <z>}><endif>);
 <else>
 stmt = new Statement();
 stmt.setNamespace("<nameSpace>");
 stmt.setSetName("<setName>");
-recordSet = client.query(null, stmt);
-
-// Process the record set
-try {
-	while (recordSet != null && recordSet.next()) {
-		Key key = recordSet.getKey();
-		record = recordSet.getRecord();
-		
-		System.out.println("Record: " + record);
-		
-	}
-}
-finally {
-	recordSet.close();
-}
-
+client.queryAggregate(null, stmt, "<module>", "<udf>"<if(arguments)><arguments:{z|, <z>}><endif>);
 <endif>
 
->>
-
-wherePK(value) ::= <<
-new Key(<value>);
->>
-
-
-
-whereFilter(nameSpace, setName, filters, binNames) ::= <<
-stmt = new Statement();
-stmt.setNamespace("<nameSpace>");
-stmt.setSetName("<setName>");
-<if(binNames)>
-stmt.setBinNames(<first(binNames):{z|"<z>"}><rest(binNames):{x|, "<x>"}>);
-<endif>
-<if(filters)>
-stmt.setFilters(<first(filters):{f|<f>}><rest(filters):{f|, <f>}>);
-<endif>
-
->>
-
-orderBy(list) ::= <<
-/* Ordeby not supported <list> */
->>
-
-ascend(bin) ::= <<
-/* ASC not supported <bin> */
->>
-
-descend(bin) ::= <<
-/* DESC not supported <bin> */
 >>
 
 setTimeOut(source, value) ::= <<
@@ -530,13 +477,7 @@ writePolicy.generationPolicy = GenerationPolicy.EXPECT_GEN_EQUAL;
 >>
 
 operateFunction(functionName, bin, value) ::=<<
-<if(value)>
-Operation.<functionName>(new Bin("<bin>", <value>))
-<elseif(bin)>
-Operation.<functionName>("<bin>")
-<else>
-Operation.<functionName>()
-<endif>
+<if(value)>Operation.<functionName>(new Bin("<bin>", <value>))<elseif(bin)>Operation.<functionName>("<bin>")<else>Operation.<functionName>()<endif>
 >>
 
 
@@ -558,7 +499,7 @@ infoResult = Info.request(infoPolicy, client.getNodes()[0], "sets");
 
 >>
 
-showIndexes(source) ::= <<
+showIndexes(source, nameSpace, setName) ::= <<
 /* <source> */
 infoResult = Info.request(infoPolicy, client.getNodes()[0], "indexes");
 
@@ -579,7 +520,6 @@ infoResult = Info.request(infoPolicy, client.getNodes()[0], "jobs:module=scan");
 showQueries(source) ::= <<
 /* <source> */
 infoResult = Info.request(infoPolicy, client.getNodes()[0], "jobs:module=query");
-
 
 >>
 
