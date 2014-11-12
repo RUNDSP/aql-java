@@ -281,8 +281,11 @@ public class AQLGenerator extends AQLBaseListener {
 		st.add("source", ((StatementContext)ctx.getParent()).source);
 		st.add("primaryKey", code.get(ctx.primaryKeyPredicate().primaryKey()));
 		st.add("generation", code.get(ctx.generationPredicate()));
-		for (BinValueContext value : ctx.updateBinList().binValue()){
+		for (BinValueContext value : ctx.updateList().binValue()){
 			st.add("binList", code.get(value));
+		}
+		if (ctx.updateList().ttlValue() != null){
+			st.add("ttl", code.get(ctx.updateList().ttlValue()));
 		}
 		putCode(ctx, st);
 	}

@@ -186,10 +186,13 @@ client.put(writePolicy, <primaryKey>,
 			
 >>
 
-updateStmt(source, primaryKey, binList, generation)::=<<
+updateStmt(source, primaryKey, binList, generation, ttl)::=<<
 /* <source> */
 <if(generation)>
 <generation>
+<endif>
+<if(ttl)>
+writePolicy.expiration = <ttl>;
 <endif>
 writePolicy.recordExistsAction = RecordExistsAction.UPDATE;
 client.put(writePolicy, <primaryKey>, <first(binList):{z|<z>}><rest(binList):{z|, <z>}>);
@@ -204,8 +207,11 @@ binValue(binName, binValue) ::= <<
 new Bin("<binName>", <binValue>)
 >>
 
-deleteStmt(source, primaryKey) ::= <<
+deleteStmt(source, primaryKey, generation) ::= <<
 /* <source> */
+<if(generation)>
+writePolicy.generation = <generation>;
+<endif>
 client.delete(writePolicy, <primaryKey>);
 
 >>

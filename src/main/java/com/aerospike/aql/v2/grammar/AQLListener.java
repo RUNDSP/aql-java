@@ -4,7 +4,6 @@ package com.aerospike.aql.v2.grammar;
 import java.util.Set;
 import java.util.HashSet;
 
-
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -410,6 +409,17 @@ public interface AQLListener extends ParseTreeListener {
 	void exitConnect(@NotNull AQLParser.ConnectContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link AQLParser#updateList}.
+	 * @param ctx the parse tree
+	 */
+	void enterUpdateList(@NotNull AQLParser.UpdateListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AQLParser#updateList}.
+	 * @param ctx the parse tree
+	 */
+	void exitUpdateList(@NotNull AQLParser.UpdateListContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link AQLParser#stat}.
 	 * @param ctx the parse tree
 	 */
@@ -463,17 +473,6 @@ public interface AQLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBinValue(@NotNull AQLParser.BinValueContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link AQLParser#updateBinList}.
-	 * @param ctx the parse tree
-	 */
-	void enterUpdateBinList(@NotNull AQLParser.UpdateBinListContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AQLParser#updateBinList}.
-	 * @param ctx the parse tree
-	 */
-	void exitUpdateBinList(@NotNull AQLParser.UpdateBinListContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link AQLParser#kill}.
@@ -551,6 +550,17 @@ public interface AQLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNameSet(@NotNull AQLParser.NameSetContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link AQLParser#ttlValue}.
+	 * @param ctx the parse tree
+	 */
+	void enterTtlValue(@NotNull AQLParser.TtlValueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AQLParser#ttlValue}.
+	 * @param ctx the parse tree
+	 */
+	void exitTtlValue(@NotNull AQLParser.TtlValueContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link AQLParser#valueList}.

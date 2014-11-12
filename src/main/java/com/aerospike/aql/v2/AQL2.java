@@ -11,14 +11,14 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.log4j.Logger;
 
+import com.aerospike.aql.grammar.IResultReporter;
+import com.aerospike.aql.grammar.SystemOutReporter;
 import com.aerospike.aql.v2.AQLGenerator.Language;
 import com.aerospike.aql.v2.grammar.AQLLexer;
 import com.aerospike.aql.v2.grammar.AQLParser;
 import com.aerospike.aql.v2.grammar.IErrorReporter;
-import com.aerospike.aql.v2.grammar.IResultReporter;
 import com.aerospike.aql.v2.grammar.NoCaseFileStream;
 import com.aerospike.aql.v2.grammar.NoCaseInputStream;
-import com.aerospike.aql.v2.grammar.SystemOutReporter;
 import com.aerospike.client.AerospikeClient;
 
 public class AQL2 {

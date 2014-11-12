@@ -1,15 +1,22 @@
-package com.aerospike.aql.v2.grammar;
+package com.aerospike.aql.v2;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+import org.apache.log4j.Logger;
+
+import com.aerospike.aql.v2.grammar.IErrorReporter;
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Key;
 import com.aerospike.client.Log.Level;
 import com.aerospike.client.Record;
-import com.aerospike.client.command.Buffer;
 import com.aerospike.client.query.RecordSet;
+import com.aerospike.client.query.ResultSet;
 
 public class SystemOutReporter implements IResultReporter, IErrorReporter {
 	boolean cancelled = false;
 	int errors = 0;
+	
 	public SystemOutReporter() {
 	}
 
@@ -20,15 +27,27 @@ public class SystemOutReporter implements IResultReporter, IErrorReporter {
 	}
 
 	@Override
-	public void report(Record record) {
-		System.out.print("Record found: ");
+	public void report(Key key, Record record, boolean clear) {
+		report(key, record);
+		
+	}
+	@Override
+	public void report(Key key, Record record) {
 		if (record != null){
+			System.out.print("Record: ");
+			if (key != null){
+				System.out.print(key.toString() + " ");
+			}
 			for (String binName :record.bins.keySet()){
-				String result = (String)record.getValue(binName);
+				String result = record.getValue(binName).toString();
 				System.out.print(" bin="+binName +" value="+ result);
 			}
+			System.out.println();
 		}
-		System.out.println();
+	}
+	@Override
+	public void report(Record record) {
+		report(null, record);
 
 	}
 
@@ -39,10 +58,9 @@ public class SystemOutReporter implements IResultReporter, IErrorReporter {
 			while (recordSet.next()) {
 				Key key = recordSet.getKey();
 				Record record = recordSet.getRecord();
-				System.out.print("Record found: ns=" + key.namespace 
-						+" set="+key.setName+" key="+Buffer.bytesToHexString(key.digest));
+				System.out.print("Record: " + key.toString());
 				for (String binName :record.bins.keySet()){
-					String result = (String)record.getValue(binName);
+					String result = record.getValue(binName).toString();
 					System.out.print(" bin="+binName +" value="+ result);
 				}
 				System.out.println();
@@ -113,12 +131,11 @@ public class SystemOutReporter implements IResultReporter, IErrorReporter {
 	@Override
 	public void reportInfo(String inforMessage, boolean clear,
 			String... seperators) {
-
+		printInfo(inforMessage, seperators);
 	}
-	protected void printInfo(String title, String infoString, String... seperators){
+	protected void printInfo(String infoString, String... seperators){
 		if (infoString == null || infoString.isEmpty() || seperators == null )
 			return;
-		System.out.println(title);
 		if (seperators.length >= 1){
 			String[] outerParts = infoString.split(seperators[0]);
 			String rowFormat = null;
@@ -172,5 +189,57 @@ public class SystemOutReporter implements IResultReporter, IErrorReporter {
 		return errors;
 	}
 
-	
+	@Override
+	public void report(AerospikeException e) {
+		System.out.println(String.format("Aerospike %s", e.getMessage()));
+		//e.printStackTrace();
+		
+	}
+
+	@Override
+	public void report(ResultSet resultSet) {
+		this.report(resultSet, false);
+		
+	}
+
+	@Override
+	public void report(ResultSet resultSet, boolean clear) {
+		try {
+			int count = 0;
+			while (resultSet.next()) {
+				Object object = resultSet.getObject();
+				count++;
+				System.out.println(String.format("Result %d: %s", count, object.toString()));
+			}
+			if (count == 0) {
+				System.out.println("No results returned.");			
+			}
+		}
+		finally {
+			resultSet.close();
+		}
+	}
+
+	@Override
+	public void reportInfo(String[] inforMessages, String... seperators) {
+		this.reportInfo(inforMessages, false, seperators);
+		
+	}
+
+	@Override
+	public void reportInfo(String[] inforMessages, boolean clear,
+			String... seperators) {
+		for (String message : inforMessages){
+			this.printInfo(message, seperators);
+		}
+		
+	}
+
+	public String getStackTrace(Throwable throwable) {
+		StringWriter sw = new StringWriter();
+		throwable.printStackTrace(new PrintWriter(sw));
+		return sw.toString();
+	}
+
+
 }

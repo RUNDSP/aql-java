@@ -4,7 +4,6 @@ package com.aerospike.aql.v2.grammar;
 import java.util.Set;
 import java.util.HashSet;
 
-
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;

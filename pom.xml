@@ -69,6 +69,12 @@
 			<version>4.4</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.googlecode.json-simple</groupId>
+			<artifactId>json-simple</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -100,9 +106,9 @@
 						<goals>
 							<goal>antlr4</goal>
 						</goals>
-						<configuration>
+					 	<configuration>
 							<outputDirectory>src/main/java/com/aerospike/aql/v2/grammar</outputDirectory>
-						</configuration>
+						</configuration> 
 					</execution>
 				</executions>
 			</plugin>
@@ -124,7 +130,6 @@
 									</versionRange>
 									<goals>
 										<goal>antlr</goal>
-										<goal>antlr4</goal>
 									</goals>
 								</pluginExecutionFilter>
 								<action>

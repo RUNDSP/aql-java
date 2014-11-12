@@ -1,5 +1,5 @@
 #Connect
-connect '192.168.1.15' 3000
+connect '127.0.0.1' 3000
 
 #Insert
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('1', 1, '1', 1)
@@ -16,6 +16,7 @@ connect '192.168.1.15' 3000
 #Create
 	CREATE INDEX index_bn2 ON test.demo (bn2) NUMERIC
 	CREATE INDEX index_bn3 ON test.demo (bn3) STRING
+	CREATE INDEX index_bn4 ON test.demo (bn4) NUMERIC
 
 #Update
 	UPDATE test.demo SET bn2 = 9, bn3 = '22', bn4 = 22 where pk = '9'
@@ -23,6 +24,8 @@ connect '192.168.1.15' 3000
 	UPDATE test.demo SET bn2 = 7, bn3 = '22', bn4 = 22 where pk = '7'
 	UPDATE test.demo SET bn2 = 6, bn3 = '22', bn4 = 22 where pk = '6'
 	update test.cats SET bob = 23, sue = 'abc' where pk = '1234' and generation = 98765
+	#update test.cats SET ttl = 3000 where pk = '1234' and generation = 98765
+	#update test.cats SET ttl = 3000, bob = 23, sue = 'abc' where pk = '1234' and generation = 98765
 
 #QUERY:
 	SELECT * FROM test.demo
@@ -105,6 +108,7 @@ DELETE FROM test.demo WHERE PK = '10'
 
 DROP INDEX test.demo index_bn2
 DROP INDEX test.demo index_bn3
+	DroP INDEX test.demo index_bn4
 	
 QUIT 
 EXIT

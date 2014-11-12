@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.HashSet;
 
 
-
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -490,6 +489,19 @@ public class AQLBaseListener implements AQLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterUpdateList(@NotNull AQLParser.UpdateListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUpdateList(@NotNull AQLParser.UpdateListContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterStat(@NotNull AQLParser.StatContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -549,19 +561,6 @@ public class AQLBaseListener implements AQLListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBinValue(@NotNull AQLParser.BinValueContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterUpdateBinList(@NotNull AQLParser.UpdateBinListContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitUpdateBinList(@NotNull AQLParser.UpdateBinListContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -653,6 +652,19 @@ public class AQLBaseListener implements AQLListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitNameSet(@NotNull AQLParser.NameSetContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTtlValue(@NotNull AQLParser.TtlValueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTtlValue(@NotNull AQLParser.TtlValueContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

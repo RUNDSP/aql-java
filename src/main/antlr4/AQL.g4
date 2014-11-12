@@ -142,8 +142,8 @@ options {
 package com.aerospike.aql.v2.grammar;
 import java.util.Set;
 import java.util.HashSet;
-
 }
+
 @members {
 public enum VariableDefinition {
 	CLIENT, 
@@ -179,29 +179,29 @@ The supported aql statements
 */	
 statement 
 locals [String source, String nameSpace, String setName]
-	: connect //generator
-	| disconnect //generator
-	| create //generator
-	| drop  //generator
-	| remove //generator
-	| insert //generator
-	| update //generator
-	| delete //generator
-	| select //generator
-	| register //generator
-	| execute //generator
-	| aggregate //generator
-	| operate //generator
-	| show //generator
-	| desc //generator
-	| stat //generator
+	: connect //generator exec
+	| disconnect //generator exec
+	| create //generator exec
+	| drop  //generator exec
+	| remove //generator exec
+	| insert //generator exec
+	| update //generator exec
+	| delete //generator exec
+	| select //generator exec
+	| register //generator exec
+	| execute //generator 
+	| aggregate //generator 
+	| operate //generator 
+	| show //generator 
+	| desc //generator 
+	| stat //generator 
 	| set //generator
 	| get //generator
 	| run //generator
-	| kill //generator
+	| kill //generator 
 	| quit 
 	| help 
-	| print //generator
+	| print //generator 
 	;
 
 connect
@@ -277,22 +277,22 @@ insert
  * UPDATE <name space>[.<set name>] SET <bin name> = <value>, ... WHERE PK = <value> [AND generation = <value>]
  */	
 update 
-	: UPDATE nameSet SET updateBinList
+	: UPDATE nameSet SET updateList
 		WHERE primaryKeyPredicate (AND generationPredicate)?
 	{
 		definitions.add(VariableDefinition.WRITE_POLICY);
 	}  	
 	;
 	
-updateBinList
-	: binValue (',' binValue)*
+updateList
+	: (ttlValue | binValue) (',' binValue)*
 	;
 
 /**
 DELETE FROM namespace[.setname] WHERE PK = 'x'
 */
 delete 
-	: DELETE FROM nameSet WHERE primaryKeyPredicate
+	: DELETE FROM nameSet WHERE primaryKeyPredicate (AND generationPredicate)?
 	{
 	definitions.add(VariableDefinition.WRITE_POLICY);
 	}  	
@@ -400,7 +400,7 @@ moduleFunction
 	;
 	
 binNameList 
-	: bin (',' bin)* 
+	: (TTL|bin) (',' bin)* 
 	;
 	
 valueList 
@@ -430,6 +430,11 @@ filterPredicate
 equalityFilter 
 	: binValue
 	;
+	
+ttlValue
+	: TTL EQ integerValue
+	;
+	
 binValue
 	: bin EQ value
 	;
