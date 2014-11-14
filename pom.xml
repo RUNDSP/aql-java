@@ -81,23 +81,6 @@
 		<plugins>
 			<plugin>
 				<groupId>org.antlr</groupId>
-				<artifactId>antlr3-maven-plugin</artifactId>
-				<version>3.5.1</version>
-				<executions>
-					<execution>
-						<id>run antlr</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>antlr</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>src/main/java/com/aerospike/aql/grammar</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.antlr</groupId>
 				<artifactId>antlr4-maven-plugin</artifactId>
 				<version>4.3</version>
 				<executions>
@@ -107,7 +90,7 @@
 							<goal>antlr4</goal>
 						</goals>
 					 	<configuration>
-							<outputDirectory>src/main/java/com/aerospike/aql/v2/grammar</outputDirectory>
+							<outputDirectory>src/main/java/com/aerospike/aql/grammar</outputDirectory>
 						</configuration> 
 					</execution>
 				</executions>
@@ -119,23 +102,6 @@
 				<configuration>
 					<lifecycleMappingMetadata>
 						<pluginExecutions>
-							<pluginExecution>
-								<pluginExecutionFilter>
-									<groupId>org.antlr</groupId>
-									<artifactId>
-										antlr3-maven-plugin
-									</artifactId>
-									<versionRange>
-										[3.5.1,)
-									</versionRange>
-									<goals>
-										<goal>antlr</goal>
-									</goals>
-								</pluginExecutionFilter>
-								<action>
-									<ignore></ignore>
-								</action>
-							</pluginExecution>
 							<pluginExecution>
 								<pluginExecutionFilter>
 									<groupId>org.antlr</groupId>

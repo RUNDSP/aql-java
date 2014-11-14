@@ -3,8 +3,8 @@ package com.aerospike.aql.grammar;
 import java.io.File;
 import java.io.IOException;
 
-import org.antlr.runtime.ANTLRFileStream;
-import org.antlr.runtime.CharStream;
+import org.antlr.v4.runtime.ANTLRFileStream;
+import org.antlr.v4.runtime.CharStream;
 
 public class NoCaseFileStream extends ANTLRFileStream {
     public NoCaseFileStream(String fileName) throws IOException {

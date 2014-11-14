@@ -1,4 +1,4 @@
-package com.aerospike.aql.v2;
+package com.aerospike.aql;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -12,41 +12,41 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
 
-import com.aerospike.aql.v2.grammar.AQLBaseListener;
-import com.aerospike.aql.v2.grammar.AQLParser;
-import com.aerospike.aql.v2.grammar.AQLParser.AggregateContext;
-import com.aerospike.aql.v2.grammar.AQLParser.BinContext;
-import com.aerospike.aql.v2.grammar.AQLParser.BinValueContext;
-import com.aerospike.aql.v2.grammar.AQLParser.ConnectContext;
-import com.aerospike.aql.v2.grammar.AQLParser.CreateContext;
-import com.aerospike.aql.v2.grammar.AQLParser.DeleteContext;
-import com.aerospike.aql.v2.grammar.AQLParser.DescContext;
-import com.aerospike.aql.v2.grammar.AQLParser.DisconnectContext;
-import com.aerospike.aql.v2.grammar.AQLParser.DropContext;
-import com.aerospike.aql.v2.grammar.AQLParser.EqualityFilterContext;
-import com.aerospike.aql.v2.grammar.AQLParser.ExecuteContext;
-import com.aerospike.aql.v2.grammar.AQLParser.GenerationPredicateContext;
-import com.aerospike.aql.v2.grammar.AQLParser.GetContext;
-import com.aerospike.aql.v2.grammar.AQLParser.InsertContext;
-import com.aerospike.aql.v2.grammar.AQLParser.IntegerValueContext;
-import com.aerospike.aql.v2.grammar.AQLParser.KillContext;
-import com.aerospike.aql.v2.grammar.AQLParser.OperateContext;
-import com.aerospike.aql.v2.grammar.AQLParser.OperateFunctionContext;
-import com.aerospike.aql.v2.grammar.AQLParser.PrimaryKeyContext;
-import com.aerospike.aql.v2.grammar.AQLParser.PrintContext;
-import com.aerospike.aql.v2.grammar.AQLParser.RangeFilterContext;
-import com.aerospike.aql.v2.grammar.AQLParser.RegisterContext;
-import com.aerospike.aql.v2.grammar.AQLParser.RemoveContext;
-import com.aerospike.aql.v2.grammar.AQLParser.SelectContext;
-import com.aerospike.aql.v2.grammar.AQLParser.SetContext;
-import com.aerospike.aql.v2.grammar.AQLParser.ShowContext;
-import com.aerospike.aql.v2.grammar.AQLParser.StatContext;
-import com.aerospike.aql.v2.grammar.AQLParser.StatementContext;
-import com.aerospike.aql.v2.grammar.AQLParser.StatementsContext;
-import com.aerospike.aql.v2.grammar.AQLParser.TextValueContext;
-import com.aerospike.aql.v2.grammar.AQLParser.UpdateContext;
-import com.aerospike.aql.v2.grammar.AQLParser.ValueContext;
-import com.aerospike.aql.v2.grammar.AQLParser.VariableDefinition;
+import com.aerospike.aql.grammar.AQLBaseListener;
+import com.aerospike.aql.grammar.AQLParser;
+import com.aerospike.aql.grammar.AQLParser.AggregateContext;
+import com.aerospike.aql.grammar.AQLParser.BinContext;
+import com.aerospike.aql.grammar.AQLParser.BinValueContext;
+import com.aerospike.aql.grammar.AQLParser.ConnectContext;
+import com.aerospike.aql.grammar.AQLParser.CreateContext;
+import com.aerospike.aql.grammar.AQLParser.DeleteContext;
+import com.aerospike.aql.grammar.AQLParser.DescContext;
+import com.aerospike.aql.grammar.AQLParser.DisconnectContext;
+import com.aerospike.aql.grammar.AQLParser.DropContext;
+import com.aerospike.aql.grammar.AQLParser.EqualityFilterContext;
+import com.aerospike.aql.grammar.AQLParser.ExecuteContext;
+import com.aerospike.aql.grammar.AQLParser.GenerationPredicateContext;
+import com.aerospike.aql.grammar.AQLParser.GetContext;
+import com.aerospike.aql.grammar.AQLParser.InsertContext;
+import com.aerospike.aql.grammar.AQLParser.IntegerValueContext;
+import com.aerospike.aql.grammar.AQLParser.KillContext;
+import com.aerospike.aql.grammar.AQLParser.OperateContext;
+import com.aerospike.aql.grammar.AQLParser.OperateFunctionContext;
+import com.aerospike.aql.grammar.AQLParser.PrimaryKeyContext;
+import com.aerospike.aql.grammar.AQLParser.PrintContext;
+import com.aerospike.aql.grammar.AQLParser.RangeFilterContext;
+import com.aerospike.aql.grammar.AQLParser.RegisterContext;
+import com.aerospike.aql.grammar.AQLParser.RemoveContext;
+import com.aerospike.aql.grammar.AQLParser.SelectContext;
+import com.aerospike.aql.grammar.AQLParser.SetContext;
+import com.aerospike.aql.grammar.AQLParser.ShowContext;
+import com.aerospike.aql.grammar.AQLParser.StatContext;
+import com.aerospike.aql.grammar.AQLParser.StatementContext;
+import com.aerospike.aql.grammar.AQLParser.StatementsContext;
+import com.aerospike.aql.grammar.AQLParser.TextValueContext;
+import com.aerospike.aql.grammar.AQLParser.UpdateContext;
+import com.aerospike.aql.grammar.AQLParser.ValueContext;
+import com.aerospike.aql.grammar.AQLParser.VariableDefinition;
 
 
 public class AQLGenerator extends AQLBaseListener {
@@ -75,7 +75,7 @@ public class AQLGenerator extends AQLBaseListener {
 		setGenerationLanguage(language);
 	}
 	@Override
-	public void exitAql(com.aerospike.aql.v2.grammar.AQLParser.AqlContext ctx) {
+	public void exitAql(com.aerospike.aql.grammar.AQLParser.AqlContext ctx) {
 		ST st = getTemplateFor("aqlFile");
 		st.add("statements", code.get(ctx.statements()));
 		st.add("className", this.name);

@@ -1,5 +1,5 @@
 
-package com.aerospike.aql.v2;
+package com.aerospike.aql;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -11,12 +11,12 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.log4j.Logger;
 
-import com.aerospike.aql.v2.AQLGenerator.Language;
-import com.aerospike.aql.v2.grammar.AQLLexer;
-import com.aerospike.aql.v2.grammar.AQLParser;
-import com.aerospike.aql.v2.grammar.IErrorReporter;
-import com.aerospike.aql.v2.grammar.NoCaseFileStream;
-import com.aerospike.aql.v2.grammar.NoCaseInputStream;
+import com.aerospike.aql.AQLGenerator.Language;
+import com.aerospike.aql.grammar.AQLLexer;
+import com.aerospike.aql.grammar.AQLParser;
+import com.aerospike.aql.grammar.IErrorReporter;
+import com.aerospike.aql.grammar.NoCaseFileStream;
+import com.aerospike.aql.grammar.NoCaseInputStream;
 import com.aerospike.client.AerospikeClient;
 
 public class AQL2 {

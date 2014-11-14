@@ -18,8 +18,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
 
-import com.aerospike.aql.v2.AQL2;
-import com.aerospike.aql.v2.AQLGenerator.Language;
+import com.aerospike.aql.AQLGenerator.Language;
 import com.aerospike.client.AerospikeClient;
 /**
  * AQL is a runnable utility that can either compile AQL to Java, C or C#
@@ -47,7 +46,7 @@ import com.aerospike.client.AerospikeClient;
  */
 
 public class AQLrun {
-	private static Logger log = Logger.getLogger(AQL.class);
+	private static Logger log = Logger.getLogger(AQLrun.class);
 	public static void main(String[] args) {
 		try {
 			Options options = new Options();
@@ -145,7 +144,7 @@ public class AQLrun {
 		HelpFormatter formatter = new HelpFormatter();
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
-		String syntax = AQL.class.getName() + " [<options>]";
+		String syntax = AQL2.class.getName() + " [<options>]";
 		formatter.printHelp(pw, 100, syntax, "options:", options, 0, 2, null);
 		log.info(sw.toString());
 		printHelp();

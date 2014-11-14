@@ -3,8 +3,7 @@ import java.io.File;
 
 import org.junit.Test;
 
-import com.aerospike.aql.v2.AQL2;
-import com.aerospike.aql.v2.AQLGenerator.Language;
+import com.aerospike.aql.AQLGenerator.Language;
 import com.aerospike.client.AerospikeClient;
 
 public class AQL2ExecutionTest {

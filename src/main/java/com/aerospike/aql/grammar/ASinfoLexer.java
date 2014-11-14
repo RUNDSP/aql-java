@@ -1,6 +1,6 @@
 // Generated from ASinfo.g4 by ANTLR 4.3
 
-package com.aerospike.aql.v2.grammar;
+package com.aerospike.aql.grammar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

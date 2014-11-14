@@ -1,4 +1,4 @@
-package com.aerospike.aql.v2;
+package com.aerospike.aql;
 
 import java.io.BufferedReader;
 import java.io.Console;
@@ -9,7 +9,7 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.aerospike.aql.v2.grammar.IErrorReporter;
+import com.aerospike.aql.grammar.IErrorReporter;
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Key;
 import com.aerospike.client.Log.Level;
