@@ -256,12 +256,16 @@ public class AQLConsole implements IResultReporter, IErrorReporter {
 	
 	private Map<String, Map<String, String>> makeElementMap(String input, String elementSeperator, String keySeperator, String valueSeperator, String equator){
 		Map<String, Map<String, String>> result = new HashMap<String, Map<String,String>>();
-			String[] parts = input.split(elementSeperator);
-			for (String element : parts){
-				String[] chunks = element.split(keySeperator);
-				String key = chunks[0];
+		String[] parts = input.split(elementSeperator);
+		for (String element : parts){
+			String[] chunks = element.split(keySeperator);
+			String key = chunks[0];
+			if (chunks.length >1){
 				Map<String, String> value = makeValueMap(chunks[1], valueSeperator, equator);
 				result.put(key, value);
+			} else {
+				result.put(key, null);
+			}
 			}
 		return result;
 	}

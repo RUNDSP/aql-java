@@ -90,8 +90,8 @@ public class AQLTest {
 		if (!file.exists()) {
 			file.createNewFile();
 		}
-		URL url = getClass().getResource("/"+name);
-		File sourceFile = new File(url.getFile());
+		//URL url = getClass().getResource("/"+name);
+		File sourceFile = findFile(name);
 		System.out.println(sourceFile.exists());
 		AQL aql = new AQL();
 		aql.generate(sourceFile, file, stType);
@@ -109,7 +109,7 @@ public class AQLTest {
 	
 	protected void testFileSyntax(String name) throws Exception{
 		AQL aql = new AQL();
-		aql.compile(new File(name));
+		aql.compile(findFile(name));
 	}
 	
 	protected String testStringGeneration(String source, Language language) throws Exception{
@@ -133,6 +133,6 @@ public class AQLTest {
 		if (this.client == null)
 			this.client = new AerospikeClient(this.seedNode, this.port);
 		AQL aql = new AQL(client, 20);
-		aql.execute(new File(fileName));
+		aql.execute(findFile(fileName));
 	}
 }

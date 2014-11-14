@@ -400,7 +400,6 @@ public class AQLExecutor extends AQLBaseListener {
 			Statement stmt = new Statement();
 			String module = ctx.moduleFunction().packageName.getText();
 			String function = ctx.moduleFunction().functionName.getText();
-			Filter filter = filterProperty.get(ctx.where().predicate().filterPredicate());
 			Value[] arguments = null;
 			if (ctx.valueList() != null){
 				List<Value> values = valueListProperty.get(ctx.valueList());
@@ -413,7 +412,10 @@ public class AQLExecutor extends AQLBaseListener {
 			}
 			stmt.setNamespace(namespace);
 			stmt.setSetName(set);
-			stmt.setFilters(filter);
+			if (ctx.where() != null){
+				Filter filter = filterProperty.get(ctx.where().predicate().filterPredicate());
+				stmt.setFilters(filter);
+			}
 			ResultSet resultSet = client.queryAggregate(null, stmt, 
 				module, function, arguments);
 			results.report(resultSet);
@@ -620,9 +622,13 @@ public class AQLExecutor extends AQLBaseListener {
 	}
 
 	private String info(String infoString) {
+		if (client != null && client.isConnected()){
 			String answer = Info.request(infoPolicy, client.getNodes()[0], infoString);
 			log.debug(answer);
 			return answer;
+		} else {
+			return "Client not connected";
+		}
 	}
 
 	@Override

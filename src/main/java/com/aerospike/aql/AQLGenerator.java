@@ -210,7 +210,7 @@ public class AQLGenerator extends AQLBaseListener {
 				st = getTemplateFor("query");
 				st.add("nameSpace", ns);
 				st.add("setName", set);
-				st.add("where", code.get(ctx.where().predicate().filterPredicate().getChild(0)));
+				st.add("where", code.get(ctx.where().predicate().filterPredicate()));
 			}
 		} else { // its a scan
 			st = getTemplateFor("scan");
@@ -234,9 +234,10 @@ public class AQLGenerator extends AQLBaseListener {
 		st.add("source", ((StatementContext)ctx.getParent()).source);
 		st.add("nameSpace", ns);
 		st.add("setName", set);
-		st.add("module", ctx.moduleFunction().packageName.getText());
+		st.add("package", ctx.moduleFunction().packageName.getText());
 		st.add("function", ctx.moduleFunction().functionName.getText());
-		st.add("where", code.get(ctx.where().predicate().filterPredicate().getChild(0)));
+		if (ctx.where() != null)
+			st.add("where", code.get(ctx.where().predicate().filterPredicate()));
 		putCode(ctx, st);
 	}
 	
@@ -369,7 +370,7 @@ public class AQLGenerator extends AQLBaseListener {
 	public void exitSet(SetContext ctx) {
 		ST st = null;
 		if (ctx.TIMEOUT() != null) {
-			st = getTemplateFor("setTimeout");
+			st = getTemplateFor("setTimeOut");
 			st.add("value", ctx.timeOut.getText());
 		} else if (ctx.VERBOSE() != null) {
 			st = getTemplateFor("setVerbose");
@@ -382,7 +383,7 @@ public class AQLGenerator extends AQLBaseListener {
 			st.add("value", ctx.ttl.getText());
 		} else if (ctx.VIEW() != null) {
 			st = getTemplateFor("setView");
-			st.add("value", ctx.viewType().getText());
+			st.add("type", ctx.viewType().getText());
 		} else if (ctx.OUTPUT() != null) {
 			st = getTemplateFor("setView");
 			st.add("value", ctx.viewType().getText());

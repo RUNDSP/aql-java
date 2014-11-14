@@ -23,7 +23,7 @@ public class AdminTest extends AQLTest {
 			
 	}
 
-	//@Test
+	@Test
 	public void testAdminOnCluster() throws Exception {
 		System.out.println("----- testAdminOnCluster -----");
 		testFileExecution("Admin.aql");

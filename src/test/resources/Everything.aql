@@ -116,7 +116,7 @@ DELETE FROM test.demo WHERE PK = '10'
 
 disconnect	
 	
-QUIT 
-EXIT
-Q
+#QUIT 
+#EXIT
+#Q
 
