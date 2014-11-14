@@ -11,8 +11,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.log4j.Logger;
 
-import com.aerospike.aql.grammar.IResultReporter;
-import com.aerospike.aql.grammar.SystemOutReporter;
 import com.aerospike.aql.v2.AQLGenerator.Language;
 import com.aerospike.aql.v2.grammar.AQLLexer;
 import com.aerospike.aql.v2.grammar.AQLParser;
@@ -32,6 +30,9 @@ public class AQL2 {
 	private int timeout;
 	private Language generationLanguage;
 	private String fileExtension;
+	private IErrorReporter errorReporter = null;
+	private IResultReporter resultReporter = new AQLConsole();
+
 
 	public AQL2() {
 		super();
@@ -76,11 +77,13 @@ public class AQL2 {
 		return compile(tokens);
 	}
 
-	private void execute(CommonTokenStream tokens){
+	private AQLExecutor execute(CommonTokenStream tokens, AQLExecutor executor){
 		AQLParser parser = new AQLParser(tokens);
 		ParseTree tree = parser.aql();
-		AQLExecutor executor = new AQLExecutor(parser, this.client, this.timeout);
+		if (executor == null)
+			executor = new AQLExecutor(parser, this.client, this.timeout);
 		walker.walk(executor, tree);
+		return executor;
 	}
 	/**
 	 * Execute the contents of an AQL file.
@@ -88,10 +91,10 @@ public class AQL2 {
 	 * the Aerospike client supplied in the constructor
 	 * @param file
 	 */
-	public void execute(File file) throws IOException{
+	public AQLExecutor execute(File file, AQLExecutor executor) throws IOException{
 		log.debug("Executing file: " + file.toString());
 		CommonTokenStream tokens = getTokenStream(new NoCaseFileStream(file));
-		execute(tokens);
+		return execute(tokens, executor);
 	}
 	/**
 	 * Execute an AQL string.
@@ -99,10 +102,10 @@ public class AQL2 {
 	 * the Aerospike client supplied in the constructor
 	 * @param aqlString
 	 */
-	public void execute(String aqlString) {
+	public AQLExecutor execute(String aqlString, AQLExecutor executor) {
 		log.debug("Executing string: " + aqlString);
 		CommonTokenStream tokens = getTokenStream(new NoCaseInputStream(aqlString));
-		execute(tokens);
+		return execute(tokens, executor);
 	}
 
 	private String generate(CommonTokenStream tokens, Language language, String name){
@@ -182,15 +185,23 @@ public class AQL2 {
 	}
 
 
-	private IErrorReporter errorReporter = null;
-	private IResultReporter resultReporter = new SystemOutReporter();
-
 	public void setErrorReporter(IErrorReporter errorReporter) {
 		this.errorReporter = errorReporter;
 	}
 	public void setResultReporter(IResultReporter resultReporter) {
 		if (resultReporter != null)
 			this.resultReporter = resultReporter;
+	}
+
+	public void interpret() {
+		AQLConsole console = (AQLConsole) this.resultReporter;
+		AQLExecutor executor = null;
+		while (true){
+			console.print("AQL> ");
+			String input = console.readLine();
+			executor = execute(input, executor);
+		}
+		
 	}
 
 

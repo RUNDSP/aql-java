@@ -1,5 +1,9 @@
 package com.aerospike.aql.v2;
 
+import java.io.BufferedReader;
+import java.io.Console;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -14,17 +18,76 @@ import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.ResultSet;
 import com.aerospike.client.util.Util;
 
-public class SystemOutReporter implements IResultReporter, IErrorReporter {
+public class AQLConsole implements IResultReporter, IErrorReporter {
 	boolean cancelled = false;
 	int errors = 0;
 	private ViewFormat format = ViewFormat.TEXT;
+	Console systemConsole = System.console();
+	boolean useSystemConsole = false;
 	
-	public SystemOutReporter() {
+	public AQLConsole() {
+		this.useSystemConsole = (this.systemConsole != null);
+	}
+
+	public void printf(String message, Object... args){
+		if (useSystemConsole)
+			systemConsole.printf(message, args);
+		else {
+			System.out.printf(message, args);
+		}
+	}
+
+	public void print(String message){
+		if (useSystemConsole)
+			systemConsole.printf(message);
+		else {
+			System.out.print(message);
+		}
+	}
+
+	public void println(){
+		if (useSystemConsole)
+			systemConsole.printf("\n");
+		else {
+			System.out.println();
+		}
+	}
+	
+	public void println(Object object){
+		if (useSystemConsole)
+			systemConsole.printf(object.toString() + "\n");
+		else {
+			System.out.println(object.toString());
+		}
+	}
+	
+	public void println(String message, Object... args){
+		if (useSystemConsole)
+			systemConsole.printf(message + "\n", args);
+		else {
+			System.out.println(String.format(message, args));
+		}
+	}
+
+
+	public String readLine(){
+		if (useSystemConsole)
+			return systemConsole.readLine();
+		else {
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+			String line = "";
+			try {
+				line = bufferedReader.readLine();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return line;
+		}
 	}
 
 	@Override
 	public void report(String message) {
-		System.out.println(message);
+		println(message);
 
 	}
 
@@ -43,15 +106,15 @@ public class SystemOutReporter implements IResultReporter, IErrorReporter {
 				break;
 			default: //TEXT:
 
-				System.out.print("Record: ");
+				print("Record: ");
 				if (key != null){
-					System.out.print(key.toString() + " ");
+					print(key.toString() + " ");
 				}
 				for (String binName :record.bins.keySet()){
 					String result = record.getValue(binName).toString();
-					System.out.print(" bin="+binName +" value="+ result);
+					print(" bin="+binName +" value="+ result);
 				}
-				System.out.println();
+				println();
 				break;
 			}
 		}
@@ -76,16 +139,16 @@ public class SystemOutReporter implements IResultReporter, IErrorReporter {
 				while (recordSet.next()) {
 					Key key = recordSet.getKey();
 					Record record = recordSet.getRecord();
-					System.out.print("Record: " + key.toString());
+					print("Record: " + key.toString());
 					for (String binName :record.bins.keySet()){
 						String result = record.getValue(binName).toString();
-						System.out.print(" bin="+binName +" value="+ result);
+						print(" bin="+binName +" value="+ result);
 					}
-					System.out.println();
+					println();
 					count++;
 				}
 				if (count == 0) {
-					System.out.println("No records returned.");			
+					println("No records returned.");			
 				}
 			} catch (AerospikeException e) {
 				e.printStackTrace();
@@ -103,16 +166,16 @@ public class SystemOutReporter implements IResultReporter, IErrorReporter {
 	public void report(Level level, String message) {
 		switch (level){
 		case DEBUG:
-			System.out.println("DEBUG: " + message);
+			println("DEBUG: " + message);
 			break;
 		case ERROR:
 			System.err.println("ERROR: " + message);
 			break;
 		case WARN:
-			System.out.println("WARN: " + message);
+			println("WARN: " + message);
 			break;
 		case INFO:
-			System.out.println("INFO: " + message);
+			println("INFO: " + message);
 			break;
 		}
 
@@ -157,7 +220,7 @@ public class SystemOutReporter implements IResultReporter, IErrorReporter {
 		if (infoString == null || infoString.isEmpty())
 			return;
 		if ( seperators == null || seperators.length == 0 ){
-			System.out.println(infoString);
+			println(infoString);
 			return;
 		}
 		
@@ -169,7 +232,7 @@ public class SystemOutReporter implements IResultReporter, IErrorReporter {
 			case TABLE:
 				break;
 			default: //TEXT:
-				System.out.println(result);
+				println(result);
 				break;
 			}
 			
@@ -183,12 +246,12 @@ public class SystemOutReporter implements IResultReporter, IErrorReporter {
 			case TABLE:
 				break;
 			default: //TEXT:
-				System.out.println(result);
+				println(result);
 			}
 			return;
 		}
 		
-		System.out.println("WFT:"+infoString);
+		println("WFT:"+infoString);
 	}
 	
 	private Map<String, Map<String, String>> makeElementMap(String input, String elementSeperator, String keySeperator, String valueSeperator, String equator){
@@ -240,7 +303,7 @@ public class SystemOutReporter implements IResultReporter, IErrorReporter {
 	@Override
 	public void reportError(int line, int charStart, int charEnd, String message) {
 		this.errors++;
-		System.out.println(String.format("Error on Line: %d at %d, %s", line, charStart, message));
+		println(String.format("Error on Line: %d at %d, %s", line, charStart, message));
 	}
 
 	public int getErrors() {
@@ -249,7 +312,7 @@ public class SystemOutReporter implements IResultReporter, IErrorReporter {
 
 	@Override
 	public void report(AerospikeException e) {
-		System.out.println(String.format("Aerospike %s", e.getMessage()));
+		println(String.format("Aerospike %s", e.getMessage()));
 		//e.printStackTrace();
 		
 	}
@@ -273,10 +336,10 @@ public class SystemOutReporter implements IResultReporter, IErrorReporter {
 				while (resultSet.next()) {
 					Object object = resultSet.getObject();
 					count++;
-					System.out.println(String.format("Result %d: %s", count, object.toString()));
+					println(String.format("Result %d: %s", count, object.toString()));
 				}
 				if (count == 0) {
-					System.out.println("No results returned.");			
+					println("No results returned.");			
 				}
 			}
 			finally {

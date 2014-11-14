@@ -1,6 +1,6 @@
-// Generated from AQL.g4 by ANTLR 4.2.2
+// Generated from AQL.g4 by ANTLR 4.3
 
-package com.aerospike.aql.v2.grammar;
+package com.aerospike.aql.grammar;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -15,6 +15,8 @@ import org.antlr.v4.runtime.misc.*;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class AQLLexer extends Lexer {
+	static { RuntimeMetaData.checkVersion("4.3", RuntimeMetaData.VERSION); }
+
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
@@ -37,21 +39,18 @@ public class AQLLexer extends Lexer {
 	};
 
 	public static final String[] tokenNames = {
-		"<INVALID>",
-		"'add'", "'q'", "'nosql'", "'so'", "'touch'", "'lua'", "'table'", "'prepend'", 
-		"'help'", "'header'", "'('", "'put'", "')'", "'generation'", "'append'", 
-		"','", "'json'", "'.'", "'true'", "'false'", "'connect'", "'disconnect'", 
-		"'desc'", "'insert'", "'select'", "'delete'", "'create'", "'index'", "'execute'", 
-		"'where'", "'show'", "'drop'", "'indexes'", "'values'", "'set'", "'get'", 
-		"'module'", "'on'", "'operate'", "'output'", "'packages'", "'into'", "'function'", 
-		"'from'", "'by'", "'and'", "'between'", "'run'", "'stat'", "'query'", 
-		"'scan'", "'timeout'", "'quit'", "'exit'", "'kill'", "'kill_query'", "'kill_scan'", 
-		"'pk'", "'string'", "'numeric'", "'='", "'*'", "'register'", "'remove'", 
-		"'aggregate'", "'modules'", "'namespaces'", "'sets'", "'bins'", "'scans'", 
-		"'queries'", "'system'", "'order'", "'print'", "'update'", "'verbose'", 
-		"'echo'", "'ttl'", "'view'", "'use_smd'", "'lua_userpath'", "'lua_syspath'", 
-		"IDENTIFIER", "STRINGLITERAL", "FLOATLITERAL", "INTLITERAL", "HEXLITERAL", 
-		"NEWLINE", "WS", "COMMENT"
+		"'\\u0000'", "'\\u0001'", "'\\u0002'", "'\\u0003'", "'\\u0004'", "'\\u0005'", 
+		"'\\u0006'", "'\\u0007'", "'\b'", "'\t'", "'\n'", "'\\u000B'", "'\f'", 
+		"'\r'", "'\\u000E'", "'\\u000F'", "'\\u0010'", "'\\u0011'", "'\\u0012'", 
+		"'\\u0013'", "'\\u0014'", "'\\u0015'", "'\\u0016'", "'\\u0017'", "'\\u0018'", 
+		"'\\u0019'", "'\\u001A'", "'\\u001B'", "'\\u001C'", "'\\u001D'", "'\\u001E'", 
+		"'\\u001F'", "' '", "'!'", "'\"'", "'#'", "'$'", "'%'", "'&'", "'''", 
+		"'('", "')'", "'*'", "'+'", "','", "'-'", "'.'", "'/'", "'0'", "'1'", 
+		"'2'", "'3'", "'4'", "'5'", "'6'", "'7'", "'8'", "'9'", "':'", "';'", 
+		"'<'", "'='", "'>'", "'?'", "'@'", "'A'", "'B'", "'C'", "'D'", "'E'", 
+		"'F'", "'G'", "'H'", "'I'", "'J'", "'K'", "'L'", "'M'", "'N'", "'O'", 
+		"'P'", "'Q'", "'R'", "'S'", "'T'", "'U'", "'V'", "'W'", "'X'", "'Y'", 
+		"'Z'"
 	};
 	public static final String[] ruleNames = {
 		"T__17", "T__16", "T__15", "T__14", "T__13", "T__12", "T__11", "T__10", 

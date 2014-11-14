@@ -1,6 +1,6 @@
-// Generated from AQL.g4 by ANTLR 4.2.2
+// Generated from AQL.g4 by ANTLR 4.3
 
-package com.aerospike.aql.v2.grammar;
+package com.aerospike.aql.grammar;
 import java.util.Set;
 import java.util.HashSet;
 

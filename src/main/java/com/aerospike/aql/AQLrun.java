@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,7 +18,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
 
-import com.aerospike.aql.AQL.Language;
+import com.aerospike.aql.v2.AQL2;
+import com.aerospike.aql.v2.AQLGenerator.Language;
 import com.aerospike.client.AerospikeClient;
 /**
  * AQL is a runnable utility that can either compile AQL to Java, C or C#
@@ -102,22 +102,8 @@ public class AQLrun {
 				Language language = Language.valueOf(languageString);
 
 
-				AQL aql = new AQL();
+				AQL2 aql = new AQL2();
 				String outputFileName = "output.java";
-				String extension = null;
-
-				switch (language){
-				case CSHARP:
-					extension = ".cs";
-					break;
-				case C:
-					extension = ".c";
-					break;
-				default:
-					extension = ".java";
-
-					break;
-				}
 
 				File outputFile = null;
 				if (cl.hasOption("o")){
@@ -127,25 +113,23 @@ public class AQLrun {
 
 				log.debug("Output: " + outputFileName);
 				log.debug("Language: " + language);
-				aql.generateDOT = log.isDebugEnabled();
-				aql.compileAndGenerate(inputFile, outputFile, language, host, portString);
+				aql.generate(inputFile, outputFile, language);
 				log.info("Completed compile of " + inputFileName);
 			} else {
 				// run as an interpreter
 				AerospikeClient client = new AerospikeClient(host, port);
 
-				AQL aql = new AQL(client);
+				AQL2 aql = new AQL2(client, 20);
 
 
 				if (cl.hasOption("f")){
 					String inputFileName = cl.getOptionValue("f");
 					File inputFile = new File(inputFileName);
-					InputStream inputFileStream = new FileInputStream(inputFile);
 					log.info("AQL executing file: " + inputFileName);
-					aql.interpret(inputFileStream);
+					aql.execute(inputFile, null);
 				} else {
 					log.info("AQL Interactive");
-					aql.interpret(System.in);
+					aql.interpret();
 				}
 			}
 

@@ -116,7 +116,7 @@ public class AQLExecutor extends AQLBaseListener {
  
 	private void setResultsReporter(IResultReporter reporter) {
 		if (reporter == null)
-			this.results = new SystemOutReporter();
+			this.results = new AQLConsole();
 		else
 			this.results = reporter;
 		
