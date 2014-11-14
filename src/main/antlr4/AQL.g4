@@ -139,7 +139,7 @@ options {
 //BIN_NAMES
 //}
 @header {
-package com.aerospike.aql.v2.grammar;
+package com.aerospike.aql.grammar;
 import java.util.Set;
 import java.util.HashSet;
 }

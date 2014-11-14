@@ -19,12 +19,12 @@ import com.aerospike.aql.grammar.NoCaseFileStream;
 import com.aerospike.aql.grammar.NoCaseInputStream;
 import com.aerospike.client.AerospikeClient;
 
-public class AQL2 {
+public class AQL {
 	public enum WalkerAction {
 		EXECUTE, GENERATE;
 	}
 
-	private static Logger log = Logger.getLogger(AQL2.class);
+	private static Logger log = Logger.getLogger(AQL.class);
 	private ParseTreeWalker walker = new ParseTreeWalker();
 	private AerospikeClient client;
 	private int timeout;
@@ -34,11 +34,11 @@ public class AQL2 {
 	private IResultReporter resultReporter = new AQLConsole();
 
 
-	public AQL2() {
+	public AQL() {
 		super();
 	}
 
-	public AQL2(AerospikeClient client, int timeout){
+	public AQL(AerospikeClient client, int timeout){
 		this();
 		this.client = client;
 		this.timeout = timeout;
@@ -96,6 +96,10 @@ public class AQL2 {
 		CommonTokenStream tokens = getTokenStream(new NoCaseFileStream(file));
 		return execute(tokens, executor);
 	}
+	
+	public AQLExecutor execute(File file) throws IOException{
+		return this.execute(file, null);
+	}
 	/**
 	 * Execute an AQL string.
 	 * The string will be compiled and executed using
@@ -106,6 +110,9 @@ public class AQL2 {
 		log.debug("Executing string: " + aqlString);
 		CommonTokenStream tokens = getTokenStream(new NoCaseInputStream(aqlString));
 		return execute(tokens, executor);
+	}
+	public AQLExecutor execute(String aqlString) {
+		return this.execute(aqlString, null);
 	}
 
 	private String generate(CommonTokenStream tokens, Language language, String name){

@@ -2,6 +2,8 @@ package com.aerospike.aql;
 
 import org.junit.Test;
 
+import com.aerospike.aql.AQLGenerator.Language;
+
 
 public class UdfTest extends AQLTest{
 	
@@ -44,7 +46,7 @@ public class UdfTest extends AQLTest{
 	@Test
 	public void testUDFFileGeneration() throws Exception {
 		System.out.println("----- testUDFFileGeneration -----");
-		testFileGeneration("UdfAll.aql", AQL.Language.JAVA);
+		testFileGeneration("UdfAll.aql", Language.JAVA);
 	}
 	@Test
 	public void testUDFOnCluster() throws Exception {

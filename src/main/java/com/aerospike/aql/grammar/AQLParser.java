@@ -1,4 +1,4 @@
-// Generated from AQL.g4 by ANTLR 4.2.2
+// Generated from AQL.g4 by ANTLR 4.3
 
 package com.aerospike.aql.grammar;
 import java.util.Set;
@@ -15,6 +15,8 @@ import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class AQLParser extends Parser {
+	static { RuntimeMetaData.checkVersion("4.3", RuntimeMetaData.VERSION); }
+
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
@@ -187,7 +189,7 @@ public class AQLParser extends Parser {
 			setState(118);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 9) | (1L << CONNECT) | (1L << DISCONNECT) | (1L << DESC) | (1L << INSERT) | (1L << SELECT) | (1L << DELETE) | (1L << CREATE) | (1L << EXECUTE) | (1L << SHOW) | (1L << DROP) | (1L << SET) | (1L << GET) | (1L << OPERATE) | (1L << RUN) | (1L << STAT) | (1L << QUIT) | (1L << EXIT) | (1L << KILL) | (1L << REGISTER))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (REMOVE - 64)) | (1L << (AGGREGATE - 64)) | (1L << (PRINT - 64)) | (1L << (UPDATE - 64)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__16) | (1L << T__9) | (1L << CONNECT) | (1L << DISCONNECT) | (1L << DESC) | (1L << INSERT) | (1L << SELECT) | (1L << DELETE) | (1L << CREATE) | (1L << EXECUTE) | (1L << SHOW) | (1L << DROP) | (1L << SET) | (1L << GET) | (1L << OPERATE) | (1L << RUN) | (1L << STAT) | (1L << QUIT) | (1L << EXIT) | (1L << KILL) | (1L << REGISTER))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (REMOVE - 64)) | (1L << (AGGREGATE - 64)) | (1L << (PRINT - 64)) | (1L << (UPDATE - 64)))) != 0)) {
 				{
 				{
 				setState(115); statement();
@@ -423,7 +425,7 @@ public class AQLParser extends Parser {
 				setState(140); kill();
 				}
 				break;
-			case 2:
+			case T__16:
 			case QUIT:
 			case EXIT:
 				enterOuterAlt(_localctx, 21);
@@ -431,7 +433,7 @@ public class AQLParser extends Parser {
 				setState(141); quit();
 				}
 				break;
-			case 9:
+			case T__9:
 				enterOuterAlt(_localctx, 22);
 				{
 				setState(142); help();
@@ -582,9 +584,9 @@ public class AQLParser extends Parser {
 			setState(155); index_name();
 			setState(156); match(ON);
 			setState(157); nameSet();
-			setState(158); match(11);
+			setState(158); match(T__7);
 			setState(159); ((CreateContext)_localctx).binName = bin();
-			setState(160); match(13);
+			setState(160); match(T__5);
 			setState(161);
 			((CreateContext)_localctx).iType = _input.LT(1);
 			_la = _input.LA(1);
@@ -769,10 +771,10 @@ public class AQLParser extends Parser {
 			setState(185);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (_la==16) {
+			while (_la==T__2) {
 				{
 				{
-				setState(181); match(16);
+				setState(181); match(T__2);
 				setState(182); operateFunction();
 				}
 				}
@@ -851,21 +853,21 @@ public class AQLParser extends Parser {
 			setState(198); match(INSERT);
 			setState(199); match(INTO);
 			setState(200); nameSet();
-			setState(201); match(11);
+			setState(201); match(T__7);
 			setState(202); match(PK);
 			{
-			setState(203); match(16);
+			setState(203); match(T__2);
 			setState(204); binNameList();
 			}
-			setState(206); match(13);
+			setState(206); match(T__5);
 			setState(207); match(VALUES);
-			setState(208); match(11);
+			setState(208); match(T__7);
 			setState(209); primaryKey(((StatementContext)getInvokingContext(2)).nameSpace, ((StatementContext)getInvokingContext(2)).setName);
 			{
-			setState(210); match(16);
+			setState(210); match(T__2);
 			setState(211); valueList();
 			}
-			setState(213); match(13);
+			setState(213); match(T__5);
 
 					definitions.add(VariableDefinition.WRITE_POLICY);
 				
@@ -1000,10 +1002,10 @@ public class AQLParser extends Parser {
 			setState(236);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (_la==16) {
+			while (_la==T__2) {
 				{
 				{
-				setState(232); match(16);
+				setState(232); match(T__2);
 				setState(233); binValue();
 				}
 				}
@@ -1237,48 +1239,48 @@ public class AQLParser extends Parser {
 		try {
 			setState(302);
 			switch (_input.LA(1)) {
-			case 1:
+			case T__17:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(265); match(1);
-				setState(266); match(11);
+				setState(265); match(T__17);
+				setState(266); match(T__7);
 				setState(267); bin();
-				setState(268); match(16);
+				setState(268); match(T__2);
 				setState(269); value();
-				setState(270); match(13);
+				setState(270); match(T__5);
 				}
 				break;
-			case 12:
+			case T__6:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(272); match(12);
-				setState(273); match(11);
+				setState(272); match(T__6);
+				setState(273); match(T__7);
 				setState(274); bin();
-				setState(275); match(16);
+				setState(275); match(T__2);
 				setState(276); value();
-				setState(277); match(13);
+				setState(277); match(T__5);
 				}
 				break;
-			case 15:
+			case T__3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(279); match(15);
-				setState(280); match(11);
+				setState(279); match(T__3);
+				setState(280); match(T__7);
 				setState(281); bin();
-				setState(282); match(16);
+				setState(282); match(T__2);
 				setState(283); value();
-				setState(284); match(13);
+				setState(284); match(T__5);
 				}
 				break;
-			case 8:
+			case T__10:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(286); match(8);
-				setState(287); match(11);
+				setState(286); match(T__10);
+				setState(287); match(T__7);
 				setState(288); bin();
-				setState(289); match(16);
+				setState(289); match(T__2);
 				setState(290); value();
-				setState(291); match(13);
+				setState(291); match(T__5);
 				}
 				break;
 			case GET:
@@ -1287,26 +1289,26 @@ public class AQLParser extends Parser {
 				setState(293); match(GET);
 				setState(298);
 				_la = _input.LA(1);
-				if (_la==11) {
+				if (_la==T__7) {
 					{
-					setState(294); match(11);
+					setState(294); match(T__7);
 					setState(295); bin();
-					setState(296); match(13);
+					setState(296); match(T__5);
 					}
 				}
 
 				}
 				break;
-			case 5:
+			case T__13:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(300); match(5);
+				setState(300); match(T__13);
 				}
 				break;
-			case 10:
+			case T__8:
 				enterOuterAlt(_localctx, 7);
 				{
-				setState(301); match(10);
+				setState(301); match(T__8);
 				}
 				break;
 			default:
@@ -1360,9 +1362,9 @@ public class AQLParser extends Parser {
 			((NameSetContext)_localctx).namespaceName =  (((NameSetContext)_localctx).namespace_name!=null?_input.getText(((NameSetContext)_localctx).namespace_name.start,((NameSetContext)_localctx).namespace_name.stop):null);
 			setState(310);
 			_la = _input.LA(1);
-			if (_la==18) {
+			if (_la==T__0) {
 				{
-				setState(306); match(18);
+				setState(306); match(T__0);
 				setState(307); ((NameSetContext)_localctx).set_name = set_name();
 				((NameSetContext)_localctx).setName =  (((NameSetContext)_localctx).set_name!=null?_input.getText(((NameSetContext)_localctx).set_name.start,((NameSetContext)_localctx).set_name.stop):null);
 				}
@@ -1471,7 +1473,7 @@ public class AQLParser extends Parser {
 			{
 			setState(317); match(EXECUTE);
 			setState(318); moduleFunction();
-			setState(319); match(11);
+			setState(319); match(T__7);
 			setState(321);
 			_la = _input.LA(1);
 			if (_la==STRINGLITERAL || _la==INTLITERAL) {
@@ -1480,7 +1482,7 @@ public class AQLParser extends Parser {
 				}
 			}
 
-			setState(323); match(13);
+			setState(323); match(T__5);
 			setState(324); match(ON);
 			setState(325); nameSet();
 			setState(327);
@@ -1547,9 +1549,9 @@ public class AQLParser extends Parser {
 			setState(332); moduleFunction();
 			setState(338);
 			_la = _input.LA(1);
-			if (_la==11) {
+			if (_la==T__7) {
 				{
-				setState(333); match(11);
+				setState(333); match(T__7);
 				setState(335);
 				_la = _input.LA(1);
 				if (_la==STRINGLITERAL || _la==INTLITERAL) {
@@ -1558,7 +1560,7 @@ public class AQLParser extends Parser {
 					}
 				}
 
-				setState(337); match(13);
+				setState(337); match(T__5);
 				}
 			}
 
@@ -1618,7 +1620,7 @@ public class AQLParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(347); ((ModuleFunctionContext)_localctx).packageName = match(IDENTIFIER);
-			setState(348); match(18);
+			setState(348); match(T__0);
 			setState(349); ((ModuleFunctionContext)_localctx).functionName = match(IDENTIFIER);
 			}
 		}
@@ -1680,10 +1682,10 @@ public class AQLParser extends Parser {
 			setState(359);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (_la==16) {
+			while (_la==T__2) {
 				{
 				{
-				setState(355); match(16);
+				setState(355); match(T__2);
 				setState(356); bin();
 				}
 				}
@@ -1736,10 +1738,10 @@ public class AQLParser extends Parser {
 			setState(367);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (_la==16) {
+			while (_la==T__2) {
 				{
 				{
-				setState(363); match(16);
+				setState(363); match(T__2);
 				setState(364); value();
 				}
 				}
@@ -1880,7 +1882,7 @@ public class AQLParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(378); match(14);
+			setState(378); match(T__4);
 			setState(379); match(EQ);
 			setState(380); match(INTLITERAL);
 			}
@@ -2546,7 +2548,7 @@ public class AQLParser extends Parser {
 			{
 			setState(461);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 3) | (1L << 6) | (1L << 7) | (1L << 17))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__15) | (1L << T__12) | (1L << T__11) | (1L << T__1))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			consume();
@@ -2796,7 +2798,7 @@ public class AQLParser extends Parser {
 			{
 			setState(480);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << QUIT) | (1L << EXIT))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__16) | (1L << QUIT) | (1L << EXIT))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			consume();
@@ -2834,7 +2836,7 @@ public class AQLParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(482); match(9);
+			setState(482); match(T__9);
 			}
 		}
 		catch (RecognitionException re) {
@@ -3271,10 +3273,10 @@ public class AQLParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(506); match(IDENTIFIER);
-			setState(507); match(18);
+			setState(507); match(T__0);
 			setState(508);
 			_la = _input.LA(1);
-			if ( !(_la==4 || _la==6) ) {
+			if ( !(_la==T__14 || _la==T__12) ) {
 			_errHandler.recoverInline(this);
 			}
 			consume();

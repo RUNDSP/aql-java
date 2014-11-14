@@ -2,6 +2,8 @@ package com.aerospike.aql;
 
 import org.junit.Test;
 
+import com.aerospike.aql.AQLGenerator.Language;
+
 public class LListTest extends AQLTest{
 	@Test
 	public void allLListFileSyntax() throws Exception {
@@ -11,7 +13,7 @@ public class LListTest extends AQLTest{
 	@Test
 	public void allLListFileGeneration() throws Exception {
 		System.out.println("----- allLListFileGeneration -----");
-		testFileGeneration("LList.aql", AQL.Language.JAVA);
+		testFileGeneration("LList.aql", Language.JAVA);
 	}
 	@Test
 	public void allLListFileExecution() throws Exception {

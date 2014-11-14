@@ -101,7 +101,7 @@ public class AQLrun {
 				Language language = Language.valueOf(languageString);
 
 
-				AQL2 aql = new AQL2();
+				AQL aql = new AQL();
 				String outputFileName = "output.java";
 
 				File outputFile = null;
@@ -118,7 +118,7 @@ public class AQLrun {
 				// run as an interpreter
 				AerospikeClient client = new AerospikeClient(host, port);
 
-				AQL2 aql = new AQL2(client, 20);
+				AQL aql = new AQL(client, 20);
 
 
 				if (cl.hasOption("f")){
@@ -144,7 +144,7 @@ public class AQLrun {
 		HelpFormatter formatter = new HelpFormatter();
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
-		String syntax = AQL2.class.getName() + " [<options>]";
+		String syntax = AQL.class.getName() + " [<options>]";
 		formatter.printHelp(pw, 100, syntax, "options:", options, 0, 2, null);
 		log.info(sw.toString());
 		printHelp();
