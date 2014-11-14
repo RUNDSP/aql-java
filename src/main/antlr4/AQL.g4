@@ -189,17 +189,17 @@ locals [String source, String nameSpace, String setName]
 	| delete //generator exec
 	| select //generator exec
 	| register //generator exec
-	| execute //generator 
-	| aggregate //generator 
-	| operate //generator 
-	| show //generator 
-	| desc //generator 
-	| stat //generator 
-	| set //generator
-	| get //generator
+	| execute //generator exec
+	| aggregate //generator exec
+	| operate //generator exec
+	| show //generator exec
+	| desc //generator exec
+	| stat //generator exec
+	| set //generator exec
+	| get //generator exec
 	| run //generator
 	| kill //generator 
-	| quit 
+	| quit //exec
 	| help 
 	| print //generator 
 	;
@@ -374,7 +374,7 @@ register
 EXECUTE pkgname.funcname(arg1,arg2,,) ON namespace[.setname]
 EXECUTE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE PK = 'X'	
 */
-execute // TODO optional where clause
+execute 
 	: EXECUTE moduleFunction '(' valueList? ')'
 		ON nameSet (where)? 
 	{

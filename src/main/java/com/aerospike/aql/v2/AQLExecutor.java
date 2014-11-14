@@ -4,29 +4,42 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.apache.log4j.Logger;
 
 import com.aerospike.aql.v2.grammar.AQLBaseListener;
+import com.aerospike.aql.v2.grammar.AQLParser;
+import com.aerospike.aql.v2.grammar.AQLParser.AggregateContext;
 import com.aerospike.aql.v2.grammar.AQLParser.BinContext;
 import com.aerospike.aql.v2.grammar.AQLParser.BinNameListContext;
 import com.aerospike.aql.v2.grammar.AQLParser.BinValueContext;
 import com.aerospike.aql.v2.grammar.AQLParser.ConnectContext;
 import com.aerospike.aql.v2.grammar.AQLParser.CreateContext;
 import com.aerospike.aql.v2.grammar.AQLParser.DeleteContext;
+import com.aerospike.aql.v2.grammar.AQLParser.DescContext;
 import com.aerospike.aql.v2.grammar.AQLParser.DisconnectContext;
 import com.aerospike.aql.v2.grammar.AQLParser.DropContext;
 import com.aerospike.aql.v2.grammar.AQLParser.EqualityFilterContext;
 import com.aerospike.aql.v2.grammar.AQLParser.ExecuteContext;
 import com.aerospike.aql.v2.grammar.AQLParser.FilterPredicateContext;
 import com.aerospike.aql.v2.grammar.AQLParser.GenerationPredicateContext;
+import com.aerospike.aql.v2.grammar.AQLParser.GetContext;
 import com.aerospike.aql.v2.grammar.AQLParser.InsertContext;
 import com.aerospike.aql.v2.grammar.AQLParser.IntegerValueContext;
+import com.aerospike.aql.v2.grammar.AQLParser.OperateContext;
+import com.aerospike.aql.v2.grammar.AQLParser.OperateFunctionContext;
 import com.aerospike.aql.v2.grammar.AQLParser.PrimaryKeyContext;
+import com.aerospike.aql.v2.grammar.AQLParser.PrintContext;
+import com.aerospike.aql.v2.grammar.AQLParser.QuitContext;
 import com.aerospike.aql.v2.grammar.AQLParser.RangeFilterContext;
 import com.aerospike.aql.v2.grammar.AQLParser.RegisterContext;
 import com.aerospike.aql.v2.grammar.AQLParser.RemoveContext;
 import com.aerospike.aql.v2.grammar.AQLParser.SelectContext;
+import com.aerospike.aql.v2.grammar.AQLParser.SetContext;
+import com.aerospike.aql.v2.grammar.AQLParser.ShowContext;
+import com.aerospike.aql.v2.grammar.AQLParser.StatContext;
+import com.aerospike.aql.v2.grammar.AQLParser.StatementContext;
 import com.aerospike.aql.v2.grammar.AQLParser.TextValueContext;
 import com.aerospike.aql.v2.grammar.AQLParser.UpdateContext;
 import com.aerospike.aql.v2.grammar.AQLParser.ValueContext;
@@ -37,10 +50,12 @@ import com.aerospike.client.Bin;
 import com.aerospike.client.Info;
 import com.aerospike.client.Key;
 import com.aerospike.client.Language;
+import com.aerospike.client.Operation;
 import com.aerospike.client.Record;
 import com.aerospike.client.ScanCallback;
 import com.aerospike.client.Value;
 import com.aerospike.client.cluster.Node;
+import com.aerospike.client.lua.LuaConfig;
 import com.aerospike.client.policy.ClientPolicy;
 import com.aerospike.client.policy.GenerationPolicy;
 import com.aerospike.client.policy.InfoPolicy;
@@ -73,13 +88,19 @@ public class AQLExecutor extends AQLBaseListener {
 	private ParseTreeProperty<String> stringProperty = new ParseTreeProperty<String>();
 	private ParseTreeProperty<Integer> integerProperty = new ParseTreeProperty<Integer>();
 	private ParseTreeProperty<Filter> filterProperty = new ParseTreeProperty<Filter>();
+	private ParseTreeProperty<Operation> operationProperty = new ParseTreeProperty<Operation>();
 	
 	private IResultReporter results = null;
+	private boolean verbose;
+	private boolean echo;
+	private String view;
+	private String output;
+	private AQLParser parser;
 	private static Logger log = Logger.getLogger(AQLExecutor.class);
 	
 	
 
-	public AQLExecutor(AerospikeClient client, int timeout) {
+	public AQLExecutor(AQLParser parser, AerospikeClient client, int timeout) {
 		super();
 		this.client = client;
 		this.policy = new Policy();
@@ -88,6 +109,7 @@ public class AQLExecutor extends AQLBaseListener {
 		this.writePolicy = new WritePolicy();
 		this.queryPolicy = new QueryPolicy();
 		this.scanPolicy = new ScanPolicy();
+		this.parser = parser;
 		this.setTimeout(timeout);
 		this.setResultsReporter(null);
 	}
@@ -108,13 +130,23 @@ public class AQLExecutor extends AQLBaseListener {
 		this.scanPolicy.timeout = timeout;
 		this.infoPolicy.timeout = timeout;
 	}
+	@Override
+	public void enterStatement(StatementContext ctx) {
+		TokenStream tokens = parser.getTokenStream();
+		String source = tokens.getText(ctx);
+		log.debug("Statement source: " + source);
+		echo(source);
+	}
     
 	@Override
 	public void exitConnect(ConnectContext ctx) {
 		try {
+			
 			String host = stripQuotes(ctx.hostName.getText());
 			int port = Integer.parseInt(ctx.port.getText());
 			this.client = new AerospikeClient(this.cPolicy, host, port);
+			if (this.client.isConnected())
+				results.report("Connected to: " + host + ":" + port);
 		} catch (AerospikeException e){
 			results.report(e);
 		}
@@ -123,9 +155,11 @@ public class AQLExecutor extends AQLBaseListener {
 	@Override
 	public void exitDisconnect(DisconnectContext ctx) {
 		try {
+			
 			if (this.client != null && this.client.isConnected())
 				this.client.close();
 			this.client = null;
+			results.report("Disconnected");
 		} catch (AerospikeException e){
 			results.report(e);
 		}
@@ -134,6 +168,7 @@ public class AQLExecutor extends AQLBaseListener {
 	@Override
 	public void exitCreate(CreateContext ctx) {
 		try {
+			
 			String indexName = ctx.index_name().getText();
 			String namespace = ctx.nameSet().namespaceName;
 			String set = ctx.nameSet().setName;
@@ -150,6 +185,7 @@ public class AQLExecutor extends AQLBaseListener {
 	@Override
 	public void exitDrop(DropContext ctx) {
 		try {
+			
 			if (ctx.INDEX() != null) {
 				String indexName = ctx.index_name().getText();
 				String namespace = ctx.nameSet().namespaceName;
@@ -163,20 +199,21 @@ public class AQLExecutor extends AQLBaseListener {
 			} else {
 				String namespace = ctx.nameSet().namespaceName;
 				String set = ctx.nameSet().setName;
-				String infoString = info(infoPolicy, client, String.format("set-config:context=namespace;id=%s;set=%s;set-delete=true;", namespace, set));
+				String infoString = info(String.format("set-config:context=namespace;id=%s;set=%s;set-delete=true;", namespace, set));
 				results.reportInfo(infoString, ";");
 			}
 		} catch (AerospikeException e){
 			results.report(e);
 		}
 	}
-	
+
 	@Override
 	public void exitRemove(RemoveContext ctx) {
 		try {
-		String module = ctx.moduleName().getText();
-		String[] infoStrings = infoAll(infoPolicy, client, "udf-remove:filename=" + module);
-		results.reportInfo(infoStrings, ";");
+			
+			String module = ctx.moduleName().getText();
+			String[] infoStrings = infoAll(infoPolicy, client, "udf-remove:filename=" + module);
+			results.reportInfo(infoStrings, ";");
 		} catch (AerospikeException e) {
 			results.report(e);
 		}
@@ -185,6 +222,7 @@ public class AQLExecutor extends AQLBaseListener {
 	@Override
 	public void exitInsert(InsertContext ctx) {
 		try {
+			
 			Key key = keyProperty.get(ctx.primaryKey());
 			List<Value> values = valueListProperty.get(ctx.valueList());
 			List<String> binNames = stringListProperty.get(ctx.binNameList());
@@ -209,6 +247,7 @@ public class AQLExecutor extends AQLBaseListener {
 	@Override
 	public void exitUpdate(UpdateContext ctx) {
 		try {
+			
 			Key key  = keyProperty.get(ctx.primaryKeyPredicate().primaryKey());
 			if (ctx.generationPredicate() != null){
 				int generation = Integer.parseInt(ctx.generationPredicate().INTLITERAL().getText());
@@ -240,13 +279,14 @@ public class AQLExecutor extends AQLBaseListener {
 	@Override
 	public void exitDelete(DeleteContext ctx) {
 		try {
-		Key key  = keyProperty.get(ctx.primaryKeyPredicate().primaryKey());
-		if (ctx.generationPredicate() != null){
-			int generation = Integer.parseInt(ctx.generationPredicate().INTLITERAL().getText());
-			setGeneration(writePolicy, generation);
-		}
-		client.delete(writePolicy, key);
-		results.report(String.format("Deleted: %s", key.toString()));
+			
+			Key key  = keyProperty.get(ctx.primaryKeyPredicate().primaryKey());
+			if (ctx.generationPredicate() != null){
+				int generation = Integer.parseInt(ctx.generationPredicate().INTLITERAL().getText());
+				setGeneration(writePolicy, generation);
+			}
+			client.delete(writePolicy, key);
+			results.report(String.format("Deleted: %s", key.toString()));
 		} catch (AerospikeException e){
 			results.report(e);
 		}
@@ -255,6 +295,7 @@ public class AQLExecutor extends AQLBaseListener {
 	@Override
 	public void exitSelect(SelectContext ctx) {
 		try {
+			
 			String[] binNames = null;
 			if (ctx.binNameList() != null){
 				List<String> names = stringListProperty.get(ctx.binNameList());
@@ -302,14 +343,15 @@ public class AQLExecutor extends AQLBaseListener {
 	@Override
 	public void exitRegister(RegisterContext ctx) {
 		try {
-		String filepath = ctx.filepath.getText();
-		File udfFile = new File(filepath);
-		RegisterTask task = client.register(null, 
-			udfFile.getPath(), 
-			udfFile.getName(), 
-			Language.LUA); 
-		task.waitTillComplete(10);
-		results.report("Registered module: " + filepath);
+			
+			String filepath = ctx.filepath.getText();
+			File udfFile = new File(filepath);
+			RegisterTask task = client.register(null, 
+					udfFile.getPath(), 
+					udfFile.getName(), 
+					Language.LUA); 
+			task.waitTillComplete(10);
+			results.report("Registered module: " + filepath);
 		} catch (AerospikeException e){
 			results.report(e);
 		}
@@ -318,6 +360,7 @@ public class AQLExecutor extends AQLBaseListener {
 	@Override
 	public void exitExecute(ExecuteContext ctx) {
 		try {
+			
 			String module = ctx.moduleFunction().packageName.getText();
 			String function = ctx.moduleFunction().functionName.getText();
 			Value[] arguments = null;
@@ -348,6 +391,219 @@ public class AQLExecutor extends AQLBaseListener {
 		}
 	}
 
+	@Override
+	public void exitAggregate(AggregateContext ctx) {
+		try {
+			
+			String namespace = ctx.nameSet().namespaceName;
+			String set = ctx.nameSet().setName;
+			Statement stmt = new Statement();
+			String module = ctx.moduleFunction().packageName.getText();
+			String function = ctx.moduleFunction().functionName.getText();
+			Filter filter = filterProperty.get(ctx.where().predicate().filterPredicate());
+			Value[] arguments = null;
+			if (ctx.valueList() != null){
+				List<Value> values = valueListProperty.get(ctx.valueList());
+				arguments = new Value[values.size()];
+				int index = 0;
+				for (Value value : values){
+					arguments[index] = value;
+					index++;
+				}
+			}
+			stmt.setNamespace(namespace);
+			stmt.setSetName(set);
+			stmt.setFilters(filter);
+			ResultSet resultSet = client.queryAggregate(null, stmt, 
+				module, function, arguments);
+			results.report(resultSet);
+			
+		} catch (AerospikeException e){
+			results.report(e);
+		}
+	}
+	
+	@Override
+	public void exitOperate(OperateContext ctx) {
+		try {
+			
+			Operation[] operations = new Operation[ctx.operateFunction().size()];
+			int index = 0;
+			for (OperateFunctionContext fn : ctx.operateFunction()){
+				operations[index] = operationProperty.get(fn);
+				index++;
+			}
+			Key key = keyProperty.get(ctx.primaryKeyPredicate().primaryKey());
+			if (ctx.generationPredicate() != null){
+				int generation = Integer.parseInt(ctx.generationPredicate().INTLITERAL().getText());
+				setGeneration(writePolicy, generation);
+			}
+			Record record = client.operate(writePolicy, key, operations);
+			results.report(record);
+		} catch (AerospikeException e){
+			results.report(e);
+		}
+	}
+
+	@Override
+	public void exitOperateFunction(OperateFunctionContext ctx) {
+		String fn = ctx.getChild(0).getText();
+		if (fn.equalsIgnoreCase("add")) {
+			String bin = ctx.bin().getText();
+			Value value = valueProperty.get(ctx.value());
+			operationProperty.put(ctx, Operation.add(new Bin(bin, value)));
+		} else if (fn.equalsIgnoreCase("put")){
+			String bin = ctx.bin().getText();
+			Value value = valueProperty.get(ctx.value());
+			operationProperty.put(ctx, Operation.put(new Bin(bin, value)));
+		} else if (fn.equalsIgnoreCase("append")){
+			String bin = ctx.bin().getText();
+			Value value = valueProperty.get(ctx.value());
+			operationProperty.put(ctx, Operation.append(new Bin(bin, value)));
+		} else if (fn.equalsIgnoreCase("prepend")){
+			String bin = ctx.bin().getText();
+			Value value = valueProperty.get(ctx.value());
+			operationProperty.put(ctx, Operation.prepend(new Bin(bin, value)));
+		} else if (fn.equalsIgnoreCase("get")){
+			String bin = ctx.bin().getText();
+			operationProperty.put(ctx, Operation.get(bin));
+		} else if (fn.equalsIgnoreCase("touch")){
+			operationProperty.put(ctx, Operation.touch());
+		} else if (fn.equalsIgnoreCase("header")){ 
+			operationProperty.put(ctx, Operation.getHeader());
+		}
+	}
+	
+	@Override
+	public void exitShow(ShowContext ctx) {
+		try {
+			
+			if (ctx.NAMESPACES() != null)
+				results.reportInfo(info("namespaces"), ";");
+			else if (ctx.INDEXES() != null){
+				//	TODO		if (ctx.nameSet() != null) {
+				//				String nameSpace = ctx.nameSet().namespaceName;
+				//				String setName = ctx.nameSet().setName;
+				//			}
+				results.reportInfo(info("sindex"), ";");
+			}
+			else if (ctx.MODULES() != null)
+				results.reportInfo(info("udf-list"), ";", ":", ",");
+			else if (ctx.BINS() != null)
+				results.reportInfo(info("bins"), ";", ":", ",");
+			else if (ctx.SETS() != null)
+				results.reportInfo(info("sets"), ";", ":", ",");
+			else if (ctx.QUERIES() != null)
+				results.reportInfo(info("jobs:module=query"), ";");
+			else if (ctx.SCANS() != null)
+				results.reportInfo(info("jobs:module=scan"), ";");
+		} catch (AerospikeException e){
+			results.report(e);
+		}
+	}
+	
+	@Override
+	public void exitDesc(DescContext ctx) {
+		try {
+			
+			if (ctx.INDEX() != null) {
+				String nameSpace = ctx.namespace_name().getText(); //TODO namespace
+				String indexName = ctx.index_name().getText(); //TODO index name
+				results.reportInfo(info("sindex-describe"), ";");
+			} else { // Module
+				String name = ctx.moduleName().getText();
+				results.reportInfo(info(String.format("udf-get:filename=%s", name)), ";");
+			}
+		} catch (AerospikeException e){
+			results.report(e);
+		}
+	}
+	
+	@Override
+	public void exitStat(StatContext ctx) {
+		try {
+			
+			if (ctx.QUERY() != null) {
+				results.reportInfo(info("query-stat"), ";");
+			} else if (ctx.INDEX() != null) {
+				String nameSpace = ctx.namespace_name().getText(); //TODO
+				String indexName = ctx.index_name().getText();
+			} else { 
+				results.reportInfo(info("statistics"), ";");
+			}
+		} catch (AerospikeException e){
+			results.report(e);
+		}
+	}
+	
+	@Override
+	public void exitSet(SetContext ctx) {
+		
+		if (ctx.TIMEOUT() != null) {
+			int value = Integer.parseInt(ctx.timeOut.getText());
+			setTimeout(value);
+			results.report("Set timout to: " + value);
+		} else if (ctx.VERBOSE() != null) {
+			String value = ctx.verboseOn.getText();
+			this.verbose = Boolean.parseBoolean(value);
+			results.report("Set verbose to: " + verbose);
+		} else if (ctx.ECHO() != null) {
+			String value = ctx.echoOn.getText();
+			this.echo = Boolean.parseBoolean(value);
+			results.report("Set echo to: " + echo);
+		} else if (ctx.TTL() != null) {
+			int value = Integer.parseInt(ctx.ttl.getText());
+			writePolicy.expiration = value;
+			results.report("Set TTL to: " + writePolicy.expiration);
+		} else if (ctx.VIEW() != null) {
+			String value = ctx.viewType().getText();
+			this.view = value;
+			results.report("Set view to: " + this.view);
+		} else if (ctx.OUTPUT() != null) {
+			String value = ctx.viewType().getText();
+			this.output = value;
+			results.report("Set output to: " + this.output);
+		} else {// if (ctx.LUA_USER_PATH() != null) { 
+			String value = ctx.luaUserPath.getText();
+			LuaConfig.SourceDirectory = stripQuotes(value);
+			results.report("Set path to: " + LuaConfig.SourceDirectory);
+		} 
+	}
+	
+	@Override
+	public void exitGet(GetContext ctx) {
+		
+		if (ctx.TIMEOUT() != null) {
+			results.report("Timeout is: " + policy.timeout);
+		} else if (ctx.VERBOSE() != null) {
+			results.report("Verbose is: " + this.verbose);
+		} else if (ctx.ECHO() != null) {
+			results.report("Echo is: " + this.verbose);
+		} else if (ctx.TTL() != null) {
+			results.report("TTL is: " + this.writePolicy.expiration);
+		} else if (ctx.VIEW() != null) {
+			results.report("View is: " + this.view);
+		} else if (ctx.OUTPUT() != null) {
+			results.report("Output is: " + this.output);
+		} else {// if (ctx.LUA_USER_PATH() != null) { 
+			results.report("Path is: " + LuaConfig.SourceDirectory.toString());
+		} 
+	}
+	
+	@Override
+	public void exitQuit(QuitContext ctx) {
+		
+		results.report("Exiting AQL...");
+		System.exit(0);
+	}
+	
+	@Override
+	public void exitPrint(PrintContext ctx) {
+		
+		String value = stripQuotes(ctx.STRINGLITERAL().getText());
+		results.report(value);
+	}
+	
 	private void setGeneration(WritePolicy writePolicy, int generation) {
 		writePolicy.generation = generation;
 		writePolicy.generationPolicy = GenerationPolicy.EXPECT_GEN_EQUAL;
@@ -363,8 +619,7 @@ public class AQLExecutor extends AQLBaseListener {
 		return messages;
 	}
 
-	private String info(InfoPolicy infoPolicy, AerospikeClient client,
-			String infoString) {
+	private String info(String infoString) {
 			String answer = Info.request(infoPolicy, client.getNodes()[0], infoString);
 			log.debug(answer);
 			return answer;
@@ -455,5 +710,10 @@ public class AQLExecutor extends AQLBaseListener {
         if ( inputString==null || inputString.charAt(0)!='\'' ) return inputString;
         return inputString.substring(1, inputString.length() - 1);
     }
+	
+	private void echo(String source){
+		if (this.echo)
+			results.report(source);
+	}
 
 }

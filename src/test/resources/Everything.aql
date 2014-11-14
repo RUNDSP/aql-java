@@ -1,7 +1,11 @@
+set echo true
 #Connect
 connect '127.0.0.1' 3000
 
+print '@#$--$#@'
+
 #Insert
+	INSERT INTO cats.demo (PK, bn2, bn3, bn4) VALUES ('1', 1, '1', 1)
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('1', 1, '1', 1)
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('2', 2, '2', 2)
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('3', 3, '2', 2)
@@ -15,7 +19,7 @@ connect '127.0.0.1' 3000
 
 #Create
 	CREATE INDEX index_bn2 ON test.demo (bn2) NUMERIC
-	CREATE INDEX index_bn3 ON test.demo (bn3) STRING
+	CREATE INDEX index_bn3 ON cats.demo (bn3) STRING
 	CREATE INDEX index_bn4 ON test.demo (bn4) NUMERIC
 
 #Update
@@ -99,19 +103,20 @@ DELETE FROM test.demo WHERE PK = '1'
 DELETE FROM test.demo WHERE PK = '2'
 DELETE FROM test.demo WHERE PK = '3'
 DELETE FROM test.demo WHERE PK = '4'
-DELETE FROM test.demo WHERE PK = '5'
+#DELETE FROM test.demo WHERE PK = '5'
 DELETE FROM test.demo WHERE PK = '6'
-DELETE FROM test.demo WHERE PK = '7'
+#DELETE FROM test.demo WHERE PK = '7'
 DELETE FROM test.demo WHERE PK = '8'
-DELETE FROM test.demo WHERE PK = '9'
+#DELETE FROM test.demo WHERE PK = '9'
 DELETE FROM test.demo WHERE PK = '10'
 
-DROP INDEX test.demo index_bn2
-DROP INDEX test.demo index_bn3
+#DROP INDEX test.demo index_bn2
+#DROP INDEX test.demo index_bn3
 	DroP INDEX test.demo index_bn4
+
+disconnect	
 	
 QUIT 
 EXIT
 Q
 
-disconnect	

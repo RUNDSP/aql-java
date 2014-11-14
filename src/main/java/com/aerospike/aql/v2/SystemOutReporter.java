@@ -2,8 +2,8 @@ package com.aerospike.aql.v2;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
-import org.apache.log4j.Logger;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.aerospike.aql.v2.grammar.IErrorReporter;
 import com.aerospike.client.AerospikeException;
@@ -12,10 +12,12 @@ import com.aerospike.client.Log.Level;
 import com.aerospike.client.Record;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.ResultSet;
+import com.aerospike.client.util.Util;
 
 public class SystemOutReporter implements IResultReporter, IErrorReporter {
 	boolean cancelled = false;
 	int errors = 0;
+	private ViewFormat format = ViewFormat.TEXT;
 	
 	public SystemOutReporter() {
 	}
@@ -34,15 +36,24 @@ public class SystemOutReporter implements IResultReporter, IErrorReporter {
 	@Override
 	public void report(Key key, Record record) {
 		if (record != null){
-			System.out.print("Record: ");
-			if (key != null){
-				System.out.print(key.toString() + " ");
+			switch (this.format) {
+			case JSON:
+				break;
+			case TABLE:
+				break;
+			default: //TEXT:
+
+				System.out.print("Record: ");
+				if (key != null){
+					System.out.print(key.toString() + " ");
+				}
+				for (String binName :record.bins.keySet()){
+					String result = record.getValue(binName).toString();
+					System.out.print(" bin="+binName +" value="+ result);
+				}
+				System.out.println();
+				break;
 			}
-			for (String binName :record.bins.keySet()){
-				String result = record.getValue(binName).toString();
-				System.out.print(" bin="+binName +" value="+ result);
-			}
-			System.out.println();
 		}
 	}
 	@Override
@@ -53,29 +64,38 @@ public class SystemOutReporter implements IResultReporter, IErrorReporter {
 
 	@Override
 	public void report(RecordSet recordSet) {
-		try {
-			int count = 0;
-			while (recordSet.next()) {
-				Key key = recordSet.getKey();
-				Record record = recordSet.getRecord();
-				System.out.print("Record: " + key.toString());
-				for (String binName :record.bins.keySet()){
-					String result = record.getValue(binName).toString();
-					System.out.print(" bin="+binName +" value="+ result);
-				}
-				System.out.println();
-				count++;
-			}
-			if (count == 0) {
-				System.out.println("No records returned.");			
-			}
-		} catch (AerospikeException e) {
-			e.printStackTrace();
-		} finally {
-			if (recordSet != null) {
-				recordSet.close();
-			}
+		switch (this.format) {
+		case JSON:
+			break;
+		case TABLE:
+			break;
+		default: //TEXT:
 
+			try {
+				int count = 0;
+				while (recordSet.next()) {
+					Key key = recordSet.getKey();
+					Record record = recordSet.getRecord();
+					System.out.print("Record: " + key.toString());
+					for (String binName :record.bins.keySet()){
+						String result = record.getValue(binName).toString();
+						System.out.print(" bin="+binName +" value="+ result);
+					}
+					System.out.println();
+					count++;
+				}
+				if (count == 0) {
+					System.out.println("No records returned.");			
+				}
+			} catch (AerospikeException e) {
+				e.printStackTrace();
+			} finally {
+				if (recordSet != null) {
+					recordSet.close();
+				}
+
+			}
+			break;
 		}
 	}
 
@@ -134,39 +154,77 @@ public class SystemOutReporter implements IResultReporter, IErrorReporter {
 		printInfo(inforMessage, seperators);
 	}
 	protected void printInfo(String infoString, String... seperators){
-		if (infoString == null || infoString.isEmpty() || seperators == null )
+		if (infoString == null || infoString.isEmpty())
 			return;
-		if (seperators.length >= 1){
-			String[] outerParts = infoString.split(seperators[0]);
-			String rowFormat = null;
-			for (int i = 0; i < outerParts.length; i++){
-				if (seperators.length >= 2){
-					String[] innerParts = outerParts[i].split(seperators[1]);
-					if (i == 0){
-						StringBuffer sb = new StringBuffer("| ");
-						for (int j = 0; j < innerParts.length; j++){
-							sb.append("%").append(innerParts[j].length()).append("s | ");
-						}
-						rowFormat = sb.toString();
-						System.out.println(String.format(rowFormat, nameValueParts(innerParts, true)));
-					}
-					System.out.println(String.format(rowFormat, nameValueParts(innerParts, false)));
-				}
-			}
+		if ( seperators == null || seperators.length == 0 ){
+			System.out.println(infoString);
+			return;
 		}
-	}
-	private String[] nameValueParts(String[] parts, boolean headerRow){
-		String[] nvs = new String[parts.length];
-		for (int i = 0; i < parts.length; i++) {
-			String[] nv = parts[i].split("=");
-			if (headerRow){
-				nvs[i] = nv[0];
-			} else if (nv.length > 1){
-				nvs[i] = nv[1];
+		
+		if (seperators.length == 3 ){
+			Map<String, Map<String, String>> result = makeElementMap(infoString, seperators[0], seperators[1], seperators[2], "=");
+			switch (this.format) {
+			case JSON:
+				break;
+			case TABLE:
+				break;
+			default: //TEXT:
+				System.out.println(result);
+				break;
 			}
+			
+			return;
 		}
-		return nvs;
+		if (seperators.length == 1 ){
+			Map<String, String> result = makeValueMap(infoString, seperators[0], "=");
+			switch (this.format) {
+			case JSON:
+				break;
+			case TABLE:
+				break;
+			default: //TEXT:
+				System.out.println(result);
+			}
+			return;
+		}
+		
+		System.out.println("WFT:"+infoString);
 	}
+	
+	private Map<String, Map<String, String>> makeElementMap(String input, String elementSeperator, String keySeperator, String valueSeperator, String equator){
+		Map<String, Map<String, String>> result = new HashMap<String, Map<String,String>>();
+			String[] parts = input.split(elementSeperator);
+			for (String element : parts){
+				String[] chunks = element.split(keySeperator);
+				String key = chunks[0];
+				Map<String, String> value = makeValueMap(chunks[1], valueSeperator, equator);
+				result.put(key, value);
+			}
+		return result;
+	}
+	
+	private Map<String, String> makeValueMap(String input, String seperator, String equator){
+		Map<String, String> result = new HashMap<String, String>();
+		String[] parts = input.split(seperator);
+		for (String element : parts){
+			String[] chunks = element.split(equator);
+			result.put(chunks[0], (chunks.length ==2) ? chunks[1] : chunks[0]);
+		}
+		return result;
+	}
+	
+//	private String[] nameValueParts(String[] parts, boolean headerRow){
+//		String[] nvs = new String[parts.length];
+//		for (int i = 0; i < parts.length; i++) {
+//			String[] nv = parts[i].split("=");
+//			if (headerRow){
+//				nvs[i] = nv[0];
+//			} else if (nv.length > 1){
+//				nvs[i] = nv[1];
+//			}
+//		}
+//		return nvs;
+//	}
 
 	@Override
 	public void cancel() {
@@ -204,19 +262,27 @@ public class SystemOutReporter implements IResultReporter, IErrorReporter {
 
 	@Override
 	public void report(ResultSet resultSet, boolean clear) {
-		try {
-			int count = 0;
-			while (resultSet.next()) {
-				Object object = resultSet.getObject();
-				count++;
-				System.out.println(String.format("Result %d: %s", count, object.toString()));
+		switch (this.format) {
+		case JSON:
+			break;
+		case TABLE:
+			break;
+		default: //TEXT:
+			try {
+				int count = 0;
+				while (resultSet.next()) {
+					Object object = resultSet.getObject();
+					count++;
+					System.out.println(String.format("Result %d: %s", count, object.toString()));
+				}
+				if (count == 0) {
+					System.out.println("No results returned.");			
+				}
 			}
-			if (count == 0) {
-				System.out.println("No results returned.");			
+			finally {
+				resultSet.close();
 			}
-		}
-		finally {
-			resultSet.close();
+			break;
 		}
 	}
 
@@ -241,5 +307,8 @@ public class SystemOutReporter implements IResultReporter, IErrorReporter {
 		return sw.toString();
 	}
 
-
+	@Override
+	public void setViewFormat(ViewFormat format) {
+		this.format = format;
+	}
 }

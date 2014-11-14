@@ -77,9 +77,9 @@ public class AQL2 {
 	}
 
 	private void execute(CommonTokenStream tokens){
-		AQLExecutor executor = new AQLExecutor(this.client, this.timeout);
 		AQLParser parser = new AQLParser(tokens);
 		ParseTree tree = parser.aql();
+		AQLExecutor executor = new AQLExecutor(parser, this.client, this.timeout);
 		walker.walk(executor, tree);
 	}
 	/**

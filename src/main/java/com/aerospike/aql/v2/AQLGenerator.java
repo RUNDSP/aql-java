@@ -234,8 +234,8 @@ public class AQLGenerator extends AQLBaseListener {
 		st.add("source", ((StatementContext)ctx.getParent()).source);
 		st.add("nameSpace", ns);
 		st.add("setName", set);
-		//st.add("module", ctx.moduleFunction().packageName.getText());
-		//st.add("function", ctx.moduleFunction().functionName.getText());
+		st.add("module", ctx.moduleFunction().packageName.getText());
+		st.add("function", ctx.moduleFunction().functionName.getText());
 		st.add("where", code.get(ctx.where().predicate().filterPredicate().getChild(0)));
 		putCode(ctx, st);
 	}

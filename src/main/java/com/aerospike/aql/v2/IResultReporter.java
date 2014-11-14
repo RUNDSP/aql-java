@@ -13,6 +13,11 @@ import com.aerospike.client.query.ResultSet;
  *
  */
 public interface IResultReporter {
+	enum ViewFormat {
+		JSON,
+		TABLE,
+		TEXT
+	}
 	public void report(String message);
 	public void report(AerospikeException e);
 	public void report(Level level, String message);
@@ -32,4 +37,5 @@ public interface IResultReporter {
 	public void reportInfo(String[] inforMessages, boolean clear, String...seperators);
 	public void cancel();
 	public boolean isCancelled();
+	public void setViewFormat(ViewFormat format);
 }
