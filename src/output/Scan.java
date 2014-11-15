@@ -46,15 +46,15 @@ public class Scan {
 	public void run() throws AerospikeException {
 		// Variables for statements
 
+		Policy policy = new Policy();
 		WritePolicy writePolicy = new WritePolicy();
+		ResultSet resultSet = null;
+		QueryPolicy queryPolicy = new QueryPolicy();
+		ScanPolicy scanPolicy = new ScanPolicy();
+		Statement stmt = new Statement();
+		Record record = null;
 		RegisterTask task =	null;
 		File udfFile = null;
-		QueryPolicy queryPolicy = new QueryPolicy();
-		Statement stmt = new Statement();
-		Policy policy = new Policy();
-		ScanPolicy scanPolicy = new ScanPolicy();
-		Record record = null;
-		ResultSet resultSet = null;
 
 		// AQL statements - start
 

@@ -325,13 +325,13 @@ where
 
 	
 operateFunction
-	: 'add' '(' bin ',' value ')'
-	| 'put' '(' bin ',' value ')'
-	| 'append' '(' bin ',' value ')'
-	| 'prepend' '(' bin ',' value ')'
-	| 'get' ('(' bin ')')?
-	| 'touch'
-	| 'header'
+	: ADD '(' bin ',' value ')'
+	| PUT '(' bin ',' value ')'
+	| APPEND '(' bin ',' value ')'
+	| PREPEND '(' bin ',' value ')'
+	| GET ('(' bin ')')?
+	| TOUCH
+	| HEADER
 	;
 	
 nameSet 
@@ -396,7 +396,17 @@ aggregate
 	;
 
 moduleFunction
-	: packageName=IDENTIFIER '.' functionName=IDENTIFIER
+	: packageName=(IDENTIFIER | LLIST | LMAP) '.' 
+		functionName=(IDENTIFIER | ADD
+		| SCAN
+		| 'find'
+		| 'size'
+		| 'remove'
+		| 'destroy'
+		| 'get_config'
+		| 'get_capacity'
+		| 'put'
+		| 'get')
 	;
 	
 binNameList 
@@ -827,6 +837,16 @@ VIEW 		: 'view';
 USE_SMD	: 'use_smd'; 
 LUA_USER_PATH : 'lua_userpath'; 
 LUA_SYSTEM_PATH : 'lua_syspath'; 	
+ADD : 'add';
+PUT : 'put';
+APPEND : 'append';
+PREPEND : 'prepend';
+TOUCH : 'touch';
+HEADER : 'header';
+LLIST: 'llist';
+LSTACK: 'lstack';
+LSET: 'lset';
+LMAP: 'lmap';
 
 
 

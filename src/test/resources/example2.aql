@@ -8,7 +8,7 @@
 SET ECHO false
 
 # Set record time to live to 100 seconds.
-SET RECORD_TTL 100
+SET TTL 100
 
 # Define secondary indexes on the data that we will insert
 # Indexes need time to be built. Best to do before inserting data.

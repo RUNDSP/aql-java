@@ -46,10 +46,10 @@ public class PkTest {
 	public void run() throws AerospikeException {
 		// Variables for statements
 
-		WritePolicy writePolicy = new WritePolicy();
-		Statement stmt = new Statement();
 		Policy policy = new Policy();
+		WritePolicy writePolicy = new WritePolicy();
 		ScanPolicy scanPolicy = new ScanPolicy();
+		Statement stmt = new Statement();
 		Record record = null;
 
 		// AQL statements - start

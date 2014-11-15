@@ -46,17 +46,17 @@ public class QueryFilter {
 	public void run() throws AerospikeException {
 		// Variables for statements
 
+		Policy policy = new Policy();
 		WritePolicy writePolicy = new WritePolicy();
-		RegisterTask task =	null;
-		File udfFile = null;
+		RecordSet recordSet = null;
+		ResultSet resultSet = null;
 		QueryPolicy queryPolicy = new QueryPolicy();
+		ScanPolicy scanPolicy = new ScanPolicy();
 		IndexTask indexTask = null;
 		Statement stmt = new Statement();
-		RecordSet recordSet = null;
-		Policy policy = new Policy();
-		ScanPolicy scanPolicy = new ScanPolicy();
+		RegisterTask task =	null;
 		Record record = null;
-		ResultSet resultSet = null;
+		File udfFile = null;
 
 		// AQL statements - start
 

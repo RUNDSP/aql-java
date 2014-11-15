@@ -46,8 +46,8 @@ public class Admin {
 	public void run() throws AerospikeException {
 		// Variables for statements
 
-		InfoPolicy infoPolicy = new InfoPolicy();
 		String infoResult = null;
+		InfoPolicy infoPolicy = new InfoPolicy();
 
 		// AQL statements - start
 
