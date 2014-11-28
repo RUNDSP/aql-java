@@ -1,0 +1,15 @@
+connect '127.0.0.1' 3000
+
+
+CREATE USER bob PASSWORD bob1 ROLE read
+CREATE USER mary PASSWORD mary1 ROLES read, read-write, user-admin, sys-admin
+SET PASSWORD bob2 FOR bob
+GRANT ROLE read-write TO bob
+GRANT ROLES user-admin, sys-admin TO bob
+SHOW USER bob
+REVOKE ROLE sys-admin FROM bob
+SHOW USER bob
+REVOKE ROLES user-admin, read-write FROM bob
+SHOW USER bob
+SHOW USERS
+DROP USER bob

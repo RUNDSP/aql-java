@@ -1,3 +1,5 @@
+connect '127.0.0.1' 3000
+
 # asql command usage example file. 
 # To execute this file, at the terminal prompt do:  
 # >asql -c "run 'example1.asql'"

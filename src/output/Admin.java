@@ -31,26 +31,39 @@ import com.aerospike.client.task.IndexTask;
 import com.aerospike.client.cluster.Node;
 import com.aerospike.client.lua.LuaConfig;
 import com.aerospike.client.policy.ClientPolicy;
+import com.aerospike.client.policy.AdminPolicy;
 
 public class Admin {
 
-
-	public Admin() throws AerospikeException{
+	public Admin() {
 		super();
 	}
 
-	public static void main(String[] args) throws AerospikeException{
+	public static void main(String[] args) {
 		Admin worker = new Admin();
 		worker.run();
 	}
-	public void run() throws AerospikeException {
+	public void run()  {
 		// Variables for statements
+		ClientPolicy clientPolicy;
+		AerospikeClient client;
 
-		String infoResult = null;
+		WritePolicy writePolicy = new WritePolicy();
 		InfoPolicy infoPolicy = new InfoPolicy();
+		String infoResult = null;
+		Policy policy = new Policy();
+
 
 		// AQL statements - start
-
+		/* connect '127.0.0.1' 3000 */
+		/*
+		Host[] hosts = new Host[] {new Host("a.host", 3000),
+									new Host("another.host", 3000),
+									new Host("and.another.host", 300)};
+		client = new AerospikeClient(clientPolicy, hosts);
+		*/
+		clientPolicy = new ClientPolicy();
+		client = new AerospikeClient(clientPolicy, "127.0.0.1", 3000);
 		/* SHOW NAMESPACES */
 		infoResult = Info.request(infoPolicy, client.getNodes()[0], "namespaces");
 		/* show SETS */
@@ -80,8 +93,8 @@ public class Admin {
 		clientPolicy.timeout = 150;
 		policy.timeout = 150;
 		writePolicy.timeout = 150;
-		/* SET VIEW TABLE */
-		/* SET VIEW JSON */
+		/* SET OUTPUT TABLE */
+		/* SET output JSON */
 		/* SET LUA_USERPATH '/opt/citrusleaf/usr/udf/lua' */
 		LuaConfig.SourceDirectory = "'/opt/citrusleaf/usr/udf/lua'"; 
 		/* GET VERBOSE */
@@ -89,11 +102,11 @@ public class Admin {
 		/* GET TIMEOUT */
 		System.out.println("Policy timeout: " + policy.timeout);
 		System.out.println("Write policy timeout: " + writePolicy.timeout);
-		/* GET VIEW */
+		/* GET output */
 		/* GET LUA_USERPATH */
 		System.out.println("Lua source directory: " + LuaConfig.SourceDirectory);
 
-		// AQL statements - finish, total: 24
+		// AQL statements - finish, total: 25
 
 	}
 

@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -14,7 +15,6 @@ import org.apache.log4j.Logger;
 import com.aerospike.aql.AQLGenerator.Language;
 import com.aerospike.aql.grammar.AQLLexer;
 import com.aerospike.aql.grammar.AQLParser;
-import com.aerospike.aql.grammar.IErrorReporter;
 import com.aerospike.aql.grammar.NoCaseFileStream;
 import com.aerospike.aql.grammar.NoCaseInputStream;
 import com.aerospike.client.AerospikeClient;
@@ -30,9 +30,8 @@ public class AQL {
 	private int timeout;
 	private Language generationLanguage;
 	private String fileExtension;
-	private IErrorReporter errorReporter = null;
 	private IResultReporter resultReporter = new AQLConsole();
-
+	private BaseErrorListener errorListener;
 
 	public AQL() {
 		super();
@@ -52,6 +51,8 @@ public class AQL {
 
 	private ParseTree compile(CommonTokenStream tokens){
 		AQLParser parser = new AQLParser(tokens);
+		if (errorListener != null)
+			parser.addErrorListener(errorListener);
 		ParseTree tree = parser.aql();
 		return tree;
 	}
@@ -79,9 +80,11 @@ public class AQL {
 
 	private AQLExecutor execute(CommonTokenStream tokens, AQLExecutor executor){
 		AQLParser parser = new AQLParser(tokens);
+		if (errorListener != null)
+			parser.addErrorListener(errorListener);
 		ParseTree tree = parser.aql();
 		if (executor == null)
-			executor = new AQLExecutor(parser, this.client, this.timeout);
+			executor = new AQLExecutor(parser, this.client, this.timeout, this.resultReporter);
 		walker.walk(executor, tree);
 		return executor;
 	}
@@ -191,15 +194,9 @@ public class AQL {
 		}
 	}
 
-
-	public void setErrorReporter(IErrorReporter errorReporter) {
-		this.errorReporter = errorReporter;
-	}
-	public void setResultReporter(IResultReporter resultReporter) {
-		if (resultReporter != null)
-			this.resultReporter = resultReporter;
-	}
-
+	/**
+	 * Interpret an AQL command, lind by line
+	 */
 	public void interpret() {
 		AQLConsole console = (AQLConsole) this.resultReporter;
 		AQLExecutor executor = null;
@@ -210,6 +207,28 @@ public class AQL {
 		}
 		
 	}
+	
+	/**
+	 * This method executes a AQL command and returns the result in a GenericResult.
+	 * User this method from you application to use AQL at the the API level.
+	 * @param aqlString
+	 * @return
+	 */
+	public GenericResult go(String aqlString){
+		if (!(this.resultReporter instanceof GenericResult))
+			this.resultReporter = new GenericResult();
+		execute(aqlString, null);
+		return (GenericResult) this.resultReporter;
+	}
 
+	public BaseErrorListener getErrorListener() {
+		return errorListener;
+	}
+
+	public void setErrorListener(BaseErrorListener errorListener) {
+		this.errorListener = errorListener;
+	}
+
+	
 
 }

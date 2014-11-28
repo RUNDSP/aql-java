@@ -6,24 +6,31 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
-import com.aerospike.aql.grammar.IErrorReporter;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Key;
 import com.aerospike.client.Log.Level;
 import com.aerospike.client.Record;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.ResultSet;
-import com.aerospike.client.util.Util;
 
-public class AQLConsole implements IResultReporter, IErrorReporter {
+public class AQLConsole implements IResultReporter {
 	boolean cancelled = false;
 	int errors = 0;
-	private ViewFormat format = ViewFormat.TEXT;
+	private ViewFormat format = ViewFormat.TABLE;
 	Console systemConsole = System.console();
 	boolean useSystemConsole = false;
+	Object lastResult = null;
 	
 	public AQLConsole() {
 		this.useSystemConsole = (this.systemConsole != null);
@@ -101,8 +108,14 @@ public class AQLConsole implements IResultReporter, IErrorReporter {
 		if (record != null){
 			switch (this.format) {
 			case JSON:
+				println(recordJSON(record).toJSONString());
 				break;
 			case TABLE:
+				List<Record> recordList = new ArrayList<Record>();
+				Map<String, Integer> binList = new HashMap<String, Integer>();
+				recordList.add(record);
+				makeFieldMap(binList, record);
+				printTableRecordList(recordList, binList);
 				break;
 			default: //TEXT:
 
@@ -119,6 +132,24 @@ public class AQLConsole implements IResultReporter, IErrorReporter {
 			}
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	private JSONObject recordJSON(Record record){
+		JSONObject jObject = new JSONObject(record.bins);
+		jObject.put("generation", record.generation);
+		jObject.put("expiration", record.expiration);
+		return jObject;
+	}
+
+	@SuppressWarnings("unchecked")
+	private JSONObject keyJSON(Key key){
+		JSONObject jKey = new JSONObject();
+		jKey.put("namespace", key.namespace);
+		jKey.put("set",key.setName);
+		jKey.put("key", key.userKey);
+		return jKey;
+	}
+
 	@Override
 	public void report(Record record) {
 		report(null, record);
@@ -126,11 +157,62 @@ public class AQLConsole implements IResultReporter, IErrorReporter {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void report(RecordSet recordSet) {
 		switch (this.format) {
 		case JSON:
+			try {
+				int count = 0;
+				JSONArray recordList = new JSONArray();
+				while (recordSet.next()) {
+					Key key = recordSet.getKey();
+					JSONObject jrecord = recordJSON(recordSet.getRecord());
+					JSONObject jKey = keyJSON(key);
+					JSONObject jrow = new JSONObject();
+					jrow.put("key", jKey);
+					jrow.put("record", jrecord);
+					recordList.add(jrow);
+					count ++;
+				}
+				if (count == 0) {
+					println("No records returned.");			
+				} else {
+					println(recordList.toJSONString());
+				}
+			} catch (AerospikeException e) {
+				e.printStackTrace();
+			} finally {
+				if (recordSet != null) {
+					recordSet.close();
+				}
+
+			}
 			break;
 		case TABLE:
+			try {
+				int count = 0;
+				List<Record> recordList = new ArrayList<Record>();
+				Map<String, Integer> binList = new HashMap<String, Integer>();
+				while (recordSet.next()) {
+					Record record = recordSet.getRecord();
+					recordList.add(record);
+					makeFieldMap(binList, record);
+					count ++;
+					if (count % 50 == 0){
+						printTableRecordList(recordList, binList);
+						recordList.clear();
+					}
+				}
+				if (recordList.size() > 0){
+					printTableRecordList(recordList, binList);
+				}
+			} catch (AerospikeException e) {
+				e.printStackTrace();
+			} finally {
+				if (recordSet != null) {
+					recordSet.close();
+				}
+			}
 			break;
 		default: //TEXT:
 
@@ -161,7 +243,103 @@ public class AQLConsole implements IResultReporter, IErrorReporter {
 			break;
 		}
 	}
+	
+	private Map<String, Integer> makeFieldMap(Map<String, Integer> fieldMap, Record record ){
+		if (fieldMap == null)
+			fieldMap = new HashMap<String, Integer>();
+		Set<String> bins = record.bins.keySet();
+		for (String bin : bins){
+			Integer size = fieldMap.get(bin);
+			Integer binValueSize = record.getValue(bin).toString().length();
+			Integer binNameSize = bin.length();
+			Integer fieldSize = Math.max(binNameSize, binValueSize);
+			if (!fieldMap.containsKey(bin) || (size < fieldSize)) {
+				fieldMap.put(bin, fieldSize);
+			} 
+		}
+		return fieldMap;
+	}
+	
+	private Map<String, Integer> makeFieldMap(Map<String, Integer> fieldMap,
+			Map<String, String> element) {
+		if (fieldMap == null)
+			fieldMap = new HashMap<String, Integer>();
+		Set<String> fields = element.keySet();
+		for (String field : fields){
+			Integer size = fieldMap.get(field);
+			Integer fieldValueSize = element.get(field).toString().length();
+			Integer fieldNameSize = field.length();
+			Integer fieldSize = Math.max(fieldNameSize, fieldValueSize);
+			if (!fieldMap.containsKey(field) || (size < fieldSize)) {
+				fieldMap.put(field, fieldSize);
+			} 
+		}
+		return fieldMap;
+	}
 
+	private void printTableRecordList(List<Record> recordList, Map<String, Integer> fieldMap){
+		printTableHeader(fieldMap);
+		for (Record record : recordList){	
+			printTableEntry(record, fieldMap);
+		}
+		printTableSeperator(fieldMap);
+	}	
+	
+	private void printTableHeader(Map<String, Integer> fieldMap){
+		Set<Entry<String, Integer>> fields = fieldMap.entrySet();
+		printTableSeperator(fieldMap);
+		print("|");
+		for (Entry<String, Integer> bin : fields){
+			print(" ");
+			printField(bin.getKey(), bin.getValue());
+			print(" |");
+		}
+		println();
+		printTableSeperator(fieldMap);
+	}
+	
+	private void printTableEntry(Record record, Map<String, Integer> fieldMap){
+		Set<Entry<String, Integer>> fields = fieldMap.entrySet();
+		print("|");
+		for (Entry<String, Integer> field : fields){
+			print(" ");
+			printField(record.getValue(field.getKey()).toString(), field.getValue());
+			print(" |");
+		}
+		println();
+	}
+	
+	private void printTableEntry(Map<String, String> element,
+			Map<String, Integer> fieldMap) {
+		Set<Entry<String, Integer>> fields = fieldMap.entrySet();
+		print("|");
+		for (Entry<String, Integer> field : fields){
+			print(" ");
+			printField(element.get(field.getKey()).toString(), field.getValue());
+			print(" |");
+		}
+		println();
+		
+	}
+	
+	private void printField(String value, int width){
+		print(value);
+		for (int i = value.length(); i < width; i++ )
+			print(" ");
+	}
+	
+	private void printTableSeperator(Map<String, Integer> fieldMap){
+		Set<Entry<String, Integer>> fields = fieldMap.entrySet();
+		print("+");
+		for (Entry<String, Integer> field : fields){
+			print("-");
+			for (int i = 0; i < field.getValue(); i++)
+				print("-");
+			print("-+");
+		}
+		println();
+	}
+	
 	@Override
 	public void report(Level level, String message) {
 		switch (level){
@@ -228,8 +406,10 @@ public class AQLConsole implements IResultReporter, IErrorReporter {
 			Map<String, Map<String, String>> result = makeElementMap(infoString, seperators[0], seperators[1], seperators[2], "=");
 			switch (this.format) {
 			case JSON:
+				println(formatJson(result));
 				break;
 			case TABLE:
+				printTableMapList(result);
 				break;
 			default: //TEXT:
 				println(result);
@@ -242,8 +422,10 @@ public class AQLConsole implements IResultReporter, IErrorReporter {
 			Map<String, String> result = makeValueMap(infoString, seperators[0], "=");
 			switch (this.format) {
 			case JSON:
+				println(formatJson(result));
 				break;
 			case TABLE:
+				printTableMap(result);
 				break;
 			default: //TEXT:
 				println(result);
@@ -254,6 +436,29 @@ public class AQLConsole implements IResultReporter, IErrorReporter {
 		println("WFT:"+infoString);
 	}
 	
+	private void printTableMap(Map<String, String> infoMap){
+		Map<String, Integer> fieldMap = new HashMap<String, Integer>();
+		makeFieldMap(fieldMap, infoMap);
+		printTableHeader(fieldMap);
+		printTableEntry(infoMap, fieldMap);
+		printTableSeperator(fieldMap);
+	}	
+
+	private void printTableMapList(Map<String, Map<String, String>> infoMap){
+		Map<String, Integer> fieldMap = new HashMap<String, Integer>();
+		Set<String> keys = infoMap.keySet();
+		for (String element : keys){
+			makeFieldMap(fieldMap, infoMap.get(element));
+		}
+		printTableHeader(fieldMap);
+		for (String element : keys){
+			printTableEntry(infoMap.get(element), fieldMap);
+		}
+		printTableSeperator(fieldMap);
+	}	
+
+	
+
 	private Map<String, Map<String, String>> makeElementMap(String input, String elementSeperator, String keySeperator, String valueSeperator, String equator){
 		Map<String, Map<String, String>> result = new HashMap<String, Map<String,String>>();
 		String[] parts = input.split(elementSeperator);
@@ -302,16 +507,6 @@ public class AQLConsole implements IResultReporter, IErrorReporter {
 	public boolean isCancelled() {
 		return this.cancelled;
 		
-	}
-
-	@Override
-	public void reportError(int line, int charStart, int charEnd, String message) {
-		this.errors++;
-		println(String.format("Error on Line: %d at %d, %s", line, charStart, message));
-	}
-
-	public int getErrors() {
-		return errors;
 	}
 
 	@Override
@@ -378,4 +573,19 @@ public class AQLConsole implements IResultReporter, IErrorReporter {
 	public void setViewFormat(ViewFormat format) {
 		this.format = format;
 	}
+	
+	private String formatJson(Object json){
+		if (json instanceof List){
+			JSONArray jArray = new JSONArray();
+			jArray.addAll((Collection) json);
+			return jArray.toJSONString();
+		} else if (json instanceof Map){
+			JSONObject jObject = new JSONObject((Map) json);
+			return jObject.toJSONString();
+		} else {
+			return null;
+		}
+		
+	}
+
 }

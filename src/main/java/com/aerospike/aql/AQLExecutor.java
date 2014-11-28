@@ -8,6 +8,7 @@ import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.apache.log4j.Logger;
 
+import com.aerospike.aql.IResultReporter.ViewFormat;
 import com.aerospike.aql.grammar.AQLBaseListener;
 import com.aerospike.aql.grammar.AQLParser;
 import com.aerospike.aql.grammar.AQLParser.AggregateContext;
@@ -35,6 +36,7 @@ import com.aerospike.aql.grammar.AQLParser.QuitContext;
 import com.aerospike.aql.grammar.AQLParser.RangeFilterContext;
 import com.aerospike.aql.grammar.AQLParser.RegisterContext;
 import com.aerospike.aql.grammar.AQLParser.RemoveContext;
+import com.aerospike.aql.grammar.AQLParser.RolesContext;
 import com.aerospike.aql.grammar.AQLParser.SelectContext;
 import com.aerospike.aql.grammar.AQLParser.SetContext;
 import com.aerospike.aql.grammar.AQLParser.ShowContext;
@@ -56,6 +58,7 @@ import com.aerospike.client.ScanCallback;
 import com.aerospike.client.Value;
 import com.aerospike.client.cluster.Node;
 import com.aerospike.client.lua.LuaConfig;
+import com.aerospike.client.policy.AdminPolicy;
 import com.aerospike.client.policy.ClientPolicy;
 import com.aerospike.client.policy.GenerationPolicy;
 import com.aerospike.client.policy.InfoPolicy;
@@ -80,6 +83,7 @@ public class AQLExecutor extends AQLBaseListener {
 	private WritePolicy writePolicy = null;
 	private QueryPolicy queryPolicy = null;
 	private ScanPolicy scanPolicy = null;
+	private AdminPolicy adminPolicy = null;
 	private ParseTreeProperty<Value> valueProperty = new ParseTreeProperty<Value>();
 	private ParseTreeProperty<Key> keyProperty = new ParseTreeProperty<Key>();
 	private ParseTreeProperty<Bin> binProperty = new ParseTreeProperty<Bin>();
@@ -97,10 +101,11 @@ public class AQLExecutor extends AQLBaseListener {
 	private String output;
 	private AQLParser parser;
 	private static Logger log = Logger.getLogger(AQLExecutor.class);
+	private Object result = null;
 	
 	
 
-	public AQLExecutor(AQLParser parser, AerospikeClient client, int timeout) {
+	public AQLExecutor(AQLParser parser, AerospikeClient client, int timeout, IResultReporter reporter) {
 		super();
 		this.client = client;
 		this.policy = new Policy();
@@ -109,9 +114,10 @@ public class AQLExecutor extends AQLBaseListener {
 		this.writePolicy = new WritePolicy();
 		this.queryPolicy = new QueryPolicy();
 		this.scanPolicy = new ScanPolicy();
+		this.adminPolicy = new AdminPolicy();
 		this.parser = parser;
 		this.setTimeout(timeout);
-		this.setResultsReporter(null);
+		this.setResultsReporter(reporter);
 	}
  
 	private void setResultsReporter(IResultReporter reporter) {
@@ -144,6 +150,8 @@ public class AQLExecutor extends AQLBaseListener {
 			
 			String host = stripQuotes(ctx.hostName.getText());
 			int port = Integer.parseInt(ctx.port.getText());
+			if (ctx.timeout != null)
+				this.cPolicy.timeout = Integer.parseInt(ctx.timeout.getText());
 			this.client = new AerospikeClient(this.cPolicy, host, port);
 			if (this.client.isConnected())
 				results.report("Connected to: " + host + ":" + port);
@@ -168,15 +176,28 @@ public class AQLExecutor extends AQLBaseListener {
 	@Override
 	public void exitCreate(CreateContext ctx) {
 		try {
-			
-			String indexName = ctx.index_name().getText();
-			String namespace = ctx.nameSet().namespaceName;
-			String set = ctx.nameSet().setName;
-			String binName = ctx.binName.getText();
-			IndexType type = (ctx.iType.getText().equalsIgnoreCase("STRING")) ? IndexType.STRING : IndexType.NUMERIC;
-			IndexTask indexTask = client.createIndex(policy, namespace, set, indexName, binName, type);
-			indexTask.waitTillComplete(10);
-			results.report(String.format("Index %s created", indexName));
+			if (ctx.INDEX() != null){
+				String indexName = ctx.index_name().getText();
+				String namespace = ctx.nameSet().namespaceName;
+				String set = ctx.nameSet().setName;
+				String binName = ctx.binName.getText();
+				IndexType type = (ctx.iType.getText().equalsIgnoreCase("STRING")) ? IndexType.STRING : IndexType.NUMERIC;
+				IndexTask indexTask = client.createIndex(policy, namespace, set, indexName, binName, type);
+				indexTask.waitTillComplete(10);
+				results.report(String.format("Index %s created", indexName));
+			} else if (ctx.USER() != null) { // its a user
+				String user = ctx.user().getText();
+				String password = ctx.password().getText();
+				List<String> roles = new ArrayList<String>();
+				if (ctx.role() != null){
+					roles.add(ctx.role().getText());
+				} else if (ctx.roles().size() > 0){
+					for (RolesContext role : ctx.roles()){
+						roles.add(role.getText());
+					}
+				}
+				client.createUser(adminPolicy, user, password, roles);
+			}
 		} catch (AerospikeException e){
 			results.report(e);
 		}
@@ -196,11 +217,14 @@ public class AQLExecutor extends AQLBaseListener {
 				String module = ctx.moduleName().getText();
 				String[] infoStrings = infoAll(infoPolicy, client, "udf-remove:filename=" + module);
 				results.reportInfo(infoStrings, ";");
-			} else {
+			} else if (ctx.SET() != null) {
 				String namespace = ctx.nameSet().namespaceName;
 				String set = ctx.nameSet().setName;
 				String infoString = info(String.format("set-config:context=namespace;id=%s;set=%s;set-delete=true;", namespace, set));
 				results.reportInfo(infoString, ";");
+			} else if (ctx.USER() != null){
+				String user = ctx.user().getText();
+				client.dropUser(adminPolicy, user);
 			}
 		} catch (AerospikeException e){
 			results.report(e);
@@ -483,11 +507,13 @@ public class AQLExecutor extends AQLBaseListener {
 			if (ctx.NAMESPACES() != null)
 				results.reportInfo(info("namespaces"), ";");
 			else if (ctx.INDEXES() != null){
-				//	TODO		if (ctx.nameSet() != null) {
-				//				String nameSpace = ctx.nameSet().namespaceName;
-				//				String setName = ctx.nameSet().setName;
-				//			}
-				results.reportInfo(info("sindex"), ";");
+				if (ctx.nameSet() != null) {
+					String nameSpace = ctx.nameSet().namespaceName;
+					String setName = ctx.nameSet().setName;
+					results.reportInfo(info("sindex/"+ nameSpace + "/" + setName), ";");
+				} else {
+					results.reportInfo(info("sindex"), ":");
+				}
 			}
 			else if (ctx.MODULES() != null)
 				results.reportInfo(info("udf-list"), ";", ":", ",");
@@ -507,11 +533,14 @@ public class AQLExecutor extends AQLBaseListener {
 	@Override
 	public void exitDesc(DescContext ctx) {
 		try {
-			
 			if (ctx.INDEX() != null) {
-				String nameSpace = ctx.namespace_name().getText(); //TODO namespace
-				String indexName = ctx.index_name().getText(); //TODO index name
-				results.reportInfo(info("sindex-describe"), ";");
+				if (ctx.namespace_name() != null) {
+					String nameSpace = ctx.namespace_name().getText(); 
+					String indexName = ctx.index_name().getText();
+					results.reportInfo(info("sindex/"+ nameSpace + "/" + indexName), ";");
+				} else {
+					results.reportInfo(info("sindex"), ":");
+				}
 			} else { // Module
 				String name = ctx.moduleName().getText();
 				results.reportInfo(info(String.format("udf-get:filename=%s", name)), ";");
@@ -557,19 +586,26 @@ public class AQLExecutor extends AQLBaseListener {
 			int value = Integer.parseInt(ctx.ttl.getText());
 			writePolicy.expiration = value;
 			results.report("Set TTL to: " + writePolicy.expiration);
-		} else if (ctx.VIEW() != null) {
-			String value = ctx.viewType().getText();
-			this.view = value;
-			results.report("Set view to: " + this.view);
 		} else if (ctx.OUTPUT() != null) {
 			String value = ctx.viewType().getText();
 			this.output = value;
+			if (value.equalsIgnoreCase("json"))
+				results.setViewFormat(ViewFormat.JSON);
+			else if (value.equalsIgnoreCase("table"))
+				results.setViewFormat(ViewFormat.TABLE);
+			else
+				results.setViewFormat(ViewFormat.TEXT);
 			results.report("Set output to: " + this.output);
-		} else {// if (ctx.LUA_USER_PATH() != null) { 
+		} else if (ctx.LUA_USER_PATH() != null) { 
 			String value = ctx.luaUserPath.getText();
 			LuaConfig.SourceDirectory = stripQuotes(value);
 			results.report("Set path to: " + LuaConfig.SourceDirectory);
-		} 
+		} else if (ctx.PASSWORD() != null){
+			String password = ctx.password().getText();
+			String user = ctx.user().getText();
+			//TODO
+					
+		}
 	}
 	
 	@Override
@@ -583,8 +619,6 @@ public class AQLExecutor extends AQLBaseListener {
 			results.report("Echo is: " + this.verbose);
 		} else if (ctx.TTL() != null) {
 			results.report("TTL is: " + this.writePolicy.expiration);
-		} else if (ctx.VIEW() != null) {
-			results.report("View is: " + this.view);
 		} else if (ctx.OUTPUT() != null) {
 			results.report("Output is: " + this.output);
 		} else {// if (ctx.LUA_USER_PATH() != null) { 

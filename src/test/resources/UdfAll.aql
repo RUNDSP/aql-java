@@ -1,3 +1,6 @@
+connect '127.0.0.1' 3000
+
+
 SET LUA_USERPATH 'src/test/resources' 
 CREATE INDEX index_bn4 ON test.demo (bn4) NUMERIC
 # add data

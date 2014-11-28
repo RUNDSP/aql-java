@@ -112,6 +112,17 @@ public interface AQLListener extends ParseTreeListener {
 	void exitPredicate(@NotNull AQLParser.PredicateContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link AQLParser#password}.
+	 * @param ctx the parse tree
+	 */
+	void enterPassword(@NotNull AQLParser.PasswordContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AQLParser#password}.
+	 * @param ctx the parse tree
+	 */
+	void exitPassword(@NotNull AQLParser.PasswordContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link AQLParser#set_name}.
 	 * @param ctx the parse tree
 	 */
@@ -255,6 +266,39 @@ public interface AQLListener extends ParseTreeListener {
 	void exitDrop(@NotNull AQLParser.DropContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link AQLParser#repair}.
+	 * @param ctx the parse tree
+	 */
+	void enterRepair(@NotNull AQLParser.RepairContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AQLParser#repair}.
+	 * @param ctx the parse tree
+	 */
+	void exitRepair(@NotNull AQLParser.RepairContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link AQLParser#role}.
+	 * @param ctx the parse tree
+	 */
+	void enterRole(@NotNull AQLParser.RoleContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AQLParser#role}.
+	 * @param ctx the parse tree
+	 */
+	void exitRole(@NotNull AQLParser.RoleContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link AQLParser#roles}.
+	 * @param ctx the parse tree
+	 */
+	void enterRoles(@NotNull AQLParser.RolesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AQLParser#roles}.
+	 * @param ctx the parse tree
+	 */
+	void exitRoles(@NotNull AQLParser.RolesContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link AQLParser#show}.
 	 * @param ctx the parse tree
 	 */
@@ -275,6 +319,17 @@ public interface AQLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitKill_query(@NotNull AQLParser.Kill_queryContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link AQLParser#revoke}.
+	 * @param ctx the parse tree
+	 */
+	void enterRevoke(@NotNull AQLParser.RevokeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AQLParser#revoke}.
+	 * @param ctx the parse tree
+	 */
+	void exitRevoke(@NotNull AQLParser.RevokeContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link AQLParser#insert}.
@@ -605,6 +660,28 @@ public interface AQLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitQuit(@NotNull AQLParser.QuitContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link AQLParser#grant}.
+	 * @param ctx the parse tree
+	 */
+	void enterGrant(@NotNull AQLParser.GrantContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AQLParser#grant}.
+	 * @param ctx the parse tree
+	 */
+	void exitGrant(@NotNull AQLParser.GrantContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link AQLParser#user}.
+	 * @param ctx the parse tree
+	 */
+	void enterUser(@NotNull AQLParser.UserContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AQLParser#user}.
+	 * @param ctx the parse tree
+	 */
+	void exitUser(@NotNull AQLParser.UserContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link AQLParser#register}.

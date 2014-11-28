@@ -1,0 +1,9 @@
+connect '127.0.0.1' 3000 100
+
+	UPDATE test.demo SET bn2 = 9, bn3 = '22', bn4 = 22 where pk = '9'
+	UPDATE test.demo SET bn2 = 8, bn3 = '22', bn4 = 22 where pk = '8'
+	UPDATE test.demo SET bn2 = 7, bn3 = '22', bn4 = 22 where pk = '7'
+	UPDATE test.demo SET bn2 = 6, bn3 = '22', bn4 = 22 where pk = '6'
+	update test.cats SET bob = 23, sue = 'abc' where pk = '1234' and generation = 98765
+	update test.cats SET ttl = 3000 where pk = '1234' and generation = 98765
+	update test.cats SET ttl = 3000, bob = 23, sue = 'abc' where pk = '1234' and generation = 98765

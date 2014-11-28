@@ -138,6 +138,19 @@ public class AQLBaseListener implements AQLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPassword(@NotNull AQLParser.PasswordContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPassword(@NotNull AQLParser.PasswordContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterSet_name(@NotNull AQLParser.Set_nameContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -307,6 +320,45 @@ public class AQLBaseListener implements AQLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterRepair(@NotNull AQLParser.RepairContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRepair(@NotNull AQLParser.RepairContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterRole(@NotNull AQLParser.RoleContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRole(@NotNull AQLParser.RoleContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterRoles(@NotNull AQLParser.RolesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRoles(@NotNull AQLParser.RolesContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterShow(@NotNull AQLParser.ShowContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -327,6 +379,19 @@ public class AQLBaseListener implements AQLListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitKill_query(@NotNull AQLParser.Kill_queryContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterRevoke(@NotNull AQLParser.RevokeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRevoke(@NotNull AQLParser.RevokeContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -717,6 +782,32 @@ public class AQLBaseListener implements AQLListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitQuit(@NotNull AQLParser.QuitContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterGrant(@NotNull AQLParser.GrantContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitGrant(@NotNull AQLParser.GrantContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUser(@NotNull AQLParser.UserContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUser(@NotNull AQLParser.UserContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

@@ -12,8 +12,8 @@ public class AggregationTest extends AQLTest{
 	}
 
 	@Test
-	public void testAdminFile() throws Exception {
-		System.out.println("----- testAdminFile -----");
+	public void testFileAggregationFileGeneration() throws Exception {
+		System.out.println("----- testFileAggregationGeneration -----");
 		testFileGeneration("LateFlights.aql", Language.JAVA);
 			
 	}

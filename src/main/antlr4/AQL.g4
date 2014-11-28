@@ -1,41 +1,61 @@
 /*
-COMMANDS
-    
+
+    CONNECTION
+    	CONNECT <host name> <port> [<timeout>]
+    	DISCONNECT
+    	
+    		<host name> address of a cluster node
+    		<port> port for connection - default 3000
+    		<timeout> client timeout
     DDL
         CREATE INDEX <index> ON <ns>[.<set>] (<bin>) NUMERIC|STRING
         DROP INDEX <ns>[.<set>] <index>
-        
+        REPAIR INDEX <index> ON <ns>[.<set>]
+		DROP SET <ns>[.<set>]
+		
             <ns> is the namespace for the index.
             <set> is the set name for the index.
             <index> is the name of the index.
-        
+
         Examples:
-        
+
             CREATE INDEX idx_foo ON test.demo (foo) NUMERIC
             DROP INDEX test.demo idx_foo
-        
+            REPAIR INDEX idx_foo ON test.demo
+
     DML
         INSERT INTO <ns>[.<set>] (PK, <bins>) VALUES (<key>, <values>)
         DELETE FROM <ns>[.<set>] WHERE PK = <key>
-        
+		DELETE FROM <ns>[.<set>] WHERE PK = <key> AND GENERATION = <generation>
+		UPDATE <ns>[.<demo>] SET <bin name> = <bin value>, ... WHERE PK = <key>
+		UPDATE <ns>[.<demo>] SET TTL = <ttl>, <bin name> = <bin value>, ... WHERE PK = <key> AND GENERATION = <generation>
+		OPERATE <operation function>[.<bin name>[,<value>]] ON <ns>[.<set>] WHERE PK = <key> AND GENERATION = <generation>
+		
             <ns> is the namespace for the record.
             <set> is the set name for the record.
             <key> is the record's primary key.
             <key> is the record's primary key.
             <bins> is a comma-separated list of bin names.
-            <values> is comma-separated list of bin values.
-        
+            <values> is comma-separated list of bin values. Keep it NULL (case insensitive & w/o quotes) to delete the bin
+            <bin name> is the name of the bin to be updated
+            <bin value> is the value
+            <generation> is the expected generation value
+            <ttl> is the time to live in seconds
+            <operation function> is ADD, PUT, APPEND, PREPEND, GET, TOUCH, HEADER
+
         Examples:
-        
+
             INSERT INTO test.demo (PK, foo, bar) VALUES ('key1', 123, 'abc')
             DELETE FROM test.demo WHERE PK = 'key1'
-        
+			UPDATE test.demo SET bn2 = 6, bn3 = '22', bn4 = 22 where pk = '6'
+			UPDATE test.cats SET bob = 23, sue = 'abc' WHER PK = '1234' AND GENERATION = 98765
+
     QUERY
         SELECT <bins> FROM <ns>[.<set>]
         SELECT <bins> FROM <ns>[.<set>] WHERE <bin> = <value>
         SELECT <bins> FROM <ns>[.<set>] WHERE <bin> BETWEEN <lower> AND <upper>
         SELECT <bins> FROM <ns>[.<set>] WHERE PK = <key>
-        
+
             <ns> is the namespace for the records to be queried.
             <set> is the set name for the record to be queried.
             <key> is the record's primary key.
@@ -44,37 +64,38 @@ COMMANDS
             <bins> can be either a wildcard (*) or a comma-separated list of bin names.
             <lower> is the lower bound for a numeric range query.
             <upper> is the lower bound for a numeric range query.
-        
+
         Examples:
-        
+
             SELECT * FROM test.demo
             SELECT * FROM test.demo WHERE PK = 'key1'
             SELECT foo, bar FROM test.demo WHERE PK = 'key1'
             SELECT foo, bar FROM test.demo WHERE foo = 123
             SELECT foo, bar FROM test.demo WHERE foo BETWEEN 0 AND 999
-        
+
     MANAGE UDFS
-        REGISTER MODULE <filepath>
+        REGISTER MODULE '<filepath>'
         SHOW MODULES
-        REMOVE MODULE <filename>
-        DESC MODULE <filename>
-        
-            <filepath> is file path to the UDF module.
-            <filename> is file name of the UDF module.
-        
+        REMOVE MODULE <module name>
+        DROP MODULE <module name>
+        DESC MODULE <module name>
+
+            <filepath> is file path to the UDF module(in single quotes).
+            <module name> is file name of the UDF module.
+
         Examples:
-        
-            REGISTER MODULE ~/test.lua
+
+            REGISTER MODULE '~/test.lua'
             SHOW MODULES
             DESC MODULE test.lua
             REMOVE MODULE test.lua
-        
+
     INVOKING UDFS
         EXECUTE <module>.<function>(<args>) ON <ns>[.<set>]
         EXECUTE <module>.<function>(<args>) ON <ns>[.<set>] WHERE PK = <key>
         AGGREGATE <module>.<function>(<args>) ON <ns>[.<set>] WHERE <bin> = <value>
         AGGREGATE <module>.<function>(<args>) ON <ns>[.<set>] WHERE <bin> BETWEEN <lower> AND <upper>
-        
+
             <module> is UDF module containing the function to invoke.
             <function> is UDF to invoke.
             <args> is a comma-separated list of argument values for the UDF.
@@ -85,59 +106,61 @@ COMMANDS
             <value> is the value of a bin.
             <lower> is the lower bound for a numeric range query.
             <upper> is the lower bound for a numeric range query.
-        
+
         Examples:
-        
+
             EXECUTE myudfs.udf1(2) ON test.demo
             EXECUTE myudfs.udf1(2) ON test.demo WHERE PK = 'key1'
             AGGREGATE myudfs.udf2(2) ON test.demo WHERE foo = 123
             AGGREGATE myudfs.udf2(2) ON test.demo WHERE foo BETWEEN 0 AND 999
-        
+
     INFO
         SHOW NAMESPACES | SETS | BINS | INDEXES
         SHOW SCANS | QUERIES
         STAT NAMESPACE <ns> | INDEX <ns> <indexname>
         STAT SYSTEM
-        
+
     JOB MANAGEMENT
-        KILL_QUERY <transaction_id>
-        KILL_SCAN <scan_id>
-        
+        KILL QUERY <transaction_id>
+        KILL SCAN <scan_id>
+
+    USER ADMINISTRATION
+        CREATE USER <user> PASSWORD <password> ROLE[S] <role1>,<role2>...
+            roles: read|read-write|sys-admin|user-admin
+        DROP USER <user>
+        SET PASSWORD <password> [FOR <user>]
+        GRANT ROLE[S] <role1>,<role2>... TO <user>]
+        REVOKE ROLE[S] <role1>,<role2>... FROM <user>]
+        SHOW USER [<user>]
+        SHOW USERS
+
     SETTINGS
-        TIMEOUT        (time in ms)  
-        RECORD_TTL     (time in ms)  
-        VERBOSE        (true | false)
-        ECHO           (true | false)
-        OUTPUT         (table | json) 
-        LUA_USERPATH   <path>
-        LUA_SYSPATH    <path>
-        
+        TIMEOUT                       (time in ms, default: 1000 ms)
+        TTL                    (time in ms, default: 0 ms)
+        VERBOSE                       (true | false, default false)
+        ECHO                          (true | false, default false)
+        FAIL_ON_CLUSTER_CHANGE        (true | false, default true, policy applies to scans)
+        OUTPUT                        (table | json, default table)
+        LUA_USERPATH                  <path>, default : /opt/aerospike/usr/udf/lua
+
         To get the value of a setting, run:
-          
+
             aql> GET <setting>
-          
+
         To set the value of a setting, run:
-          
+
             aql> SET <setting> <value>
-          
+
     OTHER
         RUN <filepath>
         HELP
         QUIT|EXIT|Q
-
 */
+
 grammar AQL;
 options {
     language=Java;
 }
-//tokens {
-//// imaginary nodes	
-//SELECT_ALL,
-//SELECT_EXPLICIT,
-//NAMESET,
-//FILTERS,
-//BIN_NAMES
-//}
 @header {
 package com.aerospike.aql.grammar;
 import java.util.Set;
@@ -146,11 +169,9 @@ import java.util.HashSet;
 
 @members {
 public enum VariableDefinition {
-	CLIENT, 
 	RECORD, 
 	RECORD_SET, 
 	RESULT_SET, 
-	CLIENT_POLICY,
 	WRITE_POLICY, 
 	READ_POLICY,
 	QUERY_POLICY,
@@ -160,11 +181,15 @@ public enum VariableDefinition {
 	UDF_FILE,
 	REGISTER_TASK,
 	INDEX_TASK,
-	INFO_STRING;
+	INFO_STRING,
+	ADMIN_POLICY;
 }
 
 public Set<VariableDefinition> definitions = new HashSet<VariableDefinition>();
 }
+
+
+
 /**
 A whole qql file
 */
@@ -172,7 +197,8 @@ aql
 	:  statements EOF
 	;
 statements
-  : statement* 
+  : 
+  statement* 
   ;
 /**
 The supported aql statements
@@ -183,6 +209,9 @@ locals [String source, String nameSpace, String setName]
 	| disconnect //generator exec
 	| create //generator exec
 	| drop  //generator exec
+	| repair
+	| grant
+	| revoke
 	| remove //generator exec
 	| insert //generator exec
 	| update //generator exec
@@ -204,11 +233,18 @@ locals [String source, String nameSpace, String setName]
 	| print //generator 
 	;
 
+/**
+     CONNECTION
+    	CONNECT <host name> <port> [<timeout>]
+    	DISCONNECT
+    	
+    		<host name> address of a cluster node
+    		<port> port for connection - default 3000
+    		<timeout> client timeout
+ 
+ */
 connect
-	: CONNECT hostName=STRINGLITERAL port=INTLITERAL
-	{
-		definitions.add(VariableDefinition.CLIENT);
-	}
+	: CONNECT hostName=STRINGLITERAL port=INTLITERAL (timeout=INTLITERAL)?
 	;
 	
 disconnect
@@ -217,30 +253,75 @@ disconnect
 
 
 /**
-CREATE INDEX indexname ON namespace[.setname] (binname) NUMERIC|STRING
+CREATE INDEX <index> ON <ns>[.<set>] (<bin>) NUMERIC|STRING
 */
 create
 	: 
-	CREATE INDEX index_name ON nameSet
-		'(' binName=bin ')' iType=(NUMERIC | STRING)
+	CREATE (INDEX index_name ON nameSet
+		'(' binName=bin ')' iType=(NUMERIC | STRING) {definitions.add(VariableDefinition.INDEX_TASK);}
+		| USER  user PASSWORD password (ROLE role | ROLES roles*) {definitions.add(VariableDefinition.ADMIN_POLICY);}
+		)
 	{
   	definitions.add(VariableDefinition.WRITE_POLICY);
-  	definitions.add(VariableDefinition.INDEX_TASK);
 	} 
-		
 	;
 	
+	
 /**
-DROP INDEX namespace[.setname] indexname
-DROP MODULE modulename.extension 
-*/
+ * DROP INDEX <ns>[.<set>] <index>
+ * DROP MODULE modulename.extension 
+ * DROP SET <ns>[.<set>]
+ * DROP USER <username>
+ */
 drop 
 	: DROP (
 	    INDEX nameSet index_name 
 	| MODULE moduleName 
 	| SET nameSet 
+	| USER user {definitions.add(VariableDefinition.ADMIN_POLICY);}
 	)
+	;
+/**
+ * REPAIR INDEX <index> ON <ns>[.<set>]
+ */
+repair
+	: REPAIR INDEX index_name ON nameSet
+	;
 	
+grant
+	: GRANT 
+		(ROLES roles 
+		| ROLE role
+		) TO user
+		{definitions.add(VariableDefinition.ADMIN_POLICY);}
+	;	
+
+revoke
+	: REVOKE 
+		(ROLES roles
+		| ROLE role 
+		) FROM user
+		{definitions.add(VariableDefinition.ADMIN_POLICY);}
+	;
+	
+	
+user
+	: IDENTIFIER
+	;
+	
+password
+	: IDENTIFIER
+	;
+
+roles
+	: role (',' role)*
+	;
+		
+role
+	: 'read'
+	| 'read-write'
+	| 'sys-admin'
+	| 'user-admin'
 	;
 	
 remove 
@@ -481,6 +562,8 @@ show
 	| BINS
 	| QUERIES
 	| MODULES
+	| USER user {definitions.add(VariableDefinition.ADMIN_POLICY);}
+	| USERS {definitions.add(VariableDefinition.ADMIN_POLICY);}
 	)
 	{
 	definitions.add(VariableDefinition.INFO_POLICY);
@@ -549,13 +632,15 @@ Settings
 */
 set 
 	: SET 
-	(TIMEOUT timeOut=INTLITERAL 							
+	(TIMEOUT timeOut=INTLITERAL {definitions.add(VariableDefinition.READ_POLICY);definitions.add(VariableDefinition.WRITE_POLICY);}  	
+							
 	| VERBOSE verboseOn=booleanLiteral 						
 	| ECHO echoOn=booleanLiteral 							
 	| TTL ttl=INTLITERAL		 						
-	| VIEW viewType 										       
   	| OUTPUT viewType                             
 	| LUA_USER_PATH luaUserPath=STRINGLITERAL	
+	| FAIL_ON_CLUSTER_CHANGE
+	| PASSWORD password FOR user {definitions.add(VariableDefinition.ADMIN_POLICY);}
 	)
 	;
 get 
@@ -564,9 +649,9 @@ get
 	| VERBOSE 		
 	| ECHO			
 	| TTL 	
-	| VIEW			
     | OUTPUT         
-	| LUA_USER_PATH 	
+	| LUA_USER_PATH 
+	| FAIL_ON_CLUSTER_CHANGE	
 	)
 	;
 
@@ -640,11 +725,18 @@ namespace_name
 	;
 		
 set_name
-	: IDENTIFIER
+	: setName= IDENTIFIER
+	{
+		if ($setName.text.length() > 63) notifyErrorListeners("Set name exceeds 63 characters");
+	}
+	
 	;
 	
 bin
-	: IDENTIFIER
+	: binName=IDENTIFIER
+	{
+		if ($binName.text.length() > 14) notifyErrorListeners("Bin name exceeds 14 characters");
+	}
 	;
 	
 value //Generate
@@ -669,6 +761,8 @@ filePath
 //  : '/'? IDENTIFIER ('/' IDENTIFIER)* ('.' IDENTIFIER)?
 //  | '\\'? IDENTIFIER ('\\' IDENTIFIER)* ('.' IDENTIFIER)?
   ;
+  
+ 
 TRUE
 	: 'true'
 	;
@@ -833,7 +927,6 @@ UPDATE : 'update';
 VERBOSE : 'verbose'; 
 ECHO 		: 'echo'; 
 TTL : 'ttl'; 
-VIEW 		: 'view'; 
 USE_SMD	: 'use_smd'; 
 LUA_USER_PATH : 'lua_userpath'; 
 LUA_SYSTEM_PATH : 'lua_syspath'; 	
@@ -847,6 +940,17 @@ LLIST: 'llist';
 LSTACK: 'lstack';
 LSET: 'lset';
 LMAP: 'lmap';
+USER: 'user';
+USERS: 'users';
+PASSWORD: 'password';
+ROLE: 'role';
+ROLES: 'roles';
+GRANT: 'grant';
+REVOKE: 'revoke';
+TO: 'to';
+FAIL_ON_CLUSTER_CHANGE: 'FAIL_ON_CLUSTER_CHANGE';
+REPAIR: 'repair';
+FOR: 'for';
 
 
 

@@ -1,6 +1,6 @@
 set echo true
 #Connect
-connect '127.0.0.1' 3000
+connect '127.0.0.1' 3000 100
 
 print '@#$--$#@'
 
@@ -15,12 +15,12 @@ print '@#$--$#@'
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('7', 7, '2', 2)
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('8', 8, '2', 2)
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('9', 9, '2', 2)
-	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('10', 10, '2', 2)
 
 #Create
 	CREATE INDEX index_bn2 ON test.demo (bn2) NUMERIC
 	CREATE INDEX index_bn3 ON cats.demo (bn3) STRING
 	CREATE INDEX index_bn4 ON test.demo (bn4) NUMERIC
+    REPAIR INDEX index_bn4 ON test.demo 
 
 #Update
 	UPDATE test.demo SET bn2 = 9, bn3 = '22', bn4 = 22 where pk = '9'
@@ -28,8 +28,8 @@ print '@#$--$#@'
 	UPDATE test.demo SET bn2 = 7, bn3 = '22', bn4 = 22 where pk = '7'
 	UPDATE test.demo SET bn2 = 6, bn3 = '22', bn4 = 22 where pk = '6'
 	update test.cats SET bob = 23, sue = 'abc' where pk = '1234' and generation = 98765
-	#update test.cats SET ttl = 3000 where pk = '1234' and generation = 98765
-	#update test.cats SET ttl = 3000, bob = 23, sue = 'abc' where pk = '1234' and generation = 98765
+	update test.cats SET ttl = 3000 where pk = '1234' and generation = 98765
+	update test.cats SET ttl = 3000, bob = 23, sue = 'abc' where pk = '1234' and generation = 98765
 
 #QUERY:
 	SELECT * FROM test.demo
@@ -84,15 +84,15 @@ print '@#$--$#@'
 	SET ECHO false #[default false]
 	SET TIMEOUT 1500 #[default 1500ms]
 	SET TTL 0 #[default 0 - never expire]
-	SET VIEW TABLE #[default at startup - TABLE]
-	SET VIEW JSON
+	SET OUTPUT TABLE #[default at startup - TABLE]
+	SET OUTPUT JSON
 	SET LUA_USERPATH '/opt/citrusleaf/usr/udf/lua' #[default /opt/citrusleaf/usr/udf/lua]
 
 	GET VERBOSE 
 	GET ECHO 
 	GET TIMEOUT 
 	GET TTL 
-	GET VIEW  
+	GET OUTPUT  
 	GET LUA_USERPATH 
 	# Note: These are client side paths for lua files.
 

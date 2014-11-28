@@ -3,6 +3,8 @@ package com.aerospike.aql;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -37,6 +39,7 @@ import com.aerospike.aql.grammar.AQLParser.PrintContext;
 import com.aerospike.aql.grammar.AQLParser.RangeFilterContext;
 import com.aerospike.aql.grammar.AQLParser.RegisterContext;
 import com.aerospike.aql.grammar.AQLParser.RemoveContext;
+import com.aerospike.aql.grammar.AQLParser.RolesContext;
 import com.aerospike.aql.grammar.AQLParser.SelectContext;
 import com.aerospike.aql.grammar.AQLParser.SetContext;
 import com.aerospike.aql.grammar.AQLParser.ShowContext;
@@ -128,14 +131,31 @@ public class AQLGenerator extends AQLBaseListener {
 	
 	@Override
 	public void exitCreate(CreateContext ctx) {
-		ST st = getTemplateFor("create");
-		st.add("source", ((StatementContext)ctx.getParent()).source);
-		st.add("indexName", ctx.index_name().getText());
-		st.add("nameSpace", ctx.nameSet().namespace_name().getText());
-		st.add("setName", ctx.nameSet().set_name().getText());
-		st.add("type", ctx.iType.getText().toUpperCase());
-		st.add("binName", ctx.binName.getText());
-		putCode(ctx, st);
+		if (ctx.INDEX() != null){
+			ST st = getTemplateFor("create");
+			st.add("source", ((StatementContext)ctx.getParent()).source);
+			st.add("indexName", ctx.index_name().getText());
+			st.add("nameSpace", ctx.nameSet().namespace_name().getText());
+			st.add("setName", ctx.nameSet().set_name().getText());
+			st.add("type", ctx.iType.getText().toUpperCase());
+			st.add("binName", ctx.binName.getText());
+			putCode(ctx, st);
+		} else { //it's a user
+			ST st = getTemplateFor("createUser");
+			st.add("source", ((StatementContext)ctx.getParent()).source);
+			st.add("user", ctx.user().getText());
+			st.add("password", ctx.password().getText());
+			List<String> roles = new ArrayList<String>();
+			if (ctx.role() != null){
+				roles.add(ctx.role().getText());
+			} else if (ctx.roles().size() > 0){
+				for (RolesContext role : ctx.roles()){
+					roles.add(role.getText());
+				}
+			}
+			st.add("roles", roles);
+			putCode(ctx, st);
+		}
 	}
 
 	@Override
@@ -174,10 +194,14 @@ public class AQLGenerator extends AQLBaseListener {
 				st.add("indexName", ctx.index_name().getText());
 				st.add("nameSpace", ctx.nameSet().namespaceName);
 				st.add("setName", ctx.nameSet().setName);
-			} else {// it's a set 
+			} else if (ctx.SET() != null) {
 				st = getTemplateFor("deleteSet");
 				st.add("nameSpace", ctx.nameSet().namespaceName);
 				st.add("setName", ctx.nameSet().setName);
+			} else if (ctx.USER() != null){
+				st = getTemplateFor("dropUser");
+				String user = ctx.user().getText();
+				st.add("user", user);
 			}
 			st.add("source", ((StatementContext)ctx.getParent()).source);
 			putCode(ctx, st);}
@@ -286,7 +310,7 @@ public class AQLGenerator extends AQLBaseListener {
 			st.add("binList", code.get(value));
 		}
 		if (ctx.updateList().ttlValue() != null){
-			st.add("ttl", code.get(ctx.updateList().ttlValue()));
+			st.add("ttl", ctx.updateList().ttlValue().integerValue().getText());
 		}
 		putCode(ctx, st);
 	}
@@ -329,6 +353,12 @@ public class AQLGenerator extends AQLBaseListener {
 			st = getTemplateFor("showQueries");
 		else if (ctx.SCANS() != null)
 			st = getTemplateFor("showScans");
+		else if (ctx.USER() != null){
+			st = getTemplateFor("showUser");
+			String user = ctx.user().getText();
+			st.add("user", user);
+		} else if (ctx.USERS() != null)
+			st = getTemplateFor("showUsers");
 		st.add("source", ((StatementContext)ctx.getParent()).source);
 		putCode(ctx, st);
 	}
@@ -381,16 +411,17 @@ public class AQLGenerator extends AQLBaseListener {
 		} else if (ctx.TTL() != null) {
 			st = getTemplateFor("setTTL");
 			st.add("value", ctx.ttl.getText());
-		} else if (ctx.VIEW() != null) {
-			st = getTemplateFor("setView");
-			st.add("type", ctx.viewType().getText());
 		} else if (ctx.OUTPUT() != null) {
 			st = getTemplateFor("setView");
-			st.add("value", ctx.viewType().getText());
-		} else {// if (ctx.LUA_USER_PATH() != null) { 
+			st.add("type", ctx.viewType().getText());
+		} else if (ctx.LUA_USER_PATH() != null) { 
 			st = getTemplateFor("setUserPath");
 			st.add("value", ctx.luaUserPath.getText());
-		} 
+		} else if (ctx.PASSWORD() != null){
+			st = getTemplateFor("setUserPassword");
+			st.add("user", ctx.user().getText());
+			st.add("password", ctx.password().getText());
+		}
 		st.add("source", ((StatementContext)ctx.getParent()).source);
 		putCode(ctx, st);
 	}
@@ -406,8 +437,6 @@ public class AQLGenerator extends AQLBaseListener {
 			st = getTemplateFor("getEcho");
 		} else if (ctx.TTL() != null) {
 			st = getTemplateFor("getTTL");
-		} else if (ctx.VIEW() != null) {
-			st = getTemplateFor("getView");
 		} else if (ctx.OUTPUT() != null) {
 			st = getTemplateFor("getView");
 		} else {// if (ctx.LUA_USER_PATH() != null) { 
@@ -460,7 +489,18 @@ public class AQLGenerator extends AQLBaseListener {
 		ST st = getTemplateFor("primaryKey");
 		st.add("namespace", ctx.nameSpace);
 		st.add("set", ctx.setName);
-		st.add("key", stripQuotes(ctx.key.getText()));
+		String key = ctx.key.getText();
+		if (key.charAt(0)=='\''){
+			key = stripQuotes(key);
+			ST keyst = getTemplateFor("primaryKeyString");
+			keyst.add("key", key);
+			key = keyst.render();
+		} else { // its numeric
+			ST keyst = getTemplateFor("primaryKeyNumeric");
+			keyst.add("key", key);
+			key = keyst.render();
+		}
+		st.add("key", key);
 		putCode(ctx, st);
 	}
 
@@ -507,9 +547,6 @@ public class AQLGenerator extends AQLBaseListener {
 		ST st = null;
 
 		switch (var){
-		case CLIENT:
-			st = templates.getInstanceOf("client");
-			break;
 		case QUERY_POLICY:
 			st = templates.getInstanceOf("queryPolicy");
 			break;
@@ -534,6 +571,9 @@ public class AQLGenerator extends AQLBaseListener {
 		case INFO_POLICY:
 			st = templates.getInstanceOf("infoPolicy");
 			break;
+		case ADMIN_POLICY:
+			st = templates.getInstanceOf("adminPolicy");
+			break;
 		case STMT:
 			st = templates.getInstanceOf("stmt");
 			break;
@@ -547,9 +587,9 @@ public class AQLGenerator extends AQLBaseListener {
 			st = templates.getInstanceOf("registerTask");
 			break;
 		case INFO_STRING:
-			st = templates.getInstanceOf("infoString");
+			st = templates.getInstanceOf("infoMessage");
 			break;
-
+			
 		}
 		return st;
 	}

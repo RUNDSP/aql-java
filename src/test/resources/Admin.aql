@@ -1,3 +1,4 @@
+connect '127.0.0.1' 3000
 #INFO:
 	SHOW NAMESPACES
 	show SETS
@@ -19,14 +20,14 @@
 	SET ECHO true
 	SET ECHO false 
 	SET TIMEOUT 150 
-	SET VIEW TABLE 
-	SET VIEW JSON
+	SET OUTPUT TABLE 
+	SET output JSON
 	SET LUA_USERPATH '/opt/citrusleaf/usr/udf/lua' 
 
 	GET VERBOSE 
 	GET ECHO 
 	GET TIMEOUT 
-	GET VIEW  
+	GET output  
 	GET LUA_USERPATH 
 	# Note: These are client side paths for lua files.
 	

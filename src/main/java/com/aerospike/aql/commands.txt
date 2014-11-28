@@ -1,9 +1,18 @@
 
+    CONNECTION
+    	CONNECT <host name> <port> [<timeout>]
+    	DISCONNECT
+    	
+    		<host name> address of a cluster node
+    		<port> port for connection - default 3000
+    		<timeout> client timeout
+
     DDL
         CREATE INDEX <index> ON <ns>[.<set>] (<bin>) NUMERIC|STRING
         DROP INDEX <ns>[.<set>] <index>
         REPAIR INDEX <index> ON <ns>[.<set>]
-
+		DROP SET <ns>[.<set>]
+		
             <ns> is the namespace for the index.
             <set> is the set name for the index.
             <index> is the name of the index.
@@ -17,18 +26,29 @@
     DML
         INSERT INTO <ns>[.<set>] (PK, <bins>) VALUES (<key>, <values>)
         DELETE FROM <ns>[.<set>] WHERE PK = <key>
-
+		DELETE FROM <ns>[.<set>] WHERE PK = <key> AND GENERATION = <generation>
+		UPDATE <ns>[.<demo>] SET <bin name> = <bin value>, ... WHERE PK = <key>
+		UPDATE <ns>[.<demo>] SET TTL = <ttl>, <bin name> = <bin value>, ... WHERE PK = <key> AND GENERATION = <generation>
+		OPERATE <operation function>[.<bin name>[,<value>]] ON <ns>[.<set>] WHERE PK = <key> AND GENERATION = <generation>
+		
             <ns> is the namespace for the record.
             <set> is the set name for the record.
             <key> is the record's primary key.
             <key> is the record's primary key.
             <bins> is a comma-separated list of bin names.
             <values> is comma-separated list of bin values. Keep it NULL (case insensitive & w/o quotes) to delete the bin
+            <bin name> is the name of the bin to be updated
+            <bin value> is the value
+            <generation> is the expected generation value
+            <ttl> is the time to live in seconds
+            <operation function> is ADD, PUT, APPEND, PREPEND, GET, TOUCH, HEADER
 
         Examples:
 
             INSERT INTO test.demo (PK, foo, bar) VALUES ('key1', 123, 'abc')
             DELETE FROM test.demo WHERE PK = 'key1'
+			UPDATE test.demo SET bn2 = 6, bn3 = '22', bn4 = 22 where pk = '6'
+			UPDATE test.cats SET bob = 23, sue = 'abc' WHER PK = '1234' AND GENERATION = 98765
 
     QUERY
         SELECT <bins> FROM <ns>[.<set>]
@@ -56,11 +76,12 @@
     MANAGE UDFS
         REGISTER MODULE '<filepath>'
         SHOW MODULES
-        REMOVE MODULE <filename>
-        DESC MODULE <filename>
+        REMOVE MODULE <module name>
+        DROP MODULE <module name>
+        DESC MODULE <module name>
 
             <filepath> is file path to the UDF module(in single quotes).
-            <filename> is file name of the UDF module.
+            <module name> is file name of the UDF module.
 
         Examples:
 
@@ -100,8 +121,8 @@
         STAT SYSTEM
 
     JOB MANAGEMENT
-        KILL_QUERY <transaction_id>
-        KILL_SCAN <scan_id>
+        KILL QUERY <transaction_id>
+        KILL SCAN <scan_id>
 
     USER ADMINISTRATION
         CREATE USER <user> PASSWORD <password> ROLE[S] <role1>,<role2>...
@@ -115,13 +136,12 @@
 
     SETTINGS
         TIMEOUT                       (time in ms, default: 1000 ms)
-        RECORD_TTL                    (time in ms, default: 0 ms)
+        TTL                    (time in ms, default: 0 ms)
         VERBOSE                       (true | false, default false)
         ECHO                          (true | false, default false)
         FAIL_ON_CLUSTER_CHANGE        (true | false, default true, policy applies to scans)
         OUTPUT                        (table | json, default table)
         LUA_USERPATH                  <path>, default : /opt/aerospike/usr/udf/lua
-        LUA_SYSPATH                   <path>, default : /opt/aerospike/sys/udf/lua
 
         To get the value of a setting, run:
 

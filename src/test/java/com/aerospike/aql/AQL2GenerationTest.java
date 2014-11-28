@@ -36,6 +36,9 @@ public class AQL2GenerationTest {
 		String code = aql2.generate("operate add(cat, 23), get(cat) on test.demo where pk = 9989\n"
 				+ "operate add(cat, 23), get(cat) on test.demo where pk = 9989 and generation = 20967", Language.JAVA);
 		System.out.println(code);
+		code = aql2.generate("operate add(cat, 23), get(cat) on test.demo where pk = 9989\n"
+				+ "operate add(cat, 23), get(cat) on test.demo where pk = 9989 and generation = 20967", Language.GO);
+		System.out.println(code);
 	}
 	@Test
 	public void testJavaGenerateOperate() throws Exception {
@@ -60,6 +63,8 @@ public class AQL2GenerationTest {
 		File inputFile = new File("src/test/resources/Everything.aql");
 		File outputFile = new File("CodeGeneration/Java/Everything.java");
 		aql2.generate(inputFile, outputFile, Language.JAVA);
+		outputFile = new File("CodeGeneration/Go/Everything.go");
+		aql2.generate(inputFile, outputFile, Language.GO);
 	}
 
 }

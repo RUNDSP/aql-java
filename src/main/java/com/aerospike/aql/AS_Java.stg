@@ -33,19 +33,19 @@ import com.aerospike.client.task.IndexTask;
 import com.aerospike.client.cluster.Node;
 import com.aerospike.client.lua.LuaConfig;
 import com.aerospike.client.policy.ClientPolicy;
+import com.aerospike.client.policy.AdminPolicy;
 
 public class <className> {
 
-
-	public <className>() throws AerospikeException{
+	public <className>() {
 		super();
 	}
 
-	public static void main(String[] args) throws AerospikeException{
+	public static void main(String[] args) {
 		<className> worker = new <className>();
 		worker.run();
 	}
-	public void run() throws AerospikeException {
+	public void run()  {
 		<statements>
 	}
 	
@@ -80,20 +80,18 @@ public class <className> {
 
 statements(statementList, variables) ::= <<
 // Variables for statements
+ClientPolicy clientPolicy;
+AerospikeClient client;
 
 <variables>
-// AQL statements - start
 
+// AQL statements - start
 <statementList>
 // AQL statements - finish, total: <length(statementList)>
 
 >>
 
-client()::=<<
-ClientPolicy clientPolicy;
-AerospikeClient client;
 
->>
 connect(source, host, port)::=<<
 /* <source> */
 /*
@@ -158,6 +156,12 @@ WritePolicy writePolicy = new WritePolicy();
 
 >>
 
+adminPolicy()::=<<
+AdminPolicy adminPolicy = new AdminPolicy();
+
+>>
+
+
 stmt()::=<<
 Statement stmt = new Statement();
 
@@ -188,14 +192,14 @@ client.put(writePolicy, <primaryKey>,
 
 updateStmt(source, primaryKey, binList, generation, ttl)::=<<
 /* <source> */
-<if(generation)>
-<generation>
-<endif>
-<if(ttl)>
-writePolicy.expiration = <ttl>;
-<endif>
+<if(ttl)>writePolicy.expiration = <ttl>;<endif>
+<if(generation)><generation><endif>
 writePolicy.recordExistsAction = RecordExistsAction.UPDATE;
+<if(binList)>
 client.put(writePolicy, <primaryKey>, <first(binList):{z|<z>}><rest(binList):{z|, <z>}>);
+<else>
+client.touch(writePolicy, <primaryKey>);
+<endif>
 
 >>
 
@@ -291,6 +295,23 @@ finally {
 				
 >>
 
+createUser(source, user, password, roles)::=<<
+/* <source> */
+<if(roles)>
+List\<String\> roles = new ArrayList\<String\>();
+<roles:{r|roles.add("<r>");}>
+<endif>
+client.createUser(adminPolicy, "<user>", "<password>"<if(roles)>, roles<endif>);
+
+>>
+
+dropUser(source, user)::=<<
+/* <source> */
+client.dropUser(adminPolicy, "<user>");
+
+>>
+
+
 
 create(source, indexName, nameSpace, setName, binName, type) ::= <<
 /* <source> */
@@ -307,7 +328,7 @@ client.dropIndex(policy, "<nameSpace>", "<setName>", "<indexName>");
 
 showIndex(source, nameSpace, setName) ::= <<
 /* <source> */
-infoResult = Info.request(infoPolicy, client.getNodes()[0], "sindex");
+infoResult = Info.request(infoPolicy, client.getNodes()[0], "sindex<if(nameSpace)>/<nameSpace><endif><if(setName)>/<setName><endif>");
 
 >>
 
@@ -406,6 +427,11 @@ setSystemPath(source, value) ::= <<
 
 >>
 
+setUserPassword(source, user, password) ::= <<
+/* <source> */
+
+>>
+
 getTimeout(source) ::= <<
 /* <source> */
 System.out.println("Policy timeout: " + policy.timeout);
@@ -468,6 +494,15 @@ primaryKey(namespace, set, key) ::=<<
 new Key("<namespace>", "<set>", <key>)
 >> 
 
+primaryKeyString(key)::=<<
+"<key>"
+>>
+
+primaryKeyNumeric(key)::=<<
+<key>
+>>
+
+
 value(value) ::= <<
 Value.get(<value>)
 >>
@@ -528,6 +563,19 @@ showQueries(source) ::= <<
 infoResult = Info.request(infoPolicy, client.getNodes()[0], "jobs:module=query");
 
 >>
+
+showUser(source, user) ::= <<
+/* <source> */
+//TODO
+
+>>
+
+showUsers(source) ::= <<
+/* <source> */
+//TODO
+
+>>
+
 
 descIndex(source, nameSpace, indexName) ::= <<
 /* <source> */

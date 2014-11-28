@@ -2,3 +2,5 @@
 /AQLBaseListener.java
 /AQLListener.java
 /AQLParser.java
+/AQLLexer.java
+/AQLLexer.tokens

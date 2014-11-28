@@ -31,35 +31,46 @@ import com.aerospike.client.task.IndexTask;
 import com.aerospike.client.cluster.Node;
 import com.aerospike.client.lua.LuaConfig;
 import com.aerospike.client.policy.ClientPolicy;
+import com.aerospike.client.policy.AdminPolicy;
 
 public class QueryFilter {
 
-
-	public QueryFilter() throws AerospikeException{
+	public QueryFilter() {
 		super();
 	}
 
-	public static void main(String[] args) throws AerospikeException{
+	public static void main(String[] args) {
 		QueryFilter worker = new QueryFilter();
 		worker.run();
 	}
-	public void run() throws AerospikeException {
+	public void run()  {
 		// Variables for statements
+		ClientPolicy clientPolicy;
+		AerospikeClient client;
 
-		Policy policy = new Policy();
 		WritePolicy writePolicy = new WritePolicy();
-		RecordSet recordSet = null;
-		ResultSet resultSet = null;
-		QueryPolicy queryPolicy = new QueryPolicy();
-		ScanPolicy scanPolicy = new ScanPolicy();
-		IndexTask indexTask = null;
 		Statement stmt = new Statement();
-		RegisterTask task =	null;
-		Record record = null;
 		File udfFile = null;
+		IndexTask indexTask = null;
+		RecordSet recordSet = null;
+		ScanPolicy scanPolicy = new ScanPolicy();
+		ResultSet resultSet = null;
+		RegisterTask task =	null;
+		Policy policy = new Policy();
+		QueryPolicy queryPolicy = new QueryPolicy();
+		Record record = null;
+
 
 		// AQL statements - start
-
+		/* connect '127.0.0.1' 3000 */
+		/*
+		Host[] hosts = new Host[] {new Host("a.host", 3000),
+									new Host("another.host", 3000),
+									new Host("and.another.host", 300)};
+		client = new AerospikeClient(clientPolicy, hosts);
+		*/
+		clientPolicy = new ClientPolicy();
+		client = new AerospikeClient(clientPolicy, "127.0.0.1", 3000);
 		/* print 'register udf/filter_example.lua' */
 		System.out.println("register udf/filter_example.lua");
 		/* REGISTER module 'udf/filter_example.lua' */
@@ -78,23 +89,23 @@ public class QueryFilter {
 		System.out.println("add records");
 		/* insert into test.profile (PK, username, password) values ('1', 'Charlie', 'cpass') */
 		writePolicy.recordExistsAction = RecordExistsAction.CREATE_ONLY;
-		client.put(writePolicy, new Key("test", "profile", 1), 
+		client.put(writePolicy, new Key("test", "profile", "1"), 
 			new Bin("username", Value.get("Charlie")), new Bin("password", Value.get("cpass")));
 					/* insert into test.profile (PK, username, password) values ('2', 'Bill', 'hknfpkj') */
 		writePolicy.recordExistsAction = RecordExistsAction.CREATE_ONLY;
-		client.put(writePolicy, new Key("test", "profile", 2), 
+		client.put(writePolicy, new Key("test", "profile", "2"), 
 			new Bin("username", Value.get("Bill")), new Bin("password", Value.get("hknfpkj")));
 					/* insert into test.profile (PK, username, password) values ('3', 'Doug', 'dj6554') */
 		writePolicy.recordExistsAction = RecordExistsAction.CREATE_ONLY;
-		client.put(writePolicy, new Key("test", "profile", 3), 
+		client.put(writePolicy, new Key("test", "profile", "3"), 
 			new Bin("username", Value.get("Doug")), new Bin("password", Value.get("dj6554")));
 					/* insert into test.profile (PK, username, password) values ('4', 'Mary', 'ghjks') */
 		writePolicy.recordExistsAction = RecordExistsAction.CREATE_ONLY;
-		client.put(writePolicy, new Key("test", "profile", 4), 
+		client.put(writePolicy, new Key("test", "profile", "4"), 
 			new Bin("username", Value.get("Mary")), new Bin("password", Value.get("ghjks")));
 					/* insert into test.profile (PK, username, password) values ('5', 'Julie', 'zzxzxvv') */
 		writePolicy.recordExistsAction = RecordExistsAction.CREATE_ONLY;
-		client.put(writePolicy, new Key("test", "profile", 5), 
+		client.put(writePolicy, new Key("test", "profile", "5"), 
 			new Bin("username", Value.get("Julie")), new Bin("password", Value.get("zzxzxvv")));
 					/* print 'query on username' */
 		System.out.println("query on username");
@@ -141,7 +152,7 @@ public class QueryFilter {
 			resultSet.close();
 		}
 						
-		// AQL statements - finish, total: 14
+		// AQL statements - finish, total: 15
 
 	}
 
