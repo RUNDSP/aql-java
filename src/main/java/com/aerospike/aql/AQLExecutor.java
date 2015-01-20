@@ -64,10 +64,7 @@ import com.aerospike.client.policy.AdminPolicy;
 import com.aerospike.client.policy.ClientPolicy;
 import com.aerospike.client.policy.GenerationPolicy;
 import com.aerospike.client.policy.InfoPolicy;
-import com.aerospike.client.policy.Policy;
-import com.aerospike.client.policy.QueryPolicy;
 import com.aerospike.client.policy.RecordExistsAction;
-import com.aerospike.client.policy.ScanPolicy;
 import com.aerospike.client.policy.WritePolicy;
 import com.aerospike.client.query.Filter;
 import com.aerospike.client.query.IndexType;
@@ -79,13 +76,6 @@ import com.aerospike.client.task.RegisterTask;
 
 public class AQLExecutor extends AQLBaseListener {
 	private AerospikeClient client = null;
-	private ClientPolicy cPolicy = null;
-	private InfoPolicy infoPolicy = null;
-	private Policy policy = null;
-	private WritePolicy writePolicy = null;
-	private QueryPolicy queryPolicy = null;
-	private ScanPolicy scanPolicy = null;
-	private AdminPolicy adminPolicy = null;
 	private ParseTreeProperty<Value> valueProperty = new ParseTreeProperty<Value>();
 	private ParseTreeProperty<Key> keyProperty = new ParseTreeProperty<Key>();
 	private ParseTreeProperty<Bin> binProperty = new ParseTreeProperty<Bin>();
@@ -104,20 +94,17 @@ public class AQLExecutor extends AQLBaseListener {
 	private AQLParser parser;
 	private static Logger log = Logger.getLogger(AQLExecutor.class);
 	private Object result = null;
+	private AdminPolicy adminPolicy;
+	private InfoPolicy infoPolicy;
 	
 	
 
 	public AQLExecutor(AQLParser parser, AerospikeClient client, int timeout, IResultReporter reporter) {
 		super();
 		this.client = client;
-		this.policy = new Policy();
-		this.cPolicy = new ClientPolicy();
-		this.infoPolicy = new InfoPolicy();
-		this.writePolicy = new WritePolicy();
-		this.queryPolicy = new QueryPolicy();
-		this.scanPolicy = new ScanPolicy();
-		this.adminPolicy = new AdminPolicy();
 		this.parser = parser;
+		adminPolicy = new AdminPolicy();
+		infoPolicy = new InfoPolicy();
 		this.setTimeout(timeout);
 		this.setResultsReporter(reporter);
 	}
@@ -131,11 +118,12 @@ public class AQLExecutor extends AQLBaseListener {
 	}
 
 	private void setTimeout(int timeout){
-		this.policy.timeout = timeout;
-		this.cPolicy.timeout = timeout;
-		this.writePolicy.timeout = timeout;
-		this.queryPolicy.timeout = timeout;
-		this.scanPolicy.timeout = timeout;
+		this.client.readPolicyDefault.timeout = timeout;
+		this.client.writePolicyDefault.timeout = timeout;
+		this.client.queryPolicyDefault.timeout = timeout;
+		this.client.scanPolicyDefault.timeout = timeout;
+		this.client.batchPolicyDefault.timeout = timeout;
+		this.adminPolicy.timeout = timeout;
 		this.infoPolicy.timeout = timeout;
 	}
 	@Override
@@ -152,9 +140,11 @@ public class AQLExecutor extends AQLBaseListener {
 			
 			String host = stripQuotes(ctx.hostName.getText());
 			int port = Integer.parseInt(ctx.port.getText());
-			if (ctx.timeout != null)
-				this.cPolicy.timeout = Integer.parseInt(ctx.timeout.getText());
-			this.client = new AerospikeClient(this.cPolicy, host, port);
+			ClientPolicy cPolicy = new ClientPolicy();
+			if (ctx.timeout != null){
+				cPolicy.timeout = Integer.parseInt(ctx.timeout.getText());
+			}
+			this.client = new AerospikeClient(cPolicy, host, port);
 			if (this.client.isConnected())
 				results.report("Connected to: " + host + ":" + port);
 		} catch (AerospikeException e){
@@ -184,7 +174,7 @@ public class AQLExecutor extends AQLBaseListener {
 				String set = ctx.nameSet().setName;
 				String binName = ctx.binName.getText();
 				IndexType type = (ctx.iType.getText().equalsIgnoreCase("STRING")) ? IndexType.STRING : IndexType.NUMERIC;
-				IndexTask indexTask = client.createIndex(policy, namespace, set, indexName, binName, type);
+				IndexTask indexTask = client.createIndex(null, namespace, set, indexName, binName, type);
 				indexTask.waitTillComplete(10);
 				results.report(String.format("Index %s created", indexName));
 			} else if (ctx.USER() != null) { // its a user
@@ -198,7 +188,7 @@ public class AQLExecutor extends AQLBaseListener {
 						roles.add(role.getText());
 					}
 				}
-				client.createUser(adminPolicy, user, password, roles);
+				client.createUser(null, user, password, roles);
 			}
 		} catch (AerospikeException e){
 			results.report(e);
@@ -213,7 +203,7 @@ public class AQLExecutor extends AQLBaseListener {
 				String indexName = ctx.index_name().getText();
 				String namespace = ctx.nameSet().namespaceName;
 				String set = ctx.nameSet().setName;
-				client.dropIndex(policy, namespace, set, indexName);
+				client.dropIndex(null, namespace, set, indexName);
 				results.report(String.format("Index %s deleted", indexName));
 			} else if (ctx.MODULE() != null) {
 				String module = ctx.moduleName().getText();
@@ -254,6 +244,7 @@ public class AQLExecutor extends AQLBaseListener {
 			List<String> binNames = stringListProperty.get(ctx.binNameList());
 			Bin[] bins = new Bin[binNames.size()];
 			int index = 0;
+			WritePolicy writePolicy = new WritePolicy();
 			for (String name : binNames){
 				if (name.equalsIgnoreCase("ttl")){
 					writePolicy.expiration = values.get(index).toInteger();
@@ -264,7 +255,7 @@ public class AQLExecutor extends AQLBaseListener {
 			}
 			writePolicy.recordExistsAction = RecordExistsAction.CREATE_ONLY;
 			client.put(writePolicy, key, bins);
-			results.report(String.format("Created: %s", key.toString()));
+			results.report("OK, 1 record affected");
 		} catch (AerospikeException e){
 			results.report(e);
 		}
@@ -273,7 +264,9 @@ public class AQLExecutor extends AQLBaseListener {
 	@Override
 	public void exitUpdate(UpdateContext ctx) {
 		try {
-			
+			WritePolicy writePolicy = new WritePolicy();
+			writePolicy.timeout = this.client.writePolicyDefault.timeout;
+
 			Key key  = keyProperty.get(ctx.primaryKeyPredicate().primaryKey());
 			if (ctx.generationPredicate() != null){
 				int generation = Integer.parseInt(ctx.generationPredicate().INTLITERAL().getText());
@@ -296,7 +289,7 @@ public class AQLExecutor extends AQLBaseListener {
 				// its a touch
 				client.touch(writePolicy, key);
 			}
-			results.report(String.format("Updated: %s", key.toString()));
+			results.report("OK, 1 record affected");
 		} catch (AerospikeException e){
 			results.report(e);
 		}
@@ -305,14 +298,15 @@ public class AQLExecutor extends AQLBaseListener {
 	@Override
 	public void exitDelete(DeleteContext ctx) {
 		try {
-			
+			WritePolicy writePolicy = new WritePolicy();
+			writePolicy.timeout = this.client.writePolicyDefault.timeout;
 			Key key  = keyProperty.get(ctx.primaryKeyPredicate().primaryKey());
 			if (ctx.generationPredicate() != null){
 				int generation = Integer.parseInt(ctx.generationPredicate().INTLITERAL().getText());
-				setGeneration(writePolicy, generation);
+				writePolicy.generation = generation;
 			}
 			client.delete(writePolicy, key);
-			results.report(String.format("Deleted: %s", key.toString()));
+			results.report("OK, 1 record affected");
 		} catch (AerospikeException e){
 			results.report(e);
 		}
@@ -336,7 +330,7 @@ public class AQLExecutor extends AQLBaseListener {
 				if (ctx.where().predicate().primaryKeyPredicate() != null){
 					// its a get
 					Key key = keyProperty.get(ctx.where().predicate().primaryKeyPredicate().primaryKey());
-					Record record = client.get(policy, key, binNames);
+					Record record = client.get(null, key, binNames);
 					results.report(key, record);
 				} else { //its a query
 					String ns = ctx.nameSet().namespaceName;
@@ -347,13 +341,13 @@ public class AQLExecutor extends AQLBaseListener {
 					stmt.setSetName(set);
 					stmt.setFilters(filter);
 					stmt.setBinNames(binNames);
-					RecordSet recordSet = client.query(queryPolicy, stmt);
+					RecordSet recordSet = client.query(null, stmt);
 					results.report(recordSet);
 				}
 			} else { // its a scan
 				String ns = ctx.nameSet().namespaceName;
 				String set = ctx.nameSet().setName;
-				client.scanAll(scanPolicy, ns, set, new ScanCallback() {
+				client.scanAll(null, ns, set, new ScanCallback() {
 
 					@Override
 					public void scanCallback(Key key, Record record) throws AerospikeException {
@@ -401,7 +395,7 @@ public class AQLExecutor extends AQLBaseListener {
 			}
 			if (ctx.where() != null) { // execute udf
 				Key key  = keyProperty.get(ctx.where().predicate().primaryKeyPredicate().primaryKey());
-				Object result = client.execute(policy, key, module, function, arguments);
+				Object result = client.execute(null, key, module, function, arguments);
 				results.report(result.toString());
 			} else { //scan UDF
 				String namespace = ctx.nameSet().namespaceName;
@@ -462,9 +456,12 @@ public class AQLExecutor extends AQLBaseListener {
 				index++;
 			}
 			Key key = keyProperty.get(ctx.primaryKeyPredicate().primaryKey());
+			WritePolicy writePolicy = new WritePolicy();
+			writePolicy.timeout = this.client.writePolicyDefault.timeout;
+
 			if (ctx.generationPredicate() != null){
 				int generation = Integer.parseInt(ctx.generationPredicate().INTLITERAL().getText());
-				setGeneration(writePolicy, generation);
+				writePolicy.generation = generation;
 			}
 			Record record = client.operate(writePolicy, key, operations);
 			results.report(record);
@@ -578,15 +575,19 @@ public class AQLExecutor extends AQLBaseListener {
 			} else if (ctx.QUERIES() != null){
 				// module=query:trid=1421720214803098000:ns=test:set=demo:status=IN_PROGRESS:mem_usage=29715:run_time=14237301:recs_read=5048:net_io_bytes=130622:priority=10:indexname=shoe_size:
 				String infoString = info("jobs:module=query");
-				String[] queryStrings = infoString.split(";");
-				List<Map<String,String>> queries = new ArrayList<Map<String,String>>();
-				for (String queryString : queryStrings){
-					Map<String, String> query = stringToMap(queryString, ":", "=");
-					queries.add(query);
+				if (infoString !=null){
+					String[] queryStrings = infoString.split(";");
+					List<Map<String,String>> queries = new ArrayList<Map<String,String>>();
+					for (String queryString : queryStrings){
+						Map<String, String> query = stringToMap(queryString, ":", "=");
+						queries.add(query);
+					}
+					Map<String,String>[] queryArray = new HashMap[queries.size()];
+					queries.toArray(queryArray); 
+					results.reportInfo(queryArray);
+				} else {
+					results.report("OK");
 				}
-				Map<String,String>[] queryArray = new HashMap[queries.size()];
-				queries.toArray(queryArray); 
-				results.reportInfo(queryArray);
 			} else if (ctx.SCANS() != null){
 				//results.reportInfo(info("jobs:module=scan"), ";");
 				String infoString = info("jobs:module=scan");
@@ -683,8 +684,8 @@ public class AQLExecutor extends AQLBaseListener {
 			results.report("Set echo to: " + echo);
 		} else if (ctx.TTL() != null) {
 			int value = Integer.parseInt(ctx.ttl.getText());
-			writePolicy.expiration = value;
-			results.report("Set TTL to: " + writePolicy.expiration);
+			this.client.writePolicyDefault.expiration = value;
+			results.report("Set TTL to: " + this.client.writePolicyDefault.expiration);
 		} else if (ctx.OUTPUT() != null) {
 			String value = ctx.viewType().getText();
 			this.output = value;
@@ -711,13 +712,13 @@ public class AQLExecutor extends AQLBaseListener {
 	public void exitGet(GetContext ctx) {
 		
 		if (ctx.TIMEOUT() != null) {
-			results.report("Timeout is: " + policy.timeout);
+			results.report("Timeout is: " + this.client.writePolicyDefault.timeout);
 		} else if (ctx.VERBOSE() != null) {
 			results.report("Verbose is: " + this.verbose);
 		} else if (ctx.ECHO() != null) {
 			results.report("Echo is: " + this.verbose);
 		} else if (ctx.TTL() != null) {
-			results.report("TTL is: " + this.writePolicy.expiration);
+			results.report("TTL is: " + this.client.writePolicyDefault.expiration);
 		} else if (ctx.OUTPUT() != null) {
 			results.report("Output is: " + this.output);
 		} else {// if (ctx.LUA_USER_PATH() != null) { 

@@ -48,10 +48,10 @@ public class PkTest {
 		ClientPolicy clientPolicy;
 		AerospikeClient client;
 
-		WritePolicy writePolicy = new WritePolicy();
 		Statement stmt = new Statement();
 		ScanPolicy scanPolicy = new ScanPolicy();
 		Policy policy = new Policy();
+		WritePolicy writePolicy = new WritePolicy();
 		Record record = null;
 
 

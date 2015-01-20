@@ -5,11 +5,23 @@ connect '127.0.0.1' 3000 100
 print '@#$--$#@'
 
 #Insert
-	INSERT INTO cats.demo (PK, bn2, bn3, bn4) VALUES ('1', 1, '1', 1)
+
+	DELETE From test.demo where pk = '1'
+	DELETE From test.demo where pk = '2'
+	DELETE From test.demo where pk = '3'
+	DELETE From test.demo where pk = '4'
+
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('1', 1, '1', 1)
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('2', 2, '2', 2)
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('3', 3, '2', 2)
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('4', 4, '2', 2)
+
+	Select *  From test.demo where pk = '1'
+	Select *  From test.demo where pk = '2'
+	Select *  From test.demo where pk = '3'
+	Select *  From test.demo where pk = '4'
+
+
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('5', 5, '2', 2)
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('6', 6, '2', 2)
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('7', 7, '2', 2)

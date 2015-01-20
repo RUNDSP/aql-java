@@ -10,6 +10,18 @@ public class AQL2ExecutionTest {
 	private AerospikeClient client = new AerospikeClient("127.0.0.1", 3000);
 	
 	@Test
+	public void testJavaExecuteSelectOne() throws Exception {
+		AQL aql2 = new AQL(client, 20);
+		aql2.execute("delete from test.demo where pk = 'test-select'");
+		aql2.execute("INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('test-select', 5, '2', 2)");
+		aql2.execute("select * from test.demo where pk = 'test-select'");
+	}
+	@Test
+	public void testJavaExecuteSelectAll() throws Exception {
+		AQL aql2 = new AQL(client, 20);
+		aql2.execute("select * from test.demo");
+	}
+	@Test
 	public void testJavaExecuteShowBins() throws Exception {
 		AQL aql2 = new AQL(client, 20);
 		aql2.execute("show bins");
