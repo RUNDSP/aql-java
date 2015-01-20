@@ -4,7 +4,6 @@ import java.io.File;
 import java.net.URL;
 
 import org.antlr.runtime.CommonTokenStream;
-import org.antlr.stringtemplate.StringTemplateGroup;
 
 import com.aerospike.aql.AQLGenerator.Language;
 import com.aerospike.client.AerospikeClient;
@@ -18,7 +17,7 @@ public class AQLTest {
 	protected int port = 3000; 
 	protected int stType = NONE;
 
-	protected StringTemplateGroup group = null;
+	//protected StringTemplateGroup group = null;
 	private CommonTokenStream tokenStream;
 	private String workingDir;
 	private String templatePath;

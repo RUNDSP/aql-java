@@ -1,5 +1,7 @@
 package com.aerospike.aql;
 
+import java.util.Map;
+
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Key;
 import com.aerospike.client.Log.Level;
@@ -141,5 +143,14 @@ public class GenericResult implements IResultReporter {
 		
 
 	}
+
+	@Override
+	public void reportInfo(Map<String, String>[] ifoResults) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
 
 }

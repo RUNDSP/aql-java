@@ -2,7 +2,9 @@ package com.aerospike.aql;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
@@ -504,32 +506,115 @@ public class AQLExecutor extends AQLBaseListener {
 	public void exitShow(ShowContext ctx) {
 		try {
 			
-			if (ctx.NAMESPACES() != null)
-				results.reportInfo(info("namespaces"), ";");
-			else if (ctx.INDEXES() != null){
+			if (ctx.NAMESPACES() != null){
+				String infoString = info("namespaces");
+				String[] namespaceStrings = infoString.split(";");
+				List<Map<String,String>> namespaces = new ArrayList<Map<String,String>>();
+				for (String namespaceString : namespaceStrings){
+					Map<String, String> ns = new HashMap<String, String>();
+					ns.put("namespaces", namespaceString);
+					namespaces.add(ns);
+				}
+				Map<String,String>[] nsArray = new HashMap[namespaces.size()];
+				namespaces.toArray(nsArray); 
+				results.reportInfo(nsArray);
+
+				//results.reportInfo(info("namespaces"), ";");
+			}else if (ctx.INDEXES() != null){
 				if (ctx.nameSet() != null) {
 					String nameSpace = ctx.nameSet().namespaceName;
 					String setName = ctx.nameSet().setName;
-					results.reportInfo(info("sindex/"+ nameSpace + "/" + setName), ";");
+					results.reportInfo(info("sindex/"+ nameSpace + "/" + setName), ";", ":", "=");
 				} else {
-					results.reportInfo(info("sindex"), ":");
+					results.reportInfo(info("sindex"), ";", ":", "=");
 				}
 			}
-			else if (ctx.MODULES() != null)
-				results.reportInfo(info("udf-list"), ";", ":", ",");
-			else if (ctx.BINS() != null)
-				results.reportInfo(info("bins"), ";", ":", ",");
-			else if (ctx.SETS() != null)
-				results.reportInfo(info("sets"), ";", ":", ",");
-			else if (ctx.QUERIES() != null)
-				results.reportInfo(info("jobs:module=query"), ";");
-			else if (ctx.SCANS() != null)
-				results.reportInfo(info("jobs:module=scan"), ";");
+			else if (ctx.MODULES() != null){
+				// filename=redis.lua,hash=93eb0a1bc6085f112c5463d40d5d6fff72b3a4dc,type=LUA;filename=predicate.lua,hash=8206b02a88e306ea6acded648b9c65c0446c8579,type=LUA;filename=qualifiers.lua,hash=dddde723b5f98f99b367d629f45f9b43334da370,type=LUA;
+				String infoString = info("udf-list");
+				String[] moduleStrings = infoString.split(";");
+				List<Map<String,String>> modules = new ArrayList<Map<String,String>>();
+				for (String moduleString : moduleStrings){
+					Map<String, String> query = stringToMap(moduleString, ",", "=");
+					modules.add(query);
+				}
+				Map<String,String>[] moduleArray = new HashMap[modules.size()];
+				modules.toArray(moduleArray); 
+				results.reportInfo(moduleArray);
+				//results.reportInfo(info("udf-list"), ";", ":", ",");
+			} else if (ctx.BINS() != null){
+				String infoString = info("bins");
+				String[] namespaceStrings = infoString.split(";");
+				List<Map<String,String>> bins = new ArrayList<Map<String,String>>();
+				for (String namespaceString : namespaceStrings){
+					String[] entries = namespaceString.split(",");
+					String namespaceName = entries[0].substring(0, entries[0].indexOf(":"));
+					String binQuota = entries[1].substring(entries[1].indexOf("=")+1);
+					for (int index = 2; index < entries.length; index ++){
+						Map<String, String> bin = new HashMap<String, String>();
+						bin.put("quota", binQuota);
+						bin.put("namespace", namespaceName);
+						bin.put("bin", entries[index]);
+						bins.add(bin);
+					}
+					
+				}
+				
+				Map<String,String>[] binsArray = new HashMap[bins.size()];
+				bins.toArray(binsArray); 
+				results.reportInfo(binsArray);
+
+			} else if (ctx.SETS() != null){
+				String infoString = info("sets");
+				String[] setStrings = infoString.split(";");
+				Map<String,String>[] sets = new Map[setStrings.length];
+				int index = 0;
+				for (String setInfo : setStrings){
+					Map<String, String> set = stringToMap(setInfo, ":", "=");
+					sets[index] = set;
+					index++;
+				}
+				results.reportInfo(sets);
+			} else if (ctx.QUERIES() != null){
+				// module=query:trid=1421720214803098000:ns=test:set=demo:status=IN_PROGRESS:mem_usage=29715:run_time=14237301:recs_read=5048:net_io_bytes=130622:priority=10:indexname=shoe_size:
+				String infoString = info("jobs:module=query");
+				String[] queryStrings = infoString.split(";");
+				List<Map<String,String>> queries = new ArrayList<Map<String,String>>();
+				for (String queryString : queryStrings){
+					Map<String, String> query = stringToMap(queryString, ":", "=");
+					queries.add(query);
+				}
+				Map<String,String>[] queryArray = new HashMap[queries.size()];
+				queries.toArray(queryArray); 
+				results.reportInfo(queryArray);
+			} else if (ctx.SCANS() != null){
+				//results.reportInfo(info("jobs:module=scan"), ";");
+				String infoString = info("jobs:module=scan");
+				String[] scanStrings = infoString.split(";");
+				List<Map<String,String>> scans = new ArrayList<Map<String,String>>();
+				for (String scanString : scanStrings){
+					Map<String, String> query = stringToMap(scanString, ":", "=");
+					scans.add(query);
+				}
+				Map<String,String>[] queryArray = new HashMap[scans.size()];
+				scans.toArray(queryArray); 
+				results.reportInfo(queryArray);
+			}
 		} catch (AerospikeException e){
 			results.report(e);
 		}
 	}
 	
+	private Map<String, String> stringToMap(String value, String seperator, String equator) {
+		Map<String, String> map = new HashMap<String, String>();
+		String[] entries = value.split(seperator);
+		for (String entry : entries){
+			String parts[] = entry.split(equator);
+			map.put(parts[0], parts[1]);
+		}
+		return map;
+	}
+
 	@Override
 	public void exitDesc(DescContext ctx) {
 		try {
@@ -560,7 +645,21 @@ public class AQLExecutor extends AQLBaseListener {
 				String nameSpace = ctx.namespace_name().getText(); //TODO
 				String indexName = ctx.index_name().getText();
 			} else { 
-				results.reportInfo(info("statistics"), ";");
+				// cluster_size=1;cluster_key=E137E0853288E5E;cluster_integrity=true;objects=10010;total-bytes-disk=5368709120;used-bytes-disk=2562816;free-pct-disk=99;total-bytes-memory=2147483648;used-bytes-memory=1413903;data-used-bytes-memory=357931;index-used-bytes-memory=640640;sindex-used-bytes-memory=415332;free-pct-memory=99;stat_read_reqs=4;stat_read_reqs_xdr=0;stat_read_success=0;stat_read_errs_notfound=4;stat_read_errs_other=0;stat_write_reqs=10055;stat_write_reqs_xdr=0;stat_write_success=10024;stat_write_errs=31;stat_xdr_pipe_writes=0;stat_xdr_pipe_miss=0;stat_delete_success=3;stat_rw_timeout=0;udf_read_reqs=0;udf_read_success=0;udf_read_errs_other=0;udf_write_reqs=0;udf_write_success=0;udf_write_err_others=0;udf_delete_reqs=0;udf_delete_success=0;udf_delete_err_others=0;udf_lua_errs=0;udf_scan_rec_reqs=0;udf_query_rec_reqs=0;udf_replica_writes=0;stat_proxy_reqs=0;stat_proxy_reqs_xdr=0;stat_proxy_success=0;stat_proxy_errs=0;stat_cluster_key_trans_to_proxy_retry=0;stat_cluster_key_transaction_reenqueue=0;stat_slow_trans_queue_push=0;stat_slow_trans_queue_pop=0;stat_slow_trans_queue_batch_pop=0;stat_cluster_key_regular_processed=0;stat_cluster_key_prole_retry=0;stat_cluster_key_err_ack_dup_trans_reenqueue=0;stat_cluster_key_partition_transaction_queue_count=0;stat_cluster_key_err_ack_rw_trans_reenqueue=0;stat_expired_objects=3;stat_evicted_objects=0;stat_deleted_set_objects=0;stat_evicted_set_objects=0;stat_evicted_objects_time=0;stat_zero_bin_records=0;stat_nsup_deletes_not_shipped=3;err_tsvc_requests=34;err_out_of_space=0;err_duplicate_proxy_request=0;err_rw_request_not_found=0;err_rw_pending_limit=0;err_rw_cant_put_unique=0;fabric_msgs_sent=0;fabric_msgs_rcvd=0;paxos_principal=BB976C89B270008;migrate_msgs_sent=0;migrate_msgs_recv=0;migrate_progress_send=0;migrate_progress_recv=0;migrate_num_incoming_accepted=0;migrate_num_incoming_refused=0;queue=0;transactions=81234;reaped_fds=0;tscan_initiate=8;tscan_pending=2;tscan_succeeded=6;tscan_aborted=0;batch_initiate=0;batch_queue=0;batch_tree_count=0;batch_timeout=0;batch_errors=0;info_queue=0;delete_queue=0;proxy_in_progress=0;proxy_initiate=0;proxy_action=0;proxy_retry=0;proxy_retry_q_full=0;proxy_unproxy=0;proxy_retry_same_dest=0;proxy_retry_new_dest=0;write_master=10055;write_prole=0;read_dup_prole=0;rw_err_dup_internal=0;rw_err_dup_cluster_key=0;rw_err_dup_send=0;rw_err_write_internal=0;rw_err_write_cluster_key=0;rw_err_write_send=0;rw_err_ack_internal=0;rw_err_ack_nomatch=0;rw_err_ack_badnode=0;client_connections=26;waiting_transactions=0;tree_count=0;record_refs=10010;record_locks=0;migrate_tx_objs=0;migrate_rx_objs=0;ongoing_write_reqs=0;err_storage_queue_full=0;partition_actual=4096;partition_replica=0;partition_desync=0;partition_absent=0;partition_object_count=10010;partition_ref_count=4096;system_free_mem_pct=87;sindex_ucgarbage_found=0;sindex_gc_locktimedout=0;sindex_gc_inactivity_dur=34440882;sindex_gc_activity_dur=15125;sindex_gc_list_creation_time=13831;sindex_gc_list_deletion_time=252;sindex_gc_objects_validated=4375760;sindex_gc_garbage_found=0;sindex_gc_garbage_cleaned=0;system_swapping=false;err_replica_null_node=0;err_replica_non_null_node=0;err_sync_copy_null_node=0;err_sync_copy_null_master=0;storage_defrag_corrupt_record=0;err_write_fail_prole_unknown=0;err_write_fail_prole_generation=0;err_write_fail_unknown=0;err_write_fail_key_exists=18;err_write_fail_generation=13;err_write_fail_generation_xdr=0;err_write_fail_bin_exists=0;err_write_fail_parameter=0;err_write_fail_incompatible_type=0;err_write_fail_noxdr=0;err_write_fail_prole_delete=0;err_write_fail_not_found=0;err_write_fail_key_mismatch=0;stat_duplicate_operation=0;uptime=34923;stat_write_errs_notfound=0;stat_write_errs_other=31;heartbeat_received_self=229426;heartbeat_received_foreign=0;query_reqs=43;query_success=30;query_fail=6;query_abort=0;query_avg_rec_count=272;query_short_queue_full=0;query_long_queue_full=0;query_short_running=14;query_long_running=25;query_tracked=8;query_agg=30;query_agg_success=21;query_agg_err=2;query_agg_abort=0;query_agg_avg_rec_count=41;query_lookups=9;query_lookup_success=9;query_lookup_err=0;query_lookup_abort=0;query_lookup_avg_rec_count=1043
+				String infoString = info("statistics");
+				String statsStrings[] = infoString.split(";");
+				List<Map<String,String>> stats = new ArrayList<Map<String,String>>();
+				for (String statString : statsStrings){
+					Map<String, String> stat = new HashMap<String, String>();
+					String[] parts = statString.split("=");
+					stat.put("name", parts[0]);
+					stat.put("value", parts[1]);
+					stats.add(stat);
+				}
+				Map<String,String>[] statsArray = new HashMap[stats.size()];
+				stats.toArray(statsArray); 
+				results.reportInfo(statsArray);
+
 			}
 		} catch (AerospikeException e){
 			results.report(e);

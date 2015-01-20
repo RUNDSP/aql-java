@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.xml.stream.events.Namespace;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -31,6 +33,7 @@ public class AQLConsole implements IResultReporter {
 	Console systemConsole = System.console();
 	boolean useSystemConsole = false;
 	Object lastResult = null;
+	enum Orientation { VERTICAL, HORIZONTAL };
 	
 	public AQLConsole() {
 		this.useSystemConsole = (this.systemConsole != null);
@@ -259,20 +262,39 @@ public class AQLConsole implements IResultReporter {
 		}
 		return fieldMap;
 	}
-	
 	private Map<String, Integer> makeFieldMap(Map<String, Integer> fieldMap,
-			Map<String, String> element) {
+			Map<String, String> elements) {
+		return this.makeFieldMap(fieldMap, elements, Orientation.HORIZONTAL);
+	}
+	private Map<String, Integer> makeFieldMap(Map<String, Integer> fieldMap,
+			Map<String, String> elements, Orientation orientation) {
 		if (fieldMap == null)
 			fieldMap = new HashMap<String, Integer>();
-		Set<String> fields = element.keySet();
-		for (String field : fields){
-			Integer size = fieldMap.get(field);
-			Integer fieldValueSize = element.get(field).toString().length();
-			Integer fieldNameSize = field.length();
-			Integer fieldSize = Math.max(fieldNameSize, fieldValueSize);
-			if (!fieldMap.containsKey(field) || (size < fieldSize)) {
-				fieldMap.put(field, fieldSize);
-			} 
+		switch(orientation){
+		case HORIZONTAL:
+			Set<String> hfields = elements.keySet();
+			for (String field : hfields){
+				Integer size = fieldMap.get(field);
+				Integer fieldValueSize = elements.get(field).toString().length();
+				Integer fieldNameSize = field.length();
+				Integer fieldSize = Math.max(fieldNameSize, fieldValueSize);
+				if (!fieldMap.containsKey(field) || (size < fieldSize)) {
+					fieldMap.put(field, fieldSize);
+				} 
+			}
+			break;
+		case VERTICAL:
+			fieldMap.put("name", 0);
+			fieldMap.put("value", 0);
+			Set<String> vfields = elements.keySet();
+			for (String field : vfields){
+				Integer fieldNameSize = Math.max("name".length(), elements.get(field).toString().length());
+				Integer fieldValueSize = field.length();
+				Integer fieldSize = Math.max(fieldNameSize, fieldValueSize);
+				fieldMap.put("name", fieldNameSize);
+				fieldMap.put("value", fieldSize);
+			}
+			break;
 		}
 		return fieldMap;
 	}
@@ -390,6 +412,21 @@ public class AQLConsole implements IResultReporter {
 	}
 
 	@Override
+	public void reportInfo(Map<String, String>[] infoElements) {
+		Map<String, Integer> fieldMap = null;
+		for (Map<String, String> element : infoElements){
+			fieldMap = makeFieldMap(fieldMap, element);
+		}
+		printTableHeader(fieldMap);
+		for (Map<String, String> element : infoElements){
+			printTableEntry(element, fieldMap);
+		}
+		printTableSeperator(fieldMap);
+		
+	}
+
+	
+	@Override
 	public void reportInfo(String inforMessage, boolean clear,
 			String... seperators) {
 		printInfo(inforMessage, seperators);
@@ -401,44 +438,76 @@ public class AQLConsole implements IResultReporter {
 			println(infoString);
 			return;
 		}
-		
-		if (seperators.length == 3 ){
-			Map<String, Map<String, String>> result = makeElementMap(infoString, seperators[0], seperators[1], seperators[2], "=");
+
+		switch (seperators.length){
+		case 3:
 			switch (this.format) {
 			case JSON:
-				println(formatJson(result));
+				Map<String, Map<String, String>> jsonresult = makeElementMap(infoString, seperators[0], seperators[1], seperators[2], "=");
+				println(formatJson(jsonresult));
 				break;
 			case TABLE:
-				printTableMapList(result);
+				List<Map<String, String>> elementList = makeElementList(infoString, seperators[0], seperators[1], seperators[2]);
+				printTableInfo(elementList);
 				break;
 			default: //TEXT:
-				println(result);
+				println(infoString);
 				break;
 			}
-			
+
 			return;
-		}
-		if (seperators.length == 1 ){
-			Map<String, String> result = makeValueMap(infoString, seperators[0], "=");
+		case 2:
 			switch (this.format) {
 			case JSON:
-				println(formatJson(result));
+				Map<String, String> jsonresult = makeValueMap(infoString, seperators[0], "=");
+				println(formatJson(jsonresult));
 				break;
 			case TABLE:
+				Map<String, String> result = makeValueMap(infoString, seperators[0], seperators[1]);
+				printTableMap(result, Orientation.VERTICAL);
+				break;
+			default: //TEXT:
+				println(infoString);
+			}
+			return;
+		case 1:
+			switch (this.format) {
+			case JSON:
+				Map<String, String> jsonresult = makeValueMap(infoString, seperators[0], "=");
+				println(formatJson(jsonresult));
+				break;
+			case TABLE:
+				Map<String, String> result = makeValueMap(infoString, seperators[0], "=");
 				printTableMap(result);
 				break;
 			default: //TEXT:
-				println(result);
+				println(infoString);
 			}
 			return;
+		default:
+			println("WFT:"+infoString);
 		}
-		
-		println("WFT:"+infoString);
+
 	}
 	
+	private void printTableInfo(List<Map<String, String>> infoList){
+		Map<String, Integer> fieldMap = null;
+		for (Map<String, String> entry : infoList){
+			fieldMap = makeFieldMap(fieldMap, entry);
+		}
+		printTableHeader(fieldMap);
+		for (Map<String, String> entry : infoList){
+			printTableEntry(entry, fieldMap);
+		}
+		printTableSeperator(fieldMap);
+
+	}
 	private void printTableMap(Map<String, String> infoMap){
+		this.printTableMap(infoMap, Orientation.HORIZONTAL);
+	}
+	private void printTableMap(Map<String, String> infoMap, Orientation orientation){
 		Map<String, Integer> fieldMap = new HashMap<String, Integer>();
-		makeFieldMap(fieldMap, infoMap);
+		makeFieldMap(fieldMap, infoMap, orientation);
 		printTableHeader(fieldMap);
 		printTableEntry(infoMap, fieldMap);
 		printTableSeperator(fieldMap);
@@ -458,6 +527,15 @@ public class AQLConsole implements IResultReporter {
 	}	
 
 	
+	private List<Map<String, String>> makeElementList(String input, String elementSeperator, String keySeperator, String valueSeperator){
+		List<Map<String, String>> result = new ArrayList<Map<String,String>>();
+		String[] parts = input.split(elementSeperator);
+		for (String element : parts){
+			Map<String, String> elementMap = makeValueMap(element, keySeperator, valueSeperator);
+			result.add(elementMap);
+		}
+		return result;
+	}
 
 	private Map<String, Map<String, String>> makeElementMap(String input, String elementSeperator, String keySeperator, String valueSeperator, String equator){
 		Map<String, Map<String, String>> result = new HashMap<String, Map<String,String>>();
@@ -587,5 +665,10 @@ public class AQLConsole implements IResultReporter {
 		}
 		
 	}
+
+
+
+
+
 
 }

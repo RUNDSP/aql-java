@@ -40,11 +40,6 @@ public class AQL2ExecutionTest {
 		aql2.execute("show Queries");
 	}
 	@Test
-	public void testJavaExecuteShowIndexes1() throws Exception {
-		AQL aql2 = new AQL(client, 20);
-		aql2.execute("show InDexes test.demo");
-	}
-	@Test
 	public void testJavaExecuteShowIndexes2() throws Exception {
 		AQL aql2 = new AQL(client, 20);
 		aql2.execute("show InDexes");

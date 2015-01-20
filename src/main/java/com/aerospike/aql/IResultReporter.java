@@ -1,5 +1,9 @@
 package com.aerospike.aql;
 
+import java.util.Map;
+
+import javax.xml.stream.events.Namespace;
+
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Key;
 import com.aerospike.client.Log.Level;
@@ -31,6 +35,7 @@ public interface IResultReporter {
 	public void report(Key key, Record record, boolean clear);
 	public void report(RecordSet recordSet, boolean clear);
 	public void report(ResultSet resultSet, boolean clear);
+	public void reportInfo(Map<String, String>[] ifoResults);
 	public void reportInfo(String inforMessage, String...seperators);
 	public void reportInfo(String inforMessage, boolean clear, String...seperators);
 	public void reportInfo(String[] inforMessages, String...seperators);
