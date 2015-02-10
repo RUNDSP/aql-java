@@ -48,11 +48,11 @@ public class PkTest {
 		ClientPolicy clientPolicy;
 		AerospikeClient client;
 
-		Statement stmt = new Statement();
-		ScanPolicy scanPolicy = new ScanPolicy();
 		Policy policy = new Policy();
+		Statement stmt = new Statement();
 		WritePolicy writePolicy = new WritePolicy();
 		Record record = null;
+		ScanPolicy scanPolicy = new ScanPolicy();
 
 
 		// AQL statements - start

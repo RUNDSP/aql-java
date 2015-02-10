@@ -48,15 +48,15 @@ public class Scan {
 		ClientPolicy clientPolicy;
 		AerospikeClient client;
 
-		Statement stmt = new Statement();
-		RegisterTask task =	null;
-		ScanPolicy scanPolicy = new ScanPolicy();
-		QueryPolicy queryPolicy = new QueryPolicy();
 		Policy policy = new Policy();
-		File udfFile = null;
-		Record record = null;
-		WritePolicy writePolicy = new WritePolicy();
+		Statement stmt = new Statement();
+		QueryPolicy queryPolicy = new QueryPolicy();
 		ResultSet resultSet = null;
+		WritePolicy writePolicy = new WritePolicy();
+		RegisterTask task =	null;
+		Record record = null;
+		ScanPolicy scanPolicy = new ScanPolicy();
+		File udfFile = null;
 
 
 		// AQL statements - start

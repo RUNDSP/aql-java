@@ -1,6 +1,7 @@
 package com.aerospike.aql;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -111,10 +112,14 @@ public class AQLExecutor extends AQLBaseListener {
  
 	private void setResultsReporter(IResultReporter reporter) {
 		if (reporter == null)
-			this.results = new AQLConsole();
+			try {
+				this.results = new AQLConsole();
+			} catch (IOException e) {
+				throw new AQLException("Cannot create console", e);
+			}
 		else
 			this.results = reporter;
-		
+
 	}
 
 	private void setTimeout(int timeout){

@@ -49,8 +49,8 @@ public class Admin {
 		AerospikeClient client;
 
 		Policy policy = new Policy();
-		InfoPolicy infoPolicy = new InfoPolicy();
 		WritePolicy writePolicy = new WritePolicy();
+		InfoPolicy infoPolicy = new InfoPolicy();
 
 
 		// AQL statements - start

@@ -1,9 +1,19 @@
 
 package com.aerospike.aql;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BaseErrorListener;
@@ -15,6 +25,7 @@ import org.apache.log4j.Logger;
 import com.aerospike.aql.AQLGenerator.Language;
 import com.aerospike.aql.grammar.AQLLexer;
 import com.aerospike.aql.grammar.AQLParser;
+import com.aerospike.aql.grammar.IErrorReporter;
 import com.aerospike.aql.grammar.NoCaseFileStream;
 import com.aerospike.aql.grammar.NoCaseInputStream;
 import com.aerospike.client.AerospikeClient;
@@ -30,17 +41,36 @@ public class AQL {
 	private int timeout;
 	private Language generationLanguage;
 	private String fileExtension;
-	private IResultReporter resultReporter = new AQLConsole();
+	private IResultReporter resultReporter;
+	private IErrorReporter errorReporter;
 	private BaseErrorListener errorListener;
 
 	public AQL() {
 		super();
+		setResultsReporter(null); // Default
+		errorListener = new ErrorListener(this.errorReporter);
 	}
 
 	public AQL(AerospikeClient client, int timeout){
 		this();
 		this.client = client;
 		this.timeout = timeout;
+	}
+	
+	public void setErrorReporter(IErrorReporter errorReporter){
+		this.errorReporter = errorReporter;
+		this.errorListener = new ErrorListener(this.errorReporter);
+	}
+	
+	public void setResultsReporter(IResultReporter resultsReporter){
+		if (resultsReporter == null)
+			try {
+				this.resultReporter = new AQLConsole();
+			} catch (IOException e) {
+				throw new AQLException("Cannot create console", e);
+			}
+		else
+			this.resultReporter = resultsReporter;
 	}
 
 	private CommonTokenStream getTokenStream(ANTLRInputStream is){
@@ -195,13 +225,12 @@ public class AQL {
 	}
 
 	/**
-	 * Interpret an AQL command, lind by line
+	 * Interpret an AQL command, line by line
 	 */
 	public void interpret() {
 		AQLConsole console = (AQLConsole) this.resultReporter;
 		AQLExecutor executor = null;
 		while (true){
-			console.print("AQL> ");
 			String input = console.readLine();
 			executor = execute(input, executor);
 		}
@@ -221,14 +250,49 @@ public class AQL {
 		return (GenericResult) this.resultReporter;
 	}
 
-	public BaseErrorListener getErrorListener() {
-		return errorListener;
-	}
 
-	public void setErrorListener(BaseErrorListener errorListener) {
-		this.errorListener = errorListener;
-	}
+	public List<String> getKeyWords(){
+		List<String> keyWords = new ArrayList<String>();
 
-	
+		URL url;
+		try {
+			url = new URL("/com/aerospike/aql/grammar/AQL.tokens");
+			URLConnection conn = url.openConnection();
+			InputStream inputStream = conn.getInputStream();
+			BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+			String inputLine;
+
+			boolean keep = false;
+			while ((inputLine = in.readLine()) != null) {
+				if (inputLine.startsWith("'") || inputLine.startsWith("T__")){
+					continue;
+				}
+				String word = inputLine.substring(0, inputLine.indexOf("="));
+				keyWords.add(word);
+				//System.out.println(inputLine);
+			}
+			in.close();
+
+		} catch (IOException e) {
+			throw new AQLException("Cannot locate key words", e);
+		}
+		return keyWords;
+//		try {
+//			File file = new File("grammar/AQL.tokens");
+//			BufferedReader br = new BufferedReader(new FileReader(file));
+//			String line;
+//			while ((line = br.readLine()) != null) {
+//				if (line.startsWith("'") || line.startsWith("T__")){
+//					continue;
+//				}
+//				String word = line.substring(0, line.indexOf("="));
+//				keyWords.add(word);
+//			}
+//			br.close();
+//		} catch (IOException e){
+//
+//		}
+//		return keyWords;
+	}
 
 }

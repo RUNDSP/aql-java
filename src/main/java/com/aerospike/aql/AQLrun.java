@@ -127,7 +127,7 @@ public class AQLrun {
 					log.info("AQL executing file: " + inputFileName);
 					aql.execute(inputFile, null);
 				} else {
-					log.info("AQL Interactive");
+					log.debug("AQL Interactive");
 					aql.interpret();
 				}
 			}

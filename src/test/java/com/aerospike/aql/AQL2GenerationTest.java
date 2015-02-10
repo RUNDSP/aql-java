@@ -1,5 +1,6 @@
 package com.aerospike.aql;
 import java.io.File;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -7,6 +8,14 @@ import com.aerospike.aql.AQLGenerator.Language;
 
 public class AQL2GenerationTest {
 	
+	@Test
+	public void testKeyWords() throws Exception {
+		AQL aql2 = new AQL();
+		List<String> keyWords = aql2.getKeyWords();
+		for (String keyWord : keyWords){
+			System.out.println(keyWord);
+		}
+	}
 	@Test
 	public void testJavaGenerateCreateIndex() throws Exception {
 		AQL aql2 = new AQL();

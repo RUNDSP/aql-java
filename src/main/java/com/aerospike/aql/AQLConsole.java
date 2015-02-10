@@ -1,9 +1,6 @@
 package com.aerospike.aql;
 
-import java.io.BufferedReader;
-import java.io.Console;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -14,7 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.xml.stream.events.Namespace;
+import jline.console.ConsoleReader;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -30,69 +27,106 @@ public class AQLConsole implements IResultReporter {
 	boolean cancelled = false;
 	int errors = 0;
 	private ViewFormat format = ViewFormat.TABLE;
-	Console systemConsole = System.console();
-	boolean useSystemConsole = false;
+	//Console systemConsole = System.console();
+	//boolean useSystemConsole = false;
+	ConsoleReader console;
 	Object lastResult = null;
 	enum Orientation { VERTICAL, HORIZONTAL };
 	
-	public AQLConsole() {
-		this.useSystemConsole = (this.systemConsole != null);
-	}
+	public AQLConsole() throws IOException {
+		//this.useSystemConsole = (this.systemConsole != null);
+		console = new ConsoleReader();
+		console.setPrompt("aql2> ");
+        	}
 
 	public void printf(String message, Object... args){
-		if (useSystemConsole)
-			systemConsole.printf(message, args);
-		else {
-			System.out.printf(message, args);
+//		if (useSystemConsole)
+//			systemConsole.printf(message, args);
+//		else {
+//			System.out.printf(message, args);
+//		}
+		try {
+			console.print(String.format(message, args));
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
 	public void print(String message){
-		if (useSystemConsole)
-			systemConsole.printf(message);
-		else {
-			System.out.print(message);
+//		if (useSystemConsole)
+//			systemConsole.printf(message);
+//		else {
+//			System.out.print(message);
+//		}
+		try {
+			console.print(message);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
 	public void println(){
-		if (useSystemConsole)
-			systemConsole.printf("\n");
-		else {
-			System.out.println();
+//		if (useSystemConsole)
+//			systemConsole.printf("\n");
+//		else {
+//			System.out.println();
+//		}
+		try {
+			console.println();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	
 	public void println(Object object){
-		if (useSystemConsole)
-			systemConsole.printf(object.toString() + "\n");
-		else {
-			System.out.println(object.toString());
+//		if (useSystemConsole)
+//			systemConsole.printf(object.toString() + "\n");
+//		else {
+//			System.out.println(object.toString());
+//		}
+		try {
+			console.println(object.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	
 	public void println(String message, Object... args){
-		if (useSystemConsole)
-			systemConsole.printf(message + "\n", args);
-		else {
-			System.out.println(String.format(message, args));
+//		if (useSystemConsole)
+//			systemConsole.printf(message + "\n", args);
+//		else {
+//			System.out.println(String.format(message, args));
+//		}
+		try {
+			console.println(String.format(message, args));
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
 
 	public String readLine(){
-		if (useSystemConsole)
-			return systemConsole.readLine();
-		else {
-			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-			String line = "";
-			try {
-				line = bufferedReader.readLine();
-			} catch (IOException e) {
-				e.printStackTrace();
+		//		if (useSystemConsole)
+		//			return systemConsole.readLine();
+		//		else {
+		//			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+		//			String line = "";
+		//			try {
+		//				line = bufferedReader.readLine();
+		//			} catch (IOException e) {
+		//				e.printStackTrace();
+		//			}
+		//			return line;
+		//		}
+		String line = null;
+		try {
+			while ((line = console.readLine()) != null) {
+				return line;
 			}
-			return line;
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+		return null;
 	}
 
 	@Override
