@@ -8,7 +8,21 @@ import com.aerospike.client.AerospikeClient;
 
 public class AQL2ExecutionTest {
 	private AerospikeClient client = new AerospikeClient("127.0.0.1", 3000);
-	
+	@Test
+	public void testJavaExecuteInsertMap() throws Exception {
+		AQL aql2 = new AQL(client, 20);
+		aql2.execute("delete from test.demo where pk = 'test-select-map'");
+		aql2.execute("INSERT INTO test.demo (PK, bn2, bn3, bn4, amap) VALUES ('test-select-map', 5, '2', 2, 'JSON{\"key\": 1}')");
+		aql2.execute("select * from test.demo where pk = 'test-select-map'");
+	}
+	@Test
+	public void testJavaExecuteInsertList() throws Exception {
+		AQL aql2 = new AQL(client, 20);
+		aql2.execute("delete from test.demo where pk = 'test-select-list'");
+		aql2.execute("INSERT INTO test.demo (PK, bn2, bn3, bn4, amap) VALUES ('test-select-list', 5, '2', 2, 'JSON[{\"value\": \"New\", \"onclick\": \"CreateNewDoc()\"},{\"value\": \"Open\", \"onclick\": \"OpenDoc()\"},{\"value\": \"Close\", \"onclick\": \"CloseDoc()\"}]')");
+		aql2.execute("select * from test.demo where pk = 'test-select-list'");
+	}
+
 	@Test
 	public void testJavaExecuteSelectOne() throws Exception {
 		AQL aql2 = new AQL(client, 20);
