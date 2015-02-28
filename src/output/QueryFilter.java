@@ -48,17 +48,17 @@ public class QueryFilter {
 		ClientPolicy clientPolicy;
 		AerospikeClient client;
 
-		Policy policy = new Policy();
-		IndexTask indexTask = null;
-		Statement stmt = new Statement();
-		QueryPolicy queryPolicy = new QueryPolicy();
-		ResultSet resultSet = null;
-		WritePolicy writePolicy = new WritePolicy();
-		RecordSet recordSet = null;
-		RegisterTask task =	null;
 		Record record = null;
-		ScanPolicy scanPolicy = new ScanPolicy();
 		File udfFile = null;
+		ResultSet resultSet = null;
+		RegisterTask task =	null;
+		Policy policy = new Policy();
+		ScanPolicy scanPolicy = new ScanPolicy();
+		Statement stmt = new Statement();
+		RecordSet recordSet = null;
+		WritePolicy writePolicy = new WritePolicy();
+		IndexTask indexTask = null;
+		QueryPolicy queryPolicy = new QueryPolicy();
 
 
 		// AQL statements - start

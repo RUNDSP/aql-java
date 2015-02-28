@@ -10,6 +10,10 @@ import java.util.Map;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.apache.log4j.Logger;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import com.aerospike.aql.IResultReporter.ViewFormat;
 import com.aerospike.aql.grammar.AQLBaseListener;
@@ -31,6 +35,7 @@ import com.aerospike.aql.grammar.AQLParser.GenerationPredicateContext;
 import com.aerospike.aql.grammar.AQLParser.GetContext;
 import com.aerospike.aql.grammar.AQLParser.InsertContext;
 import com.aerospike.aql.grammar.AQLParser.IntegerValueContext;
+import com.aerospike.aql.grammar.AQLParser.JsonValueContext;
 import com.aerospike.aql.grammar.AQLParser.OperateContext;
 import com.aerospike.aql.grammar.AQLParser.OperateFunctionContext;
 import com.aerospike.aql.grammar.AQLParser.PrimaryKeyContext;
@@ -840,6 +845,11 @@ public class AQLExecutor extends AQLBaseListener {
 		Value value = Value.get(makeValue(ctx.getText()));
 		this.valueProperty.put(ctx, value);
 	}
+	@Override
+	public void exitJsonValue(JsonValueContext ctx) {
+		Value value = Value.get(makeValue(ctx.getText()));
+		this.valueProperty.put(ctx, value);
+	}
 	private Value makeValue(String valueText){
 		try {
 			long lvalue = Long.parseLong(valueText);
@@ -848,9 +858,25 @@ public class AQLExecutor extends AQLBaseListener {
 			//its a string
 		}
 		String svalue = stripQuotes(valueText);
-		return Value.get(svalue);
+		if (svalue.startsWith("JSON")) {
+			JSONParser parser = new JSONParser();
+			try {
+				svalue = svalue.substring(4);
+				if (svalue.startsWith("[")) { //JSON Array
+					JSONArray jArray = (JSONArray) parser.parse(svalue);
+					return Value.getAsList(jArray);
+				} else { //JSON Object
+					JSONObject jObject = (JSONObject) parser.parse(svalue);
+					return Value.getAsMap(jObject);
+				}
+			} catch (ParseException e) {
+				throw new AQLException("Malformed JSON", e);
+			}
+		} else {
+			return Value.get(svalue);
+		}
 	}
-	
+
 	public static String stripQuotes(String inputString) {
         if ( inputString==null || inputString.charAt(0)!='\'' ) return inputString;
         return inputString.substring(1, inputString.length() - 1);

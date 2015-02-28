@@ -740,11 +740,15 @@ bin
 	;
 	
 value //Generate
-	: integerValue | textValue
+	: integerValue | textValue | jsonValue
 	;
 textValue //Generate
 	: STRINGLITERAL
 	;
+jsonValue 
+	: json=JSONLITERAL
+	;	
+
 integerValue //Generate
 	: INTLITERAL
 	;
@@ -957,7 +961,9 @@ FOR: 'for';
 
 IDENTIFIER : ( LETTER | UNDERSCORE )( LETTER| DIGIT | UNDERSCORE | HYPHEN)*;
 
-    
+JSONLITERAL
+	: '\'JSON'  ( EscapeSequence | ~('\\'|'\'') )* '\'';
+	    
 /**
 Single quote delimited string 
 e.g. 'cats' or 'cat\'s'

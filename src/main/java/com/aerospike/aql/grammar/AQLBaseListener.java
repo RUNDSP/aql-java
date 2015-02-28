@@ -60,6 +60,19 @@ public class AQLBaseListener implements AQLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterJsonValue(@NotNull AQLParser.JsonValueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitJsonValue(@NotNull AQLParser.JsonValueContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterModuleName(@NotNull AQLParser.ModuleNameContext ctx) { }
 	/**
 	 * {@inheritDoc}

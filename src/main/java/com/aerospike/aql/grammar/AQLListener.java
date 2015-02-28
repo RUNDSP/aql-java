@@ -46,6 +46,17 @@ public interface AQLListener extends ParseTreeListener {
 	void exitBin(@NotNull AQLParser.BinContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link AQLParser#jsonValue}.
+	 * @param ctx the parse tree
+	 */
+	void enterJsonValue(@NotNull AQLParser.JsonValueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AQLParser#jsonValue}.
+	 * @param ctx the parse tree
+	 */
+	void exitJsonValue(@NotNull AQLParser.JsonValueContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link AQLParser#moduleName}.
 	 * @param ctx the parse tree
 	 */
