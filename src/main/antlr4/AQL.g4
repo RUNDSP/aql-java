@@ -9,6 +9,9 @@
     		<timeout> client timeout
     DDL
         CREATE INDEX <index> ON <ns>[.<set>] (<bin>) NUMERIC|STRING
+        CREATE LIST INDEX index_on_list ON ns.set (list_bin) numeric
+        CREATE MAPKEYS INDEX index_on_mapkeys ON ns.set (mapkeys_bin) numeric
+        CREATE MAPVALUES INDEX index_on_mapvals ON ns.set (mapvals_bin) numeric
         DROP INDEX <ns>[.<set>] <index>
         REPAIR INDEX <index> ON <ns>[.<set>]
 		DROP SET <ns>[.<set>]
@@ -55,6 +58,12 @@
         SELECT <bins> FROM <ns>[.<set>] WHERE <bin> = <value>
         SELECT <bins> FROM <ns>[.<set>] WHERE <bin> BETWEEN <lower> AND <upper>
         SELECT <bins> FROM <ns>[.<set>] WHERE PK = <key>
+        SELECT <bins> FROM <ns>[.<set>] IN LIST WHERE <bin> = <value>
+		SELECT <bins> FROM <ns>[.<set>] IN LIST WHERE <bin> BETWEEN <lower> AND <upper>
+        SELECT <bins> FROM <ns>[.<set>] IN MAPKEYS WHERE <bin> = <value>
+		SELECT <bins> FROM <ns>[.<set>] IN MAPKEYS <bin> BETWEEN <lower> AND <upper>
+		SELECT <bins> FROM <ns>[.<set>] IN MAPVALUES WHERE <bin> = <value>
+		SELECT <bins> FROM <ns>[.<set>] IN MAPVALUES <bin> BETWEEN <lower> AND <upper>
 
             <ns> is the namespace for the records to be queried.
             <set> is the set name for the record to be queried.
@@ -390,7 +399,7 @@ delete
 select 
 	: SELECT 
 	( STAR  
-	| binNameList) FROM nameSet where? 
+	| binNameList) (IN collectionType)? FROM nameSet where? 
 	{
 	definitions.add(VariableDefinition.READ_POLICY);
 	definitions.add(VariableDefinition.SCAN_POLICY);
@@ -399,7 +408,9 @@ select
 	}  	
 	;
 	
-
+collectionType
+	: LIST | MAPKEYS | MAPVALUES
+	;
 where
 	: WHERE predicate
 	;
@@ -740,14 +751,12 @@ bin
 	;
 	
 value //Generate
-	: integerValue | textValue | jsonValue
+	: integerValue 
+	| textValue 
 	;
 textValue //Generate
 	: STRINGLITERAL
 	;
-jsonValue 
-	: json=JSONLITERAL
-	;	
 
 integerValue //Generate
 	: INTLITERAL
@@ -890,6 +899,21 @@ EQ
 	: '='
 	;
 
+IN
+	: 'in'
+	;
+LIST
+	: 'list'
+	;
+	
+MAPKEYS
+	: 'mapkeys'
+	;
+	
+MAPVALUES
+	: 'mapvalues'
+	;
+	
 STAR
 	: '*'
 	;
@@ -961,17 +985,18 @@ FOR: 'for';
 
 IDENTIFIER : ( LETTER | UNDERSCORE )( LETTER| DIGIT | UNDERSCORE | HYPHEN)*;
 
-JSONLITERAL
-	: '\'JSON'  ( EscapeSequence | ~('\\'|'\'') )* '\'';
+//JSONARRAY
+//  :  'JSON' NestedBrackets ;
+//	
+//JSONOBJECT
+//	: 'JSON' NestedBraces;
 	    
 /**
 Single quote delimited string 
 e.g. 'cats' or 'cat\'s'
 */
 STRINGLITERAL
-    :   '\''
-    ( EscapeSequence | ~('\\'|'\'') )* 
-    '\''
+    :   '\'' ( EscapeSequence | ~('\\'|'\'') )* '\''
     ; 
 	
 FLOATLITERAL
@@ -989,7 +1014,13 @@ HEXLITERAL
 //PATHSEGMENT
 //  : (LETTER | DIGIT | '.' | '_')+
 //  ;
-
+//fragment NestedBrackets
+//  :  '[' ( NestedBrackets | ~']')* ']'
+//  ;
+//
+//fragment NestedBraces
+//  :  '{' ( NestedBraces | ~'}')* '}'
+//  ;
 
 fragment
 IntegerNumber

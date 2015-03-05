@@ -511,6 +511,15 @@ stringValue(value) ::= <<
 Value.get("<value>")
 >>
 
+jsonArrayValue(value) ::= <<
+Value.getAsList((JSONArray)JSONValue.parse("<value>")
+>>
+
+jsonObjectValue(value) ::= <<
+Value.getAsMap((JSONObject)JSONValue.parse("<value>")
+>>
+
+
 generationPredicate(generation) ::=<<
 writePolicy.generation = <generation>;
 writePolicy.generationPolicy = GenerationPolicy.EXPECT_GEN_EQUAL;

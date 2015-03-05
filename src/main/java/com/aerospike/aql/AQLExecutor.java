@@ -1,7 +1,10 @@
 package com.aerospike.aql;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,8 +15,8 @@ import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import com.aerospike.aql.IResultReporter.ViewFormat;
 import com.aerospike.aql.grammar.AQLBaseListener;
@@ -33,9 +36,9 @@ import com.aerospike.aql.grammar.AQLParser.ExecuteContext;
 import com.aerospike.aql.grammar.AQLParser.FilterPredicateContext;
 import com.aerospike.aql.grammar.AQLParser.GenerationPredicateContext;
 import com.aerospike.aql.grammar.AQLParser.GetContext;
+import com.aerospike.aql.grammar.AQLParser.HelpContext;
 import com.aerospike.aql.grammar.AQLParser.InsertContext;
 import com.aerospike.aql.grammar.AQLParser.IntegerValueContext;
-import com.aerospike.aql.grammar.AQLParser.JsonValueContext;
 import com.aerospike.aql.grammar.AQLParser.OperateContext;
 import com.aerospike.aql.grammar.AQLParser.OperateFunctionContext;
 import com.aerospike.aql.grammar.AQLParser.PrimaryKeyContext;
@@ -113,6 +116,7 @@ public class AQLExecutor extends AQLBaseListener {
 		infoPolicy = new InfoPolicy();
 		this.setTimeout(timeout);
 		this.setResultsReporter(reporter);
+		JSONParser jparser = new JSONParser();
 	}
  
 	private void setResultsReporter(IResultReporter reporter) {
@@ -128,13 +132,15 @@ public class AQLExecutor extends AQLBaseListener {
 	}
 
 	private void setTimeout(int timeout){
-		this.client.readPolicyDefault.timeout = timeout;
-		this.client.writePolicyDefault.timeout = timeout;
-		this.client.queryPolicyDefault.timeout = timeout;
-		this.client.scanPolicyDefault.timeout = timeout;
-		this.client.batchPolicyDefault.timeout = timeout;
-		this.adminPolicy.timeout = timeout;
-		this.infoPolicy.timeout = timeout;
+		if (this.client!=null){
+			this.client.readPolicyDefault.timeout = timeout;
+			this.client.writePolicyDefault.timeout = timeout;
+			this.client.queryPolicyDefault.timeout = timeout;
+			this.client.scanPolicyDefault.timeout = timeout;
+			this.client.batchPolicyDefault.timeout = timeout;
+			this.adminPolicy.timeout = timeout;
+			this.infoPolicy.timeout = timeout;
+		}
 	}
 	@Override
 	public void enterStatement(StatementContext ctx) {
@@ -667,6 +673,7 @@ public class AQLExecutor extends AQLBaseListener {
 					stat.put("value", parts[1]);
 					stats.add(stat);
 				}
+				@SuppressWarnings("unchecked")
 				Map<String,String>[] statsArray = new HashMap[stats.size()];
 				stats.toArray(statsArray); 
 				results.reportInfo(statsArray);
@@ -741,6 +748,22 @@ public class AQLExecutor extends AQLBaseListener {
 		
 		results.report("Exiting AQL...");
 		System.exit(0);
+	}
+	
+	@Override
+	public void exitHelp(HelpContext ctx)  {
+		try {
+			InputStream input = getClass().getResourceAsStream("/com/aerospike/aql/commands.txt");
+			BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+			StringBuilder out = new StringBuilder();
+			String line;
+			while ((line = reader.readLine()) != null) {
+				out.append(line).append("\n");
+			}
+			results.report(out.toString());
+		} catch (IOException e) {
+			log.error("Cannot read commant.txt", e);
+		}
 	}
 	
 	@Override
@@ -842,14 +865,20 @@ public class AQLExecutor extends AQLBaseListener {
 	}
 	@Override
 	public void exitTextValue(TextValueContext ctx) {
-		Value value = Value.get(makeValue(ctx.getText()));
+		String svalue = stripQuotes(ctx.getText());
+		Value value;
+		if (svalue.startsWith("JSON[")) {// make a list
+			JSONArray jObject = (JSONArray) JSONValue.parse(svalue.substring(4));
+			value = Value.getAsList(jObject);
+		} else if (svalue.startsWith("JSON{")){// make a map
+			JSONObject jObject = (JSONObject) JSONValue.parse(svalue.substring(4));
+			value = Value.getAsMap(jObject);
+		} else {
+			value = Value.get(svalue);
+		}
 		this.valueProperty.put(ctx, value);
 	}
-	@Override
-	public void exitJsonValue(JsonValueContext ctx) {
-		Value value = Value.get(makeValue(ctx.getText()));
-		this.valueProperty.put(ctx, value);
-	}
+
 	private Value makeValue(String valueText){
 		try {
 			long lvalue = Long.parseLong(valueText);
@@ -858,23 +887,7 @@ public class AQLExecutor extends AQLBaseListener {
 			//its a string
 		}
 		String svalue = stripQuotes(valueText);
-		if (svalue.startsWith("JSON")) {
-			JSONParser parser = new JSONParser();
-			try {
-				svalue = svalue.substring(4);
-				if (svalue.startsWith("[")) { //JSON Array
-					JSONArray jArray = (JSONArray) parser.parse(svalue);
-					return Value.getAsList(jArray);
-				} else { //JSON Object
-					JSONObject jObject = (JSONObject) parser.parse(svalue);
-					return Value.getAsMap(jObject);
-				}
-			} catch (ParseException e) {
-				throw new AQLException("Malformed JSON", e);
-			}
-		} else {
-			return Value.get(svalue);
-		}
+		return Value.get(svalue);
 	}
 
 	public static String stripQuotes(String inputString) {

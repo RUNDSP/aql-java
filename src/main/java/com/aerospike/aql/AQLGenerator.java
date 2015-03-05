@@ -480,8 +480,18 @@ public class AQLGenerator extends AQLBaseListener {
 	}
 	@Override
 	public void exitTextValue(TextValueContext ctx) {
-		ST st = getTemplateFor("stringValue");
-		st.add("value", stripQuotes(ctx.getText()));
+		String svalue = stripQuotes(ctx.getText());
+		ST st;
+		if (svalue.startsWith("JSON[")) {// make a list
+			st = getTemplateFor("jsonArrayValue");
+			svalue = svalue.substring(4);
+		} else if (svalue.startsWith("JSON{")){// make a map
+			st = getTemplateFor("jsonObjectValue");
+			svalue = svalue.substring(4);
+		} else {
+			st = getTemplateFor("stringValue");
+		}
+		st.add("value", svalue);
 		putCode(ctx, st);
 	}
 	@Override

@@ -9,6 +9,18 @@ import com.aerospike.aql.AQLGenerator.Language;
 public class AQL2GenerationTest {
 	
 	@Test
+	public void testJavaExecuteInsertMap() throws Exception {
+		AQL aql2 = new AQL();
+		String code = aql2.generate("INSERT INTO test.demo (PK, bn2, bn3, bn4, amap) VALUES ('test-select-map', 5, '2', 2, 'JSON{\"key\": 1}')", Language.JAVA);
+		System.out.println(code);
+	}
+	@Test
+	public void testJavaExecuteInsertList() throws Exception {
+		AQL aql2 = new AQL();
+		String code = aql2.generate("select * from test.demo where pk = 'test-select-list'", Language.JAVA);
+		System.out.println(code);
+	}
+	@Test
 	public void testKeyWords() throws Exception {
 		AQL aql2 = new AQL();
 		List<String> keyWords = aql2.getKeyWords();
