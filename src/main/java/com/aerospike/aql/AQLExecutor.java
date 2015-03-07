@@ -76,6 +76,7 @@ import com.aerospike.client.policy.InfoPolicy;
 import com.aerospike.client.policy.RecordExistsAction;
 import com.aerospike.client.policy.WritePolicy;
 import com.aerospike.client.query.Filter;
+import com.aerospike.client.query.IndexCollectionType;
 import com.aerospike.client.query.IndexType;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.ResultSet;
@@ -190,7 +191,17 @@ public class AQLExecutor extends AQLBaseListener {
 				String set = ctx.nameSet().setName;
 				String binName = ctx.binName.getText();
 				IndexType type = (ctx.iType.getText().equalsIgnoreCase("STRING")) ? IndexType.STRING : IndexType.NUMERIC;
-				IndexTask indexTask = client.createIndex(null, namespace, set, indexName, binName, type);
+				IndexCollectionType collectionType;
+				if (ctx.LIST() != null){
+					collectionType = IndexCollectionType.LIST;
+				} else if (ctx.MAPKEYS() != null){
+					collectionType = IndexCollectionType.MAPKEYS;
+				} else if (ctx.MAPVALUES() != null) {
+					collectionType = IndexCollectionType.MAPVALUES;
+				} else {
+					collectionType = IndexCollectionType.DEFAULT;
+				}
+				IndexTask indexTask = client.createIndex(null, namespace, set, indexName, binName, type, collectionType);
 				indexTask.waitTillComplete(10);
 				results.report(String.format("Index %s created", indexName));
 			} else if (ctx.USER() != null) { // its a user

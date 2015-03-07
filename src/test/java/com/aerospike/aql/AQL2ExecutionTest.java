@@ -1,13 +1,17 @@
 package com.aerospike.aql;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 
 import org.junit.Test;
 
-import com.aerospike.aql.AQLGenerator.Language;
 import com.aerospike.client.AerospikeClient;
+import com.aerospike.client.ResultCode;
+import com.aerospike.client.query.RecordSet;
 
 public class AQL2ExecutionTest {
 	private AerospikeClient client = new AerospikeClient("127.0.0.1", 3000);
+	
 	@Test
 	public void testJavaExecuteInsertMap() throws Exception {
 		AQL aql2 = new AQL(client, 20);
@@ -26,10 +30,61 @@ public class AQL2ExecutionTest {
 	@Test
 	public void testJavaExecuteSelectOne() throws Exception {
 		AQL aql2 = new AQL(client, 20);
-		aql2.execute("delete from test.demo where pk = 'test-select'");
-		aql2.execute("INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('test-select', 5, '2', 2)");
-		aql2.execute("select * from test.demo where pk = 'test-select'");
+		AQLExecutor ex = aql2.execute("delete from test.demo where pk = 'test-select'");
+		aql2.execute("INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('test-select', 5, '2', 2)", ex);
+		aql2.execute("select * from test.demo where pk = 'test-select'", ex);
 	}
+	@Test
+	public void testJavaExecuteCreateMapKeysIndex() throws Exception {
+		AQL aql2 = new AQL(client, 20);
+		GenericResult result = aql2.go("CREATE MAPKEYS INDEX index_on_mapkeys ON test.demo (amap) string");
+		assertTrue(result.resultCode == ResultCode.OK);
+	}
+	@Test
+	public void testJavaExecuteCreateMapValuesIndex() throws Exception {
+		AQL aql2 = new AQL(client, 20);
+		GenericResult result = aql2.go("CREATE MAPVALUES INDEX index_on_valuess ON test.demo (amap) string");
+		assertTrue(result.resultCode == ResultCode.OK);
+	}
+	@Test
+	public void testJavaExecuteCreateListIndex() throws Exception {
+		AQL aql2 = new AQL(client, 20);
+		GenericResult result = aql2.go("CREATE LIST INDEX index_on_list_numeric ON test.demo (alist) numeric");
+		assertTrue(result.resultCode == ResultCode.OK);
+		
+	}
+	@Test
+	public void testJavaExecuteSelectMapKeys() throws Exception {
+		AQL aql2 = new AQL(client, 20);
+		GenericResult result = aql2.go("delete from test.demo where pk = 'test-select-list2'");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.go("CREATE MAPKEYS INDEX index_on_mapkeys ON test.demo (amap) string");
+		assertTrue(result.resultCode == ResultCode.OK);
+		aql2.go("INSERT INTO test.demo (PK, bn2, bn3, bn4, amap) VALUES ('test-select-map', 5, '2', 2, 'JSON{\"first\": 123, \"second\": [4, 5, 6], \"third\": 789}')");
+		result = aql2.go("select * in mapkeys from test.demo where amap = 'first'");
+		RecordSet recSet = result.recordSet;
+		while (recSet.next()){
+			System.out.println(recSet.getRecord());
+		}
+	}
+	
+	@Test
+	public void testJavaExecuteSelectList() throws Exception {
+		AQL aql2 = new AQL(client, 20);
+		GenericResult result = aql2.go("delete from test.demo where pk = 'test-select-mapkeys2'");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.go("CREATE LIST INDEX index_on_list_numeric ON test.demo (alist) numeric");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.go("INSERT INTO test.demo (PK, bn2, bn3, bn4, alist) VALUES ('test-select-list2', 5, '2', 2, 'JSON[12,43,67,123,765, 25,100,9,562,345,7856,2]')");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.go("select *  in list from test.demo where alist between 100 and 1000");
+		assertTrue(result.resultCode == ResultCode.OK);
+		RecordSet recSet = result.recordSet;
+		while (recSet.next()){
+			System.out.println(recSet.getRecord());
+		}
+	}
+	
 	@Test
 	public void testJavaExecuteSelectAll() throws Exception {
 		AQL aql2 = new AQL(client, 20);

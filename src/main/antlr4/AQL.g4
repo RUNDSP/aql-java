@@ -266,7 +266,7 @@ CREATE INDEX <index> ON <ns>[.<set>] (<bin>) NUMERIC|STRING
 */
 create
 	: 
-	CREATE (INDEX index_name ON nameSet
+	CREATE ((LIST | MAPVALUES | MAPKEYS)? INDEX index_name ON nameSet
 		'(' binName=bin ')' iType=(NUMERIC | STRING) {definitions.add(VariableDefinition.INDEX_TASK);}
 		| USER  user PASSWORD password (ROLE role | ROLES roles*) {definitions.add(VariableDefinition.ADMIN_POLICY);}
 		)
@@ -411,6 +411,8 @@ select
 collectionType
 	: LIST | MAPKEYS | MAPVALUES
 	;
+
+
 where
 	: WHERE predicate
 	;
@@ -479,7 +481,7 @@ AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin = nnn
 AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin BETWEEN nnn AND mmm
 */
 aggregate 
-	: AGGREGATE moduleFunction ('(' (valueList)? ')')? ON nameSet (where)?
+	: AGGREGATE moduleFunction ('(' (valueList)? ')')? ON nameSet (IN collectionType)? (where)?
 	{
 	definitions.add(VariableDefinition.QUERY_POLICY);
 	definitions.add(VariableDefinition.RESULT_SET);
