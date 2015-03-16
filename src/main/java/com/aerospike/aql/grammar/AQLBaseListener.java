@@ -3,6 +3,8 @@
 package com.aerospike.aql.grammar;
 import java.util.Set;
 import java.util.HashSet;
+import com.aerospike.client.admin.Privilege;
+import com.aerospike.client.admin.PrivilegeCode;
 
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -437,6 +439,19 @@ public class AQLBaseListener implements AQLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPrivilege(@NotNull AQLParser.PrivilegeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPrivilege(@NotNull AQLParser.PrivilegeContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterDelete(@NotNull AQLParser.DeleteContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -678,6 +693,19 @@ public class AQLBaseListener implements AQLListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBinNameList(@NotNull AQLParser.BinNameListContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDotPath(@NotNull AQLParser.DotPathContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDotPath(@NotNull AQLParser.DotPathContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

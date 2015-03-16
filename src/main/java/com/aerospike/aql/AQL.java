@@ -48,7 +48,6 @@ public class AQL {
 	public AQL() {
 		super();
 		setResultsReporter(null); // Default
-		errorListener = new ErrorListener(this.errorReporter);
 	}
 
 	public AQL(AerospikeClient client, int timeout){
@@ -62,10 +61,16 @@ public class AQL {
 		this.errorListener = new ErrorListener(this.errorReporter);
 	}
 	
+	public int getErrors(){
+		return this.errorReporter.getErrors();
+	}
+	
 	public void setResultsReporter(IResultReporter resultsReporter){
 		if (resultsReporter == null)
 			try {
-				this.resultReporter = new AQLConsole();
+				AQLConsole console = new AQLConsole();
+				this.resultReporter = console;
+				setErrorReporter(console);
 			} catch (IOException e) {
 				throw new AQLException("Cannot create console", e);
 			}
@@ -81,7 +86,7 @@ public class AQL {
 
 	private ParseTree compile(CommonTokenStream tokens){
 		AQLParser parser = new AQLParser(tokens);
-		if (errorListener != null)
+//		if (errorListener != null)
 			parser.addErrorListener(errorListener);
 		ParseTree tree = parser.aql();
 		return tree;
@@ -110,7 +115,7 @@ public class AQL {
 
 	private AQLExecutor execute(CommonTokenStream tokens, AQLExecutor executor){
 		AQLParser parser = new AQLParser(tokens);
-		if (errorListener != null)
+		//if (errorListener != null)
 			parser.addErrorListener(errorListener);
 		ParseTree tree = parser.aql();
 		if (executor == null)
@@ -251,14 +256,11 @@ public class AQL {
 	}
 
 
-	public List<String> getKeyWords(){
+	public static List<String> getKeyWords(){
 		List<String> keyWords = new ArrayList<String>();
 
-		URL url;
 		try {
-			url = new URL("/com/aerospike/aql/grammar/AQL.tokens");
-			URLConnection conn = url.openConnection();
-			InputStream inputStream = conn.getInputStream();
+			InputStream inputStream = AQL.class.getResourceAsStream("/com/aerospike/aql/grammar/AQL.tokens"); 
 			BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
 			String inputLine;
 

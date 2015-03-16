@@ -3,6 +3,8 @@
 package com.aerospike.aql.grammar;
 import java.util.Set;
 import java.util.HashSet;
+import com.aerospike.client.admin.Privilege;
+import com.aerospike.client.admin.PrivilegeCode;
 
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
@@ -365,6 +367,17 @@ public interface AQLListener extends ParseTreeListener {
 	void exitStatements(@NotNull AQLParser.StatementsContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link AQLParser#privilege}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrivilege(@NotNull AQLParser.PrivilegeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AQLParser#privilege}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrivilege(@NotNull AQLParser.PrivilegeContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link AQLParser#delete}.
 	 * @param ctx the parse tree
 	 */
@@ -572,6 +585,17 @@ public interface AQLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBinNameList(@NotNull AQLParser.BinNameListContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link AQLParser#dotPath}.
+	 * @param ctx the parse tree
+	 */
+	void enterDotPath(@NotNull AQLParser.DotPathContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AQLParser#dotPath}.
+	 * @param ctx the parse tree
+	 */
+	void exitDotPath(@NotNull AQLParser.DotPathContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link AQLParser#collectionType}.

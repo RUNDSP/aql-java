@@ -4,6 +4,7 @@
 	<groupId>com.aerospike</groupId>
 	<artifactId>aql2</artifactId>
 	<packaging>jar</packaging>
+	<version>2.0.0</version>
 
 	<name>aql2</name>
 	<organization>
@@ -211,5 +212,4 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
-	<version>1.0.0</version>
 </project>

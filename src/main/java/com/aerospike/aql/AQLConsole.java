@@ -16,6 +16,7 @@ import jline.console.ConsoleReader;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import com.aerospike.aql.grammar.IErrorReporter;
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Key;
 import com.aerospike.client.Log.Level;
@@ -23,28 +24,20 @@ import com.aerospike.client.Record;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.ResultSet;
 
-public class AQLConsole implements IResultReporter {
+public class AQLConsole implements IResultReporter, IErrorReporter {
 	boolean cancelled = false;
 	int errors = 0;
 	private ViewFormat format = ViewFormat.TABLE;
-	//Console systemConsole = System.console();
-	//boolean useSystemConsole = false;
 	ConsoleReader console;
 	Object lastResult = null;
 	enum Orientation { VERTICAL, HORIZONTAL };
 	
 	public AQLConsole() throws IOException {
-		//this.useSystemConsole = (this.systemConsole != null);
 		console = new ConsoleReader();
 		console.setPrompt("aql2> ");
         	}
 
 	public void printf(String message, Object... args){
-//		if (useSystemConsole)
-//			systemConsole.printf(message, args);
-//		else {
-//			System.out.printf(message, args);
-//		}
 		try {
 			console.print(String.format(message, args));
 		} catch (IOException e) {
@@ -53,11 +46,6 @@ public class AQLConsole implements IResultReporter {
 	}
 
 	public void print(String message){
-//		if (useSystemConsole)
-//			systemConsole.printf(message);
-//		else {
-//			System.out.print(message);
-//		}
 		try {
 			console.print(message);
 		} catch (IOException e) {
@@ -66,11 +54,6 @@ public class AQLConsole implements IResultReporter {
 	}
 
 	public void println(){
-//		if (useSystemConsole)
-//			systemConsole.printf("\n");
-//		else {
-//			System.out.println();
-//		}
 		try {
 			console.println();
 		} catch (IOException e) {
@@ -79,11 +62,6 @@ public class AQLConsole implements IResultReporter {
 	}
 	
 	public void println(Object object){
-//		if (useSystemConsole)
-//			systemConsole.printf(object.toString() + "\n");
-//		else {
-//			System.out.println(object.toString());
-//		}
 		try {
 			console.println(object.toString());
 		} catch (IOException e) {
@@ -92,11 +70,6 @@ public class AQLConsole implements IResultReporter {
 	}
 	
 	public void println(String message, Object... args){
-//		if (useSystemConsole)
-//			systemConsole.printf(message + "\n", args);
-//		else {
-//			System.out.println(String.format(message, args));
-//		}
 		try {
 			console.println(String.format(message, args));
 		} catch (IOException e) {
@@ -106,18 +79,6 @@ public class AQLConsole implements IResultReporter {
 
 
 	public String readLine(){
-		//		if (useSystemConsole)
-		//			return systemConsole.readLine();
-		//		else {
-		//			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-		//			String line = "";
-		//			try {
-		//				line = bufferedReader.readLine();
-		//			} catch (IOException e) {
-		//				e.printStackTrace();
-		//			}
-		//			return line;
-		//		}
 		String line = null;
 		try {
 			while ((line = console.readLine()) != null) {
@@ -623,8 +584,8 @@ public class AQLConsole implements IResultReporter {
 
 	@Override
 	public void report(AerospikeException e) {
+		errors++;
 		println(String.format("Aerospike %s", e.getMessage()));
-		//e.printStackTrace();
 		
 	}
 
@@ -698,6 +659,17 @@ public class AQLConsole implements IResultReporter {
 			return null;
 		}
 		
+	}
+
+	@Override
+	public void reportError(int line, int charStart, int charEnd, String message) {
+		this.errors++;
+		this.report(String.format("Error on line %d, at %d: %s", line, charStart, message));
+	}
+
+	@Override
+	public int getErrors() {
+		return this.errors;
 	}
 
 

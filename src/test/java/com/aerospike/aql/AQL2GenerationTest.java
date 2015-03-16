@@ -1,13 +1,35 @@
 package com.aerospike.aql;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.util.List;
 
 import org.junit.Test;
 
 import com.aerospike.aql.AQLGenerator.Language;
+import com.aerospike.client.ResultCode;
+import com.aerospike.client.query.RecordSet;
 
 public class AQL2GenerationTest {
 	
+	@Test
+	public void testJavaGenerationCreateMapKeysINdex() throws Exception {
+		AQL aql2 = new AQL();
+		String code = aql2.generate("CREATE MAPKEYS INDEX index_on_mapkeys ON test.demo (amap) string", Language.JAVA);
+		System.out.println(code);
+	}
+	@Test
+	public void testJavaGenerationInsertMap() throws Exception {
+		AQL aql2 = new AQL();
+		String code = aql2.generate("INSERT INTO test.demo (PK, bn2, bn3, bn4, amap) VALUES ('test-select-map', 5, '2', 2, 'JSON{\"first\": 123, \"second\": [4, 5, 6], \"third\": 789}')", Language.JAVA);
+		System.out.println(code);
+	}
+	@Test
+	public void testJavaGenerationSelectMapKeys() throws Exception {
+		AQL aql2 = new AQL();
+		String code = aql2.generate("select * in mapkeys from test.demo where amap = 'first'", Language.JAVA);
+		System.out.println(code);
+	}
 	@Test
 	public void testJavaExecuteInsertMap() throws Exception {
 		AQL aql2 = new AQL();

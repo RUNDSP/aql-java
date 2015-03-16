@@ -5,6 +5,8 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -50,6 +52,7 @@ import com.aerospike.aql.grammar.AQLParser.TextValueContext;
 import com.aerospike.aql.grammar.AQLParser.UpdateContext;
 import com.aerospike.aql.grammar.AQLParser.ValueContext;
 import com.aerospike.aql.grammar.AQLParser.VariableDefinition;
+import com.aerospike.client.query.IndexCollectionType;
 
 
 public class AQLGenerator extends AQLBaseListener {
@@ -62,6 +65,7 @@ public class AQLGenerator extends AQLBaseListener {
 	private String name;
 	private String host;
 	private int port;
+	private Pattern quotefixer = Pattern.compile("\"");
 
 	public enum Language {
 		C, CSHARP, JAVA, PYTHON, GO, PHP, NODE, RUBY;
@@ -112,7 +116,7 @@ public class AQLGenerator extends AQLBaseListener {
 	public void exitStatement(StatementContext ctx) {
 		code.put(ctx, code.get(ctx.getChild(0)));
 	}
-	
+
 	@Override
 	public void exitConnect(ConnectContext ctx) {
 		ST st = getTemplateFor("connect");
@@ -121,14 +125,14 @@ public class AQLGenerator extends AQLBaseListener {
 		st.add("port", ctx.port.getText());
 		putCode(ctx, st);
 	}
-	
+
 	@Override
 	public void exitDisconnect(DisconnectContext ctx) {
 		ST st = getTemplateFor("disconnect");
 		st.add("source", ((StatementContext)ctx.getParent()).source);
 		putCode(ctx, st);
 	}
-	
+
 	@Override
 	public void exitCreate(CreateContext ctx) {
 		if (ctx.INDEX() != null){
@@ -139,6 +143,17 @@ public class AQLGenerator extends AQLBaseListener {
 			st.add("setName", ctx.nameSet().set_name().getText());
 			st.add("type", ctx.iType.getText().toUpperCase());
 			st.add("binName", ctx.binName.getText());
+			IndexCollectionType collectionType;
+			if (ctx.LIST() != null){
+				collectionType = IndexCollectionType.LIST;
+			} else if (ctx.MAPKEYS() != null){
+				collectionType = IndexCollectionType.MAPKEYS;
+			} else if (ctx.MAPVALUES() != null) {
+				collectionType = IndexCollectionType.MAPVALUES;
+			} else {
+				collectionType = IndexCollectionType.DEFAULT;
+			}
+			st.add("collectionType", collectionType.toString());
 			putCode(ctx, st);
 		} else { //it's a user
 			ST st = getTemplateFor("createUser");
@@ -170,8 +185,12 @@ public class AQLGenerator extends AQLBaseListener {
 		}
 		st.add("module", ctx.moduleFunction().packageName.getText());
 		st.add("udf", ctx.moduleFunction().functionName.getText());
-		for (ParseTree value : ctx.valueList().children){
-			st.add("arguments", code.get(value));
+		if (ctx.valueList() != null){
+			for (ParseTree value : ctx.valueList().children){
+				st.add("arguments", code.get(value));
+			}
+		} else {
+			st.add("arguments", null);
 		}
 		putCode(ctx, st);
 	}
@@ -249,7 +268,7 @@ public class AQLGenerator extends AQLBaseListener {
 		st.add("source", ((StatementContext)ctx.getParent()).source);
 		putCode(ctx, st);
 	}
-	
+
 	@Override
 	public void exitAggregate(AggregateContext ctx) {
 		ST st = getTemplateFor("aggregate");
@@ -264,7 +283,7 @@ public class AQLGenerator extends AQLBaseListener {
 			st.add("where", code.get(ctx.where().predicate().filterPredicate()));
 		putCode(ctx, st);
 	}
-	
+
 	@Override
 	public void exitOperate(OperateContext ctx) {
 		ST st = getTemplateFor("operateStatement");
@@ -395,7 +414,7 @@ public class AQLGenerator extends AQLBaseListener {
 
 		putCode(ctx, st);
 	}
-	
+
 	@Override
 	public void exitSet(SetContext ctx) {
 		ST st = null;
@@ -425,7 +444,7 @@ public class AQLGenerator extends AQLBaseListener {
 		st.add("source", ((StatementContext)ctx.getParent()).source);
 		putCode(ctx, st);
 	}
-	
+
 	@Override
 	public void exitGet(GetContext ctx) {
 		ST st = null;
@@ -445,7 +464,7 @@ public class AQLGenerator extends AQLBaseListener {
 		st.add("source", ((StatementContext)ctx.getParent()).source);
 		putCode(ctx, st);
 	}
-	
+
 	@Override
 	public void exitKill(KillContext ctx) {
 		ST st = null;
@@ -463,7 +482,10 @@ public class AQLGenerator extends AQLBaseListener {
 	public void exitPrint(PrintContext ctx) {
 		ST st = getTemplateFor("print");
 		st.add("source", ((StatementContext)ctx.getParent()).source);
-		st.add("value", stripQuotes(ctx.STRINGLITERAL().getText()));
+		if (ctx.STRINGLITERAL() != null)
+			st.add("value", stripQuotes(ctx.STRINGLITERAL().getText()));
+		else 
+			st.add("value", "");
 		putCode(ctx, st);
 	}
 
@@ -484,15 +506,20 @@ public class AQLGenerator extends AQLBaseListener {
 		ST st;
 		if (svalue.startsWith("JSON[")) {// make a list
 			st = getTemplateFor("jsonArrayValue");
-			svalue = svalue.substring(4);
+			st.add("value", escapeJsonString(svalue.substring(4)));
 		} else if (svalue.startsWith("JSON{")){// make a map
 			st = getTemplateFor("jsonObjectValue");
-			svalue = svalue.substring(4);
-		} else {
+			st.add("value", escapeJsonString(svalue.substring(4)));
+		} else { // assume its a string
 			st = getTemplateFor("stringValue");
+			st.add("value", svalue);
 		}
-		st.add("value", svalue);
 		putCode(ctx, st);
+	}
+	private String escapeJsonString(String json){
+		
+		String escapedString = quotefixer.matcher(json).replaceAll("\\\\\""); //json.replaceAll("\"", "\\\"");
+		return escapedString;
 	}
 	@Override
 	public void exitPrimaryKey(PrimaryKeyContext ctx) {
@@ -521,7 +548,7 @@ public class AQLGenerator extends AQLBaseListener {
 		st.add("value", code.get(ctx.binValue().value()));
 		putCode(ctx, st);
 	}
-	
+
 	@Override
 	public void exitRangeFilter(RangeFilterContext ctx) {
 		ST st = getTemplateFor("filterRange");
@@ -530,7 +557,7 @@ public class AQLGenerator extends AQLBaseListener {
 		st.add("high", code.get(ctx.high));
 		putCode(ctx, st);
 	}
-	
+
 	@Override
 	public void exitGenerationPredicate(GenerationPredicateContext ctx) {
 		ST st = getTemplateFor("generationPredicate");
@@ -599,7 +626,7 @@ public class AQLGenerator extends AQLBaseListener {
 		case INFO_STRING:
 			st = templates.getInstanceOf("infoMessage");
 			break;
-			
+
 		}
 		return st;
 	}

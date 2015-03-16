@@ -4,6 +4,9 @@ import gnu.crypto.util.Base64;
 
 import java.io.File;
 
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+
 import com.aerospike.client.AerospikeClient;
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Bin;
@@ -24,6 +27,7 @@ import com.aerospike.client.policy.ScanPolicy;
 import com.aerospike.client.policy.RecordExistsAction;
 import com.aerospike.client.policy.GenerationPolicy;
 import com.aerospike.client.query.Filter;
+import com.aerospike.client.query.IndexCollectionType;
 import com.aerospike.client.query.IndexType;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.ResultSet;
@@ -177,6 +181,11 @@ RegisterTask task =	null;
 
 >>
 
+infoMessage()::=<<
+String infoResult =	null;
+
+>>
+
 indexTask()::=<<
 IndexTask indexTask = null;
 
@@ -313,9 +322,9 @@ client.dropUser(adminPolicy, "<user>");
 
 
 
-create(source, indexName, nameSpace, setName, binName, type) ::= <<
+create(source, indexName, nameSpace, setName, binName, type, collectionType) ::= <<
 /* <source> */
-indexTask = client.createIndex(policy, "<nameSpace>", "<setName>", "<indexName>", "<binName>", IndexType.<type>);
+indexTask = client.createIndex(policy, "<nameSpace>", "<setName>", "<indexName>", "<binName>", IndexType.<type>, IndexCollectionType.<collectionType>);
 indexTask.waitTillComplete(10);
 				
 >>
@@ -372,7 +381,7 @@ String[] infoResults = infoAll("set-config:context=namespace;id=<namespace>;set=
 execute(source, nameSpace, nameSpace, setName, key, module, udf, arguments) ::= <<
 /* <source> */
 <if(key)>
-client.execute(policy, <key>, "<module>", "<udf>"<if(arguments)><arguments:{z|, <z>}><endif>);
+client.execute(null, <key>, "<module>", "<udf>"<if(arguments)><arguments:{z|, <z>}><endif>);
 <else>
 stmt = new Statement();
 stmt.setNamespace("<nameSpace>");
@@ -512,11 +521,11 @@ Value.get("<value>")
 >>
 
 jsonArrayValue(value) ::= <<
-Value.getAsList((JSONArray)JSONValue.parse("<value>")
+Value.getAsList((JSONArray)JSONValue.parse("<value>"))
 >>
 
 jsonObjectValue(value) ::= <<
-Value.getAsMap((JSONObject)JSONValue.parse("<value>")
+Value.getAsMap((JSONObject)JSONValue.parse("<value>"))
 >>
 
 

@@ -174,6 +174,8 @@ options {
 package com.aerospike.aql.grammar;
 import java.util.Set;
 import java.util.HashSet;
+import com.aerospike.client.admin.Privilege;
+import com.aerospike.client.admin.PrivilegeCode;
 }
 
 @members {
@@ -266,13 +268,12 @@ CREATE INDEX <index> ON <ns>[.<set>] (<bin>) NUMERIC|STRING
 */
 create
 	: 
-	CREATE ((LIST | MAPVALUES | MAPKEYS)? INDEX index_name ON nameSet
+	CREATE ((LIST | MAPVALUES | MAPKEYS)? INDEX index_name ON nameSet {definitions.add(VariableDefinition.WRITE_POLICY);} 
 		'(' binName=bin ')' iType=(NUMERIC | STRING) {definitions.add(VariableDefinition.INDEX_TASK);}
 		| USER  user PASSWORD password (ROLE role | ROLES roles*) {definitions.add(VariableDefinition.ADMIN_POLICY);}
+		| ROLE  role (PRIVILEGE | PRIVILEGES) privilege* {definitions.add(VariableDefinition.ADMIN_POLICY);}
 		)
-	{
-  	definitions.add(VariableDefinition.WRITE_POLICY);
-	} 
+	
 	;
 	
 	
@@ -288,6 +289,7 @@ drop
 	| MODULE moduleName 
 	| SET nameSet 
 	| USER user {definitions.add(VariableDefinition.ADMIN_POLICY);}
+	| ROLE role {definitions.add(VariableDefinition.ADMIN_POLICY);}
 	)
 	;
 /**
@@ -299,17 +301,15 @@ repair
 	
 grant
 	: GRANT 
-		(ROLES roles 
-		| ROLE role
-		) TO user
+		(ROLES roles | ROLE role) TO user 
+		| (PRIVILEGE privilege | PRIVILEGES privilege+) TO role
 		{definitions.add(VariableDefinition.ADMIN_POLICY);}
 	;	
 
 revoke
 	: REVOKE 
-		(ROLES roles
-		| ROLE role 
-		) FROM user
+		(ROLES roles | ROLE role ) FROM user
+		| (PRIVILEGE privilege | PRIVILEGES privilege+) FROM role
 		{definitions.add(VariableDefinition.ADMIN_POLICY);}
 	;
 	
@@ -325,12 +325,41 @@ password
 roles
 	: role (',' role)*
 	;
-		
+
 role
-	: 'read'
-	| 'read-write'
+	: IDENTIFIER
+	;
+			
+privilege returns [com.aerospike.client.admin.Privilege priv]
+@init{$priv = new Privilege();}
+	: ('read' 
+		{
+			$priv.code = PrivilegeCode.READ;
+		}
+		
+	| 'read-write' ('.' nameSet)?
+		{
+			$priv.code = PrivilegeCode.READ_WRITE;
+		}
+	| 'read-write-udf' ('.' nameSet)?
+		{
+			$priv.code = PrivilegeCode.READ_WRITE_UDF;
+		}
+		)
+		('.' nameSet
+		{
+			$priv.namespace = $nameSet.namespaceName;
+			$priv.setName = $nameSet.setName;
+		})? 
+		
 	| 'sys-admin'
+		{
+			$priv.code = PrivilegeCode.READ_WRITE_UDF;
+		}
 	| 'user-admin'
+		{
+			$priv.code = PrivilegeCode.READ_WRITE_UDF;
+		}
 	;
 	
 remove 
@@ -356,8 +385,8 @@ DML:
 INSERT INTO namespace[.setname] (PK,binnames,,,) VALUES ('pk',nnn,'xxx',,)
 */
 insert 
-	: INSERT INTO nameSet '(' PK (',' binNameList) ')'
-		VALUES '(' primaryKey[$statement::nameSpace, $statement::setName] (',' valueList) ')' 
+	: INSERT INTO nameSet '(' PK ',' binNameList ')'
+		VALUES '(' primaryKey[$statement::nameSpace, $statement::setName] ',' valueList ')' 
 	{
 		definitions.add(VariableDefinition.WRITE_POLICY);
 	}  	
@@ -428,15 +457,14 @@ operateFunction
 	| HEADER
 	;
 	
-nameSet 
-locals [String namespaceName, String setName]
+nameSet returns [String namespaceName, String setName]
+//locals [String namespaceName, String setName]
 @after{
 	$statement::nameSpace = $namespaceName;
 	$statement::setName = $setName;
 }
 	: namespace_name {$namespaceName = $namespace_name.text;}
 	('.' set_name {$setName = $set_name.text;})?
-	
 	;
 
 /*
@@ -751,7 +779,10 @@ bin
 		if ($binName.text.length() > 14) notifyErrorListeners("Bin name exceeds 14 characters");
 	}
 	;
-	
+dotPath
+	: path=IDENTIFIER ('.' path=IDENTIFIER)*
+	;
+		
 value //Generate
 	: integerValue 
 	| textValue 
@@ -791,167 +822,59 @@ DISCONNECT: 'disconnect';
 DESC: 'desc';
 INSERT: 'insert';
 SELECT: 'select';
-DELETE
-	: 'delete'
-	;
-CREATE
-	: 'create'
-	;
-INDEX
-	: 'index'
-	;
-EXECUTE
-	: 'execute'
-	;
-WHERE
-	: 'where'
-	;
-SHOW
-	: 'show'
-	;
-DROP
-	: 'drop'
-	;
-INDEXES
- 	:	'indexes'
-	;
-VALUES
-	: 'values'
-	;
-SET
-	:	'set'
-	;
-GET
-	:	'get'
-	;
-MODULE
-	: 'module'
-	;
-ON
-	:	'on'
-	;
-OPERATE
-	: 'operate'
-	;
-OUTPUT
-  	: 'output'
-  	;
-PACKAGES
-  : 'packages'
-  ;
-INTO
-	: 'into'
-	;
-FUNCTION
-  : 'function'
-  ;
-FROM
-	: 'from'
-	;
-BY
-	: 'by'
-	;
-AND
-	: 'and'
-	;
-BETWEEN
-	: 'between'
-	;
-RUN
-	: 'run'
-	;
-STAT
-	: 'stat'
-	;
-QUERY
-	: 'query'
-	;
-SCAN
-	: 'scan'
-	;
-TIMEOUT
-	: 'timeout'
-	;
-QUIT
-	: 'quit'
-	;
-EXIT
-	: 'exit'
-	;
-KILL
-	: 'kill'
-	;
-KILL_QUERY
-	: 'kill_query'
-	;
-KILL_SCAN
-	: 'kill_scan'
-	;
-PK 
-	: 'pk'
-	;
-STRING
-	: 'string'
-	;
-NUMERIC
-	: 'numeric'
-	;
-	
-EQ
-	: '='
-	;
-
-IN
-	: 'in'
-	;
-LIST
-	: 'list'
-	;
-	
-MAPKEYS
-	: 'mapkeys'
-	;
-	
-MAPVALUES
-	: 'mapvalues'
-	;
-	
-STAR
-	: '*'
-	;
-REGISTER 
-	: 'register'
-	;
-REMOVE
-	: 'remove'
-	;
-AGGREGATE
-	: 'aggregate'
-	;
-MODULES
-	: 'modules'
-	;
-NAMESPACES
-	:	'namespaces'
-	;
-SETS
-	:	'sets'
-	;
-BINS
-	: 'bins'
-	;
-SCANS
-	: 'scans'
-	;
-QUERIES
-	:	'queries'
-	;
-SYSTEM
-	: 'system'
-	;
-ORDER
-	: 'order'
-	;
+DELETE: 'delete';
+CREATE: 'create';
+INDEX: 'index';
+EXECUTE: 'execute';
+WHERE: 'where';
+SHOW: 'show';
+DROP: 'drop';
+INDEXES:	'indexes';
+VALUES: 'values';
+SET:	'set';
+GET:	'get';
+MODULE: 'module';
+ON:	'on';
+OPERATE: 'operate';
+OUTPUT: 'output';
+PRIVILEGE: 'privilege';
+PRIVILEGES: 'privileges';
+INTO: 'into';
+FUNCTION: 'function';
+FROM: 'from';
+BY: 'by';
+AND: 'and';
+BETWEEN: 'between';
+RUN: 'run';
+STAT: 'stat';
+QUERY: 'query';
+SCAN: 'scan';
+TIMEOUT: 'timeout';
+QUIT: 'quit';
+EXIT: 'exit';
+KILL: 'kill';
+KILL_QUERY: 'kill_query';
+KILL_SCAN: 'kill_scan';
+PK : 'pk';
+STRING: 'string';
+NUMERIC: 'numeric';
+EQ: '=';
+IN: 'in';
+LIST: 'list';
+MAPKEYS: 'mapkeys';
+MAPVALUES: 'mapvalues';
+STAR: '*';
+REGISTER : 'register';
+REMOVE: 'remove';
+AGGREGATE: 'aggregate';
+MODULES: 'modules';
+NAMESPACES:	'namespaces';
+SETS:	'sets';
+BINS: 'bins';
+SCANS: 'scans';
+QUERIES:	'queries';
+SYSTEM: 'system';
+ORDER: 'order';
 PRINT : 'print';
 UPDATE : 'update';
 VERBOSE : 'verbose'; 
@@ -987,12 +910,6 @@ FOR: 'for';
 
 IDENTIFIER : ( LETTER | UNDERSCORE )( LETTER| DIGIT | UNDERSCORE | HYPHEN)*;
 
-//JSONARRAY
-//  :  'JSON' NestedBrackets ;
-//	
-//JSONOBJECT
-//	: 'JSON' NestedBraces;
-	    
 /**
 Single quote delimited string 
 e.g. 'cats' or 'cat\'s'
@@ -1013,16 +930,6 @@ HEXLITERAL
   : HexPrefix HexDigit HexDigit
   ;
 
-//PATHSEGMENT
-//  : (LETTER | DIGIT | '.' | '_')+
-//  ;
-//fragment NestedBrackets
-//  :  '[' ( NestedBrackets | ~']')* ']'
-//  ;
-//
-//fragment NestedBraces
-//  :  '{' ( NestedBraces | ~'}')* '}'
-//  ;
 
 fragment
 IntegerNumber

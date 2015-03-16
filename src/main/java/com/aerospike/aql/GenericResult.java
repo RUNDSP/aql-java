@@ -31,6 +31,7 @@ public class GenericResult implements IResultReporter {
 	public void report(AerospikeException e) {
 		this.resultCode = e.getResultCode();
 		this.message = e.getMessage();
+		throw e;
 	}
 
 	@Override
@@ -150,7 +151,37 @@ public class GenericResult implements IResultReporter {
 		
 	}
 
+	public String getMessage() {
+		return message;
+	}
 
+	public Record getRecord() {
+		return record;
+	}
+
+	public RecordSet getRecordSet() {
+		return recordSet;
+	}
+
+	public ResultSet getResultSet() {
+		return resultSet;
+	}
+
+	public int getResultCode() {
+		return resultCode;
+	}
+
+	public Object getObject() {
+		return object;
+	}
+
+	public String getInfoMessage() {
+		return infoMessage;
+	}
+
+	public String[] getInforMessages() {
+		return inforMessages;
+	}
 
 
 }

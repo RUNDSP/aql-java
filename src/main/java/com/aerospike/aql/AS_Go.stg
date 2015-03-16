@@ -257,9 +257,9 @@ client.dropUser(adminPolicy, "<user>");
 
 
 
-create(source, indexName, nameSpace, setName, binName, type) ::= <<
+create(source, indexName, nameSpace, setName, binName, type, collectionType) ::= <<
 // <source>
-indexTask = client.CreateIndex(writePolicy, "<nameSpace>", "<setName>", "<indexName>", "<binName>", <type>);
+indexTask = client.CreateIndex(writePolicy, "<nameSpace>", "<setName>", "<indexName>", "<binName>", <type>, "<collectionType>");
 indexTask.waitTillComplete(10);
 				
 >>
@@ -451,6 +451,15 @@ NewValue(<value>)
 stringValue(value) ::= <<
 NewValue("<value>")
 >>
+
+jsonArrayValue(value) ::= <<
+NewValue("<value>")
+>>
+
+jsonObjectValue(value) ::= <<
+NewValue("<value>")
+>>
+
 
 generationPredicate(generation) ::=<<
 writePolicy.generation = <generation>
