@@ -13,7 +13,7 @@ public class ExecutionSelect extends AQLTest {
 	@Test
 	public void testSelectOnCluster() throws Exception {
 		System.out.println("----- testSelectOnCluster -----");
-		testFileExecution("SelectPK.aql");
+		testFileExecution("Select.aql");
 	}
 
 }
