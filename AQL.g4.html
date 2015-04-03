@@ -137,6 +137,14 @@ footer {
   <li><a href="#disconnect">disconnect</a></li>
   <li><a href="#create">create</a></li>
   <li><a href="#drop">drop</a></li>
+  <li><a href="#repair">repair</a></li>
+  <li><a href="#grant">grant</a></li>
+  <li><a href="#revoke">revoke</a></li>
+  <li><a href="#user">user</a></li>
+  <li><a href="#password">password</a></li>
+  <li><a href="#roles">roles</a></li>
+  <li><a href="#role">role</a></li>
+  <li><a href="#privilege">privilege</a></li>
   <li><a href="#remove">remove</a></li>
   <li><a href="#operate">operate</a></li>
   <li><a href="#insert">insert</a></li>
@@ -144,6 +152,8 @@ footer {
   <li><a href="#updateList">updateList</a></li>
   <li><a href="#delete">delete</a></li>
   <li><a href="#select">select</a></li>
+  <li><a href="#aggregate">aggregate</a></li>
+  <li><a href="#collectionType">collectionType</a></li>
   <li><a href="#where">where</a></li>
   <li><a href="#operateFunction">operateFunction</a></li>
   <li><a href="#nameSet">nameSet</a></li>
@@ -180,6 +190,7 @@ footer {
   <li><a href="#namespace_name">namespace_name</a></li>
   <li><a href="#set_name">set_name</a></li>
   <li><a href="#bin">bin</a></li>
+  <li><a href="#dotPath">dotPath</a></li>
   <li><a href="#value">value</a></li>
   <li><a href="#textValue">textValue</a></li>
   <li><a href="#integerValue">integerValue</a></li>
@@ -208,7 +219,8 @@ footer {
   <li><a href="#ON">ON</a></li>
   <li><a href="#OPERATE">OPERATE</a></li>
   <li><a href="#OUTPUT">OUTPUT</a></li>
-  <li><a href="#PACKAGES">PACKAGES</a></li>
+  <li><a href="#PRIVILEGE">PRIVILEGE</a></li>
+  <li><a href="#PRIVILEGES">PRIVILEGES</a></li>
   <li><a href="#INTO">INTO</a></li>
   <li><a href="#FUNCTION">FUNCTION</a></li>
   <li><a href="#FROM">FROM</a></li>
@@ -229,6 +241,10 @@ footer {
   <li><a href="#STRING">STRING</a></li>
   <li><a href="#NUMERIC">NUMERIC</a></li>
   <li><a href="#EQ">EQ</a></li>
+  <li><a href="#IN">IN</a></li>
+  <li><a href="#LIST">LIST</a></li>
+  <li><a href="#MAPKEYS">MAPKEYS</a></li>
+  <li><a href="#MAPVALUES">MAPVALUES</a></li>
   <li><a href="#STAR">STAR</a></li>
   <li><a href="#REGISTER">REGISTER</a></li>
   <li><a href="#REMOVE">REMOVE</a></li>
@@ -246,10 +262,30 @@ footer {
   <li><a href="#VERBOSE">VERBOSE</a></li>
   <li><a href="#ECHO">ECHO</a></li>
   <li><a href="#TTL">TTL</a></li>
-  <li><a href="#VIEW">VIEW</a></li>
   <li><a href="#USE_SMD">USE_SMD</a></li>
   <li><a href="#LUA_USER_PATH">LUA_USER_PATH</a></li>
   <li><a href="#LUA_SYSTEM_PATH">LUA_SYSTEM_PATH</a></li>
+  <li><a href="#ADD">ADD</a></li>
+  <li><a href="#PUT">PUT</a></li>
+  <li><a href="#APPEND">APPEND</a></li>
+  <li><a href="#PREPEND">PREPEND</a></li>
+  <li><a href="#TOUCH">TOUCH</a></li>
+  <li><a href="#HEADER">HEADER</a></li>
+  <li><a href="#LLIST">LLIST</a></li>
+  <li><a href="#LSTACK">LSTACK</a></li>
+  <li><a href="#LSET">LSET</a></li>
+  <li><a href="#LMAP">LMAP</a></li>
+  <li><a href="#USER">USER</a></li>
+  <li><a href="#USERS">USERS</a></li>
+  <li><a href="#PASSWORD">PASSWORD</a></li>
+  <li><a href="#ROLE">ROLE</a></li>
+  <li><a href="#ROLES">ROLES</a></li>
+  <li><a href="#GRANT">GRANT</a></li>
+  <li><a href="#REVOKE">REVOKE</a></li>
+  <li><a href="#TO">TO</a></li>
+  <li><a href="#FAIL_ON_CLUSTER_CHANGE">FAIL_ON_CLUSTER_CHANGE</a></li>
+  <li><a href="#REPAIR">REPAIR</a></li>
+  <li><a href="#FOR">FOR</a></li>
   <li><a href="#IDENTIFIER">IDENTIFIER</a></li>
   <li><a href="#STRINGLITERAL">STRINGLITERAL</a></li>
   <li><a href="#FLOATLITERAL">FLOATLITERAL</a></li>
@@ -317,7 +353,7 @@ footer {
   <div class="ebnf">
   <h4>Text notation:</h4>
   <div>
-    <span class="rule">statement</span> :  <a href="#connect" class="rule">connect</a>   <span class="operator">|</span> <a href="#disconnect" class="rule">disconnect</a>   <span class="operator">|</span> <a href="#create" class="rule">create</a>   <span class="operator">|</span> <a href="#drop" class="rule">drop</a>   <span class="operator">|</span> <a href="#remove" class="rule">remove</a>   <span class="operator">|</span> <a href="#insert" class="rule">insert</a>   <span class="operator">|</span> <a href="#update" class="rule">update</a>   <span class="operator">|</span> <a href="#delete" class="rule">delete</a>   <span class="operator">|</span> <a href="#select" class="rule">select</a>   <span class="operator">|</span> <a href="#register" class="rule">register</a>   <span class="operator">|</span> <a href="#execute" class="rule">execute</a>   <span class="operator">|</span> <a href="#aggregate" class="rule">aggregate</a>   <span class="operator">|</span> <a href="#operate" class="rule">operate</a>   <span class="operator">|</span> <a href="#show" class="rule">show</a>   <span class="operator">|</span> <a href="#desc" class="rule">desc</a>   <span class="operator">|</span> <a href="#stat" class="rule">stat</a>   <span class="operator">|</span> <a href="#set" class="rule">set</a>   <span class="operator">|</span> <a href="#get" class="rule">get</a>   <span class="operator">|</span> <a href="#run" class="rule">run</a>   <span class="operator">|</span> <a href="#kill" class="rule">kill</a>   <span class="operator">|</span> <a href="#quit" class="rule">quit</a>   <span class="operator">|</span> <a href="#help" class="rule">help</a> <span class="operator">|</span> <a href="#print" class="rule">print</a> ;
+    <span class="rule">statement</span> :  <a href="#insert" class="rule">insert</a>   <span class="operator">|</span> <a href="#update" class="rule">update</a>   <span class="operator">|</span> <a href="#delete" class="rule">delete</a>   <span class="operator">|</span> <a href="#select" class="rule">select</a>   <span class="operator">|</span> <a href="#execute" class="rule">execute</a>   <span class="operator">|</span> <a href="#operate" class="rule">operate</a>   <span class="operator">|</span> <a href="#aggregate" class="rule">aggregate</a>   <span class="operator">|</span> <a href="#connect" class="rule">connect</a>   <span class="operator">|</span> <a href="#disconnect" class="rule">disconnect</a>   <span class="operator">|</span> <a href="#create" class="rule">create</a>   <span class="operator">|</span> <a href="#drop" class="rule">drop</a>   <span class="operator">|</span> <a href="#repair" class="rule">repair</a> <span class="operator">|</span> <a href="#grant" class="rule">grant</a> <span class="operator">|</span> <a href="#revoke" class="rule">revoke</a> <span class="operator">|</span> <a href="#remove" class="rule">remove</a>   <span class="operator">|</span> <a href="#register" class="rule">register</a>   <span class="operator">|</span> <a href="#show" class="rule">show</a>   <span class="operator">|</span> <a href="#desc" class="rule">desc</a>   <span class="operator">|</span> <a href="#stat" class="rule">stat</a>   <span class="operator">|</span> <a href="#set" class="rule">set</a>   <span class="operator">|</span> <a href="#get" class="rule">get</a>   <span class="operator">|</span> <a href="#run" class="rule">run</a>   <span class="operator">|</span> <a href="#kill" class="rule">kill</a>   <span class="operator">|</span> <a href="#quit" class="rule">quit</a>   <span class="operator">|</span> <a href="#help" class="rule">help</a> <span class="operator">|</span> <a href="#print" class="rule">print</a> ;
   </div>
   </div>
   <div class="railroad">
@@ -329,14 +365,19 @@ footer {
   <h3>connect <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
   <div class="doc">
     <p>
+      CONNECTION
+      CONNECT <host name> <port> [<timeout>]
+      DISCONNECT
+      
+      <host name> address of a cluster node
+      <port> port for connection - default 3000
+      <timeout> client timeout
     </p>
   </div>
   <div class="ebnf">
   <h4>Text notation:</h4>
   <div>
-    <span class="rule">connect</span> :  <a href="#CONNECT" class="token">CONNECT</a> <a href="#hostName" class="rule">hostName</a><span class="operator">=</span><a href="#STRINGLITERAL" class="token">STRINGLITERAL</a> <a href="#port" class="rule">port</a><span class="operator">=</span><a href="#INTLITERAL" class="token">INTLITERAL</a> <span class="operator">{
-    		definitions.add(VariableDefinition.CLIENT);
-    	}</span> ;
+    <span class="rule">connect</span> :  <a href="#CONNECT" class="token">CONNECT</a> <a href="#hostName" class="rule">hostName</a><span class="operator">=</span><a href="#STRINGLITERAL" class="token">STRINGLITERAL</a> <a href="#port" class="rule">port</a><span class="operator">=</span><a href="#INTLITERAL" class="token">INTLITERAL</a> <span class="operator">(</span><a href="#timeout" class="rule">timeout</a><span class="operator">=</span><a href="#INTLITERAL" class="token">INTLITERAL</a><span class="operator">)</span><span class="operator">?</span> ;
   </div>
   </div>
   <div class="railroad">
@@ -365,16 +406,13 @@ footer {
   <h3>create <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
   <div class="doc">
     <p>
-      CREATE INDEX indexname ON namespace[.setname] (binname) NUMERIC|STRING
+      CREATE INDEX <index> ON <ns>[.<set>] (<bin>) NUMERIC|STRING
     </p>
   </div>
   <div class="ebnf">
   <h4>Text notation:</h4>
   <div>
-    <span class="rule">create</span> :  <a href="#CREATE" class="token">CREATE</a> <a href="#INDEX" class="token">INDEX</a> <a href="#index_name" class="rule">index_name</a> <a href="#ON" class="token">ON</a> <a href="#nameSet" class="rule">nameSet</a> <span class="literal">'('</span> <a href="#binName" class="rule">binName</a><span class="operator">=</span><a href="#bin" class="rule">bin</a> <span class="literal">')'</span> <a href="#iType" class="rule">iType</a><span class="operator">=</span><span class="operator">(</span><a href="#NUMERIC" class="token">NUMERIC</a> <span class="operator">|</span> <a href="#STRING" class="token">STRING</a><span class="operator">)</span> <span class="operator">{
-      	definitions.add(VariableDefinition.WRITE_POLICY);
-      	definitions.add(VariableDefinition.INDEX_TASK);
-    	}</span> ;
+    <span class="rule">create</span> :  <a href="#CREATE" class="token">CREATE</a> <span class="operator">(</span><span class="operator">(</span><a href="#LIST" class="token">LIST</a> <span class="operator">|</span> <a href="#MAPVALUES" class="token">MAPVALUES</a> <span class="operator">|</span> <a href="#MAPKEYS" class="token">MAPKEYS</a><span class="operator">)</span><span class="operator">?</span> <a href="#INDEX" class="token">INDEX</a> <a href="#index_name" class="rule">index_name</a> <a href="#ON" class="token">ON</a> <a href="#nameSet" class="rule">nameSet</a> <span class="operator">{definitions.add(VariableDefinition.WRITE_POLICY);}</span> <span class="literal">'('</span> <a href="#binName" class="rule">binName</a><span class="operator">=</span><a href="#bin" class="rule">bin</a> <span class="literal">')'</span> <a href="#iType" class="rule">iType</a><span class="operator">=</span><span class="operator">(</span><a href="#NUMERIC" class="token">NUMERIC</a> <span class="operator">|</span> <a href="#STRING" class="token">STRING</a><span class="operator">)</span> <span class="operator">{definitions.add(VariableDefinition.INDEX_TASK);}</span> <span class="operator">|</span> <a href="#USER" class="token">USER</a> <a href="#user" class="rule">user</a> <a href="#PASSWORD" class="token">PASSWORD</a> <a href="#password" class="rule">password</a> <span class="operator">(</span><a href="#ROLE" class="token">ROLE</a> <a href="#role" class="rule">role</a> <span class="operator">|</span> <a href="#ROLES" class="token">ROLES</a> <a href="#roles" class="rule">roles</a><span class="operator">*</span><span class="operator">)</span> <span class="operator">{definitions.add(VariableDefinition.ADMIN_POLICY);}</span> <span class="operator">|</span> <a href="#ROLE" class="token">ROLE</a> <a href="#role" class="rule">role</a> <span class="operator">(</span><a href="#PRIVILEGE" class="token">PRIVILEGE</a> <span class="operator">|</span> <a href="#PRIVILEGES" class="token">PRIVILEGES</a><span class="operator">)</span> <a href="#privilege" class="rule">privilege</a><span class="operator">*</span> <span class="operator">{definitions.add(VariableDefinition.ADMIN_POLICY);}</span> <span class="operator">)</span> ;
   </div>
   </div>
   <div class="railroad">
@@ -386,19 +424,171 @@ footer {
   <h3>drop <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
   <div class="doc">
     <p>
-      DROP INDEX namespace[.setname] indexname
+      DROP INDEX <ns>[.<set>] <index>
       DROP MODULE modulename.extension
+      DROP SET <ns>[.<set>]
+      DROP USER <username>
     </p>
   </div>
   <div class="ebnf">
   <h4>Text notation:</h4>
   <div>
-    <span class="rule">drop</span> :  <a href="#DROP" class="token">DROP</a> <span class="operator">(</span> <a href="#INDEX" class="token">INDEX</a> <a href="#nameSet" class="rule">nameSet</a> <a href="#index_name" class="rule">index_name</a> <span class="operator">|</span> <a href="#MODULE" class="token">MODULE</a> <a href="#moduleName" class="rule">moduleName</a> <span class="operator">|</span> <a href="#SET" class="token">SET</a> <a href="#nameSet" class="rule">nameSet</a> <span class="operator">)</span> ;
+    <span class="rule">drop</span> :  <a href="#DROP" class="token">DROP</a> <span class="operator">(</span> <a href="#INDEX" class="token">INDEX</a> <a href="#nameSet" class="rule">nameSet</a> <a href="#index_name" class="rule">index_name</a> <span class="operator">|</span> <a href="#MODULE" class="token">MODULE</a> <a href="#moduleName" class="rule">moduleName</a> <span class="operator">|</span> <a href="#SET" class="token">SET</a> <a href="#nameSet" class="rule">nameSet</a> <span class="operator">|</span> <a href="#USER" class="token">USER</a> <a href="#user" class="rule">user</a> <span class="operator">{definitions.add(VariableDefinition.ADMIN_POLICY);}</span> <span class="operator">|</span> <a href="#ROLE" class="token">ROLE</a> <a href="#role" class="rule">role</a> <span class="operator">{definitions.add(VariableDefinition.ADMIN_POLICY);}</span> <span class="operator">)</span> ;
   </div>
   </div>
   <div class="railroad">
   <h4>Visual notation:</h4>
   <img border="0" src="images/drop.png" />
+  </div>
+  </li>
+  <li class="rule" id="repair">
+  <h3>repair <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      REPAIR INDEX <index> ON <ns>[.<set>]
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">repair</span> :  <a href="#REPAIR" class="token">REPAIR</a> <a href="#INDEX" class="token">INDEX</a> <a href="#index_name" class="rule">index_name</a> <a href="#ON" class="token">ON</a> <a href="#nameSet" class="rule">nameSet</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/repair.png" />
+  </div>
+  </li>
+  <li class="rule" id="grant">
+  <h3>grant <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">grant</span> :  <a href="#GRANT" class="token">GRANT</a> <span class="operator">(</span><a href="#ROLES" class="token">ROLES</a> <a href="#roles" class="rule">roles</a> <span class="operator">|</span> <a href="#ROLE" class="token">ROLE</a> <a href="#role" class="rule">role</a><span class="operator">)</span> <a href="#TO" class="token">TO</a> <a href="#user" class="rule">user</a> <span class="operator">|</span> <span class="operator">(</span><a href="#PRIVILEGE" class="token">PRIVILEGE</a> <a href="#privilege" class="rule">privilege</a> <span class="operator">|</span> <a href="#PRIVILEGES" class="token">PRIVILEGES</a> <a href="#privilege" class="rule">privilege</a><span class="operator">+</span><span class="operator">)</span> <a href="#TO" class="token">TO</a> <a href="#role" class="rule">role</a> <span class="operator">{definitions.add(VariableDefinition.ADMIN_POLICY);}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/grant.png" />
+  </div>
+  </li>
+  <li class="rule" id="revoke">
+  <h3>revoke <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">revoke</span> :  <a href="#REVOKE" class="token">REVOKE</a> <span class="operator">(</span><a href="#ROLES" class="token">ROLES</a> <a href="#roles" class="rule">roles</a> <span class="operator">|</span> <a href="#ROLE" class="token">ROLE</a> <a href="#role" class="rule">role</a> <span class="operator">)</span> <a href="#FROM" class="token">FROM</a> <a href="#user" class="rule">user</a> <span class="operator">|</span> <span class="operator">(</span><a href="#PRIVILEGE" class="token">PRIVILEGE</a> <a href="#privilege" class="rule">privilege</a> <span class="operator">|</span> <a href="#PRIVILEGES" class="token">PRIVILEGES</a> <a href="#privilege" class="rule">privilege</a><span class="operator">+</span><span class="operator">)</span> <a href="#FROM" class="token">FROM</a> <a href="#role" class="rule">role</a> <span class="operator">{definitions.add(VariableDefinition.ADMIN_POLICY);}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/revoke.png" />
+  </div>
+  </li>
+  <li class="rule" id="user">
+  <h3>user <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">user</span> :  <a href="#IDENTIFIER" class="token">IDENTIFIER</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/user.png" />
+  </div>
+  </li>
+  <li class="rule" id="password">
+  <h3>password <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">password</span> :  <a href="#IDENTIFIER" class="token">IDENTIFIER</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/password.png" />
+  </div>
+  </li>
+  <li class="rule" id="roles">
+  <h3>roles <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">roles</span> :  <a href="#role" class="rule">role</a> <span class="operator">(</span><span class="literal">','</span> <a href="#role" class="rule">role</a><span class="operator">)</span><span class="operator">*</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/roles.png" />
+  </div>
+  </li>
+  <li class="rule" id="role">
+  <h3>role <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">role</span> :  <a href="#IDENTIFIER" class="token">IDENTIFIER</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/role.png" />
+  </div>
+  </li>
+  <li class="rule" id="privilege">
+  <h3>privilege <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">privilege</span> :  <span class="operator">(</span><span class="literal">'read'</span> <span class="operator">{
+    			$priv.code = PrivilegeCode.READ;
+    		}</span> <span class="operator">|</span> <span class="literal">'read-write'</span> <span class="operator">(</span><span class="literal">'.'</span> <a href="#nameSet" class="rule">nameSet</a><span class="operator">)</span><span class="operator">?</span> <span class="operator">{
+    			$priv.code = PrivilegeCode.READ_WRITE;
+    		}</span> <span class="operator">|</span> <span class="literal">'read-write-udf'</span> <span class="operator">(</span><span class="literal">'.'</span> <a href="#nameSet" class="rule">nameSet</a><span class="operator">)</span><span class="operator">?</span> <span class="operator">{
+    			$priv.code = PrivilegeCode.READ_WRITE_UDF;
+    		}</span> <span class="operator">)</span> <span class="operator">(</span><span class="literal">'.'</span> <a href="#nameSet" class="rule">nameSet</a> <span class="operator">{
+    			$priv.namespace = $nameSet.namespaceName;
+    			$priv.setName = $nameSet.setName;
+    		}</span><span class="operator">)</span><span class="operator">?</span> <span class="operator">|</span> <span class="literal">'sys-admin'</span> <span class="operator">{
+    			$priv.code = PrivilegeCode.READ_WRITE_UDF;
+    		}</span> <span class="operator">|</span> <span class="literal">'user-admin'</span> <span class="operator">{
+    			$priv.code = PrivilegeCode.READ_WRITE_UDF;
+    		}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/privilege.png" />
   </div>
   </li>
   <li class="rule" id="remove">
@@ -449,7 +639,7 @@ footer {
   <div class="ebnf">
   <h4>Text notation:</h4>
   <div>
-    <span class="rule">insert</span> :  <a href="#INSERT" class="token">INSERT</a> <a href="#INTO" class="token">INTO</a> <a href="#nameSet" class="rule">nameSet</a> <span class="literal">'('</span> <a href="#PK" class="token">PK</a> <span class="operator">(</span><span class="literal">','</span> <a href="#binNameList" class="rule">binNameList</a><span class="operator">)</span> <span class="literal">')'</span> <a href="#VALUES" class="token">VALUES</a> <span class="literal">'('</span> <a href="#primaryKey" class="rule">primaryKey</a>[<span class="literal">$statement::nameSpace, $statement::setName</span>] <span class="operator">(</span><span class="literal">','</span> <a href="#valueList" class="rule">valueList</a><span class="operator">)</span> <span class="literal">')'</span> <span class="operator">{
+    <span class="rule">insert</span> :  <a href="#INSERT" class="token">INSERT</a> <a href="#INTO" class="token">INTO</a> <a href="#nameSet" class="rule">nameSet</a> <span class="literal">'('</span> <a href="#PK" class="token">PK</a> <span class="literal">','</span> <a href="#binNameList" class="rule">binNameList</a> <span class="literal">')'</span> <a href="#VALUES" class="token">VALUES</a> <span class="literal">'('</span> <a href="#primaryKey" class="rule">primaryKey</a>[<span class="literal">$statement::nameSpace, $statement::setName</span>] <span class="literal">','</span> <a href="#valueList" class="rule">valueList</a> <span class="literal">')'</span> <span class="operator">{
     		definitions.add(VariableDefinition.WRITE_POLICY);
     	}</span> ;
   </div>
@@ -506,7 +696,7 @@ footer {
   <div class="ebnf">
   <h4>Text notation:</h4>
   <div>
-    <span class="rule">delete</span> :  <a href="#DELETE" class="token">DELETE</a> <a href="#FROM" class="token">FROM</a> <a href="#nameSet" class="rule">nameSet</a> <a href="#WHERE" class="token">WHERE</a> <a href="#primaryKeyPredicate" class="rule">primaryKeyPredicate</a> <span class="operator">(</span><a href="#AND" class="token">AND</a> <a href="#generationPredicate" class="rule">generationPredicate</a><span class="operator">)</span><span class="operator">?</span> <span class="operator">{
+    <span class="rule">delete</span> :  <a href="#DELETE" class="token">DELETE</a> <a href="#FROM" class="token">FROM</a> <a href="#nameSet" class="rule">nameSet</a> <span class="operator">(</span><a href="#WHERE" class="token">WHERE</a> <a href="#primaryKeyPredicate" class="rule">primaryKeyPredicate</a> <span class="operator">(</span><a href="#AND" class="token">AND</a> <a href="#generationPredicate" class="rule">generationPredicate</a><span class="operator">)</span><span class="operator">?</span><span class="operator">)</span><span class="operator">?</span> <span class="operator">{
     	definitions.add(VariableDefinition.WRITE_POLICY);
     	}</span> ;
   </div>
@@ -532,10 +722,16 @@ footer {
   <div class="ebnf">
   <h4>Text notation:</h4>
   <div>
-    <span class="rule">select</span> :  <a href="#SELECT" class="token">SELECT</a> <span class="operator">(</span> <a href="#STAR" class="token">STAR</a> <span class="operator">|</span> <a href="#binNameList" class="rule">binNameList</a><span class="operator">)</span> <a href="#FROM" class="token">FROM</a> <a href="#nameSet" class="rule">nameSet</a> <a href="#where" class="rule">where</a><span class="operator">?</span> <span class="operator">{
+    <span class="rule">select</span> :  <a href="#SELECT" class="token">SELECT</a> <span class="operator">(</span> <a href="#STAR" class="token">STAR</a> <span class="operator">{
+    	definitions.add(VariableDefinition.RECORD);
+    	}</span> <span class="operator">|</span> <a href="#binNameList" class="rule">binNameList</a> <span class="operator">{
+    	definitions.add(VariableDefinition.RECORD);
+    	}</span> <span class="operator">|</span> <a href="#moduleFunction" class="rule">moduleFunction</a> <span class="operator">(</span><span class="literal">'('</span> <span class="operator">(</span><a href="#valueList" class="rule">valueList</a><span class="operator">)</span><span class="operator">?</span> <span class="literal">')'</span><span class="operator">)</span><span class="operator">?</span> <span class="operator">{
+    	definitions.add(VariableDefinition.RESULT_SET);
+    	}</span> <span class="operator">)</span> <span class="operator">(</span><a href="#IN" class="token">IN</a> <a href="#collectionType" class="rule">collectionType</a><span class="operator">)</span><span class="operator">?</span> <a href="#FROM" class="token">FROM</a> <a href="#nameSet" class="rule">nameSet</a> <a href="#where" class="rule">where</a><span class="operator">?</span> <span class="operator">{
+    	definitions.add(VariableDefinition.QUERY_POLICY);
     	definitions.add(VariableDefinition.READ_POLICY);
     	definitions.add(VariableDefinition.SCAN_POLICY);
-    	definitions.add(VariableDefinition.RECORD);
     	definitions.add(VariableDefinition.STMT);
     	}</span> ;
   </div>
@@ -543,6 +739,46 @@ footer {
   <div class="railroad">
   <h4>Visual notation:</h4>
   <img border="0" src="images/select.png" />
+  </div>
+  </li>
+  <li class="rule" id="aggregate">
+  <h3>aggregate <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin = nnn
+      AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin BETWEEN nnn AND mmm
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">aggregate</span> :  <a href="#AGGREGATE" class="token">AGGREGATE</a> <a href="#moduleFunction" class="rule">moduleFunction</a> <span class="operator">(</span><span class="literal">'('</span> <span class="operator">(</span><a href="#valueList" class="rule">valueList</a><span class="operator">)</span><span class="operator">?</span> <span class="literal">')'</span><span class="operator">)</span><span class="operator">?</span> <a href="#ON" class="token">ON</a> <a href="#nameSet" class="rule">nameSet</a> <span class="operator">(</span><a href="#IN" class="token">IN</a> <a href="#collectionType" class="rule">collectionType</a><span class="operator">)</span><span class="operator">?</span> <span class="operator">(</span><a href="#where" class="rule">where</a><span class="operator">)</span><span class="operator">?</span> <span class="operator">{
+    	definitions.add(VariableDefinition.QUERY_POLICY);
+    	definitions.add(VariableDefinition.RESULT_SET);
+    	definitions.add(VariableDefinition.STMT);
+    	}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/aggregate.png" />
+  </div>
+  </li>
+  <li class="rule" id="collectionType">
+  <h3>collectionType <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">collectionType</span> :  <a href="#LIST" class="token">LIST</a> <span class="operator">|</span> <a href="#MAPKEYS" class="token">MAPKEYS</a> <span class="operator">|</span> <a href="#MAPVALUES" class="token">MAPVALUES</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/collectionType.png" />
   </div>
   </li>
   <li class="rule" id="where">
@@ -571,7 +807,7 @@ footer {
   <div class="ebnf">
   <h4>Text notation:</h4>
   <div>
-    <span class="rule">operateFunction</span> :  <span class="literal">'add'</span> <span class="literal">'('</span> <a href="#bin" class="rule">bin</a> <span class="literal">','</span> <a href="#value" class="rule">value</a> <span class="literal">')'</span> <span class="operator">|</span> <span class="literal">'put'</span> <span class="literal">'('</span> <a href="#bin" class="rule">bin</a> <span class="literal">','</span> <a href="#value" class="rule">value</a> <span class="literal">')'</span> <span class="operator">|</span> <span class="literal">'append'</span> <span class="literal">'('</span> <a href="#bin" class="rule">bin</a> <span class="literal">','</span> <a href="#value" class="rule">value</a> <span class="literal">')'</span> <span class="operator">|</span> <span class="literal">'prepend'</span> <span class="literal">'('</span> <a href="#bin" class="rule">bin</a> <span class="literal">','</span> <a href="#value" class="rule">value</a> <span class="literal">')'</span> <span class="operator">|</span> <span class="literal">'get'</span> <span class="operator">(</span><span class="literal">'('</span> <a href="#bin" class="rule">bin</a> <span class="literal">')'</span><span class="operator">)</span><span class="operator">?</span> <span class="operator">|</span> <span class="literal">'touch'</span> <span class="operator">|</span> <span class="literal">'header'</span> ;
+    <span class="rule">operateFunction</span> :  <a href="#ADD" class="token">ADD</a> <span class="literal">'('</span> <a href="#bin" class="rule">bin</a> <span class="literal">','</span> <a href="#value" class="rule">value</a> <span class="literal">')'</span> <span class="operator">|</span> <a href="#PUT" class="token">PUT</a> <span class="literal">'('</span> <a href="#bin" class="rule">bin</a> <span class="literal">','</span> <a href="#value" class="rule">value</a> <span class="literal">')'</span> <span class="operator">|</span> <a href="#APPEND" class="token">APPEND</a> <span class="literal">'('</span> <a href="#bin" class="rule">bin</a> <span class="literal">','</span> <a href="#value" class="rule">value</a> <span class="literal">')'</span> <span class="operator">|</span> <a href="#PREPEND" class="token">PREPEND</a> <span class="literal">'('</span> <a href="#bin" class="rule">bin</a> <span class="literal">','</span> <a href="#value" class="rule">value</a> <span class="literal">')'</span> <span class="operator">|</span> <a href="#GET" class="token">GET</a> <span class="operator">(</span><span class="literal">'('</span> <a href="#bin" class="rule">bin</a> <span class="literal">')'</span><span class="operator">)</span><span class="operator">?</span> <span class="operator">|</span> <a href="#TOUCH" class="token">TOUCH</a> <span class="operator">|</span> <a href="#HEADER" class="token">HEADER</a> ;
   </div>
   </div>
   <div class="railroad">
@@ -650,7 +886,7 @@ footer {
   <div class="ebnf">
   <h4>Text notation:</h4>
   <div>
-    <span class="rule">aggregate</span> :  <a href="#AGGREGATE" class="token">AGGREGATE</a> <a href="#moduleFunction" class="rule">moduleFunction</a> <span class="operator">(</span><span class="literal">'('</span> <span class="operator">(</span><a href="#valueList" class="rule">valueList</a><span class="operator">)</span><span class="operator">?</span> <span class="literal">')'</span><span class="operator">)</span><span class="operator">?</span> <a href="#ON" class="token">ON</a> <a href="#nameSet" class="rule">nameSet</a> <span class="operator">(</span><a href="#where" class="rule">where</a><span class="operator">)</span><span class="operator">?</span> <span class="operator">{
+    <span class="rule">aggregate</span> :  <a href="#AGGREGATE" class="token">AGGREGATE</a> <a href="#moduleFunction" class="rule">moduleFunction</a> <span class="operator">(</span><span class="literal">'('</span> <span class="operator">(</span><a href="#valueList" class="rule">valueList</a><span class="operator">)</span><span class="operator">?</span> <span class="literal">')'</span><span class="operator">)</span><span class="operator">?</span> <a href="#ON" class="token">ON</a> <a href="#nameSet" class="rule">nameSet</a> <span class="operator">(</span><a href="#IN" class="token">IN</a> <a href="#collectionType" class="rule">collectionType</a><span class="operator">)</span><span class="operator">?</span> <span class="operator">(</span><a href="#where" class="rule">where</a><span class="operator">)</span><span class="operator">?</span> <span class="operator">{
     	definitions.add(VariableDefinition.QUERY_POLICY);
     	definitions.add(VariableDefinition.RESULT_SET);
     	definitions.add(VariableDefinition.STMT);
@@ -671,7 +907,7 @@ footer {
   <div class="ebnf">
   <h4>Text notation:</h4>
   <div>
-    <span class="rule">moduleFunction</span> :  <a href="#packageName" class="rule">packageName</a><span class="operator">=</span><a href="#IDENTIFIER" class="token">IDENTIFIER</a> <span class="literal">'.'</span> <a href="#functionName" class="rule">functionName</a><span class="operator">=</span><a href="#IDENTIFIER" class="token">IDENTIFIER</a> ;
+    <span class="rule">moduleFunction</span> :  <a href="#packageName" class="rule">packageName</a><span class="operator">=</span><span class="operator">(</span><a href="#IDENTIFIER" class="token">IDENTIFIER</a> <span class="operator">|</span> <a href="#LLIST" class="token">LLIST</a> <span class="operator">|</span> <a href="#LMAP" class="token">LMAP</a><span class="operator">)</span> <span class="literal">'.'</span> <a href="#functionName" class="rule">functionName</a><span class="operator">=</span><span class="operator">(</span><a href="#IDENTIFIER" class="token">IDENTIFIER</a> <span class="operator">|</span> <a href="#ADD" class="token">ADD</a> <span class="operator">|</span> <a href="#SCAN" class="token">SCAN</a> <span class="operator">|</span> <span class="literal">'find'</span> <span class="operator">|</span> <span class="literal">'size'</span> <span class="operator">|</span> <span class="literal">'remove'</span> <span class="operator">|</span> <span class="literal">'destroy'</span> <span class="operator">|</span> <span class="literal">'get_config'</span> <span class="operator">|</span> <span class="literal">'get_capacity'</span> <span class="operator">|</span> <span class="literal">'put'</span> <span class="operator">|</span> <span class="literal">'get'</span><span class="operator">)</span> ;
   </div>
   </div>
   <div class="railroad">
@@ -865,7 +1101,7 @@ footer {
   <div class="ebnf">
   <h4>Text notation:</h4>
   <div>
-    <span class="rule">show</span> :  <a href="#SHOW" class="token">SHOW</a> <span class="operator">(</span> <a href="#INDEXES" class="token">INDEXES</a> <a href="#nameSet" class="rule">nameSet</a><span class="operator">?</span> <span class="operator">|</span> <a href="#SCANS" class="token">SCANS</a> <span class="operator">|</span> <a href="#NAMESPACES" class="token">NAMESPACES</a> <span class="operator">|</span> <a href="#SETS" class="token">SETS</a> <span class="operator">|</span> <a href="#BINS" class="token">BINS</a> <span class="operator">|</span> <a href="#QUERIES" class="token">QUERIES</a> <span class="operator">|</span> <a href="#MODULES" class="token">MODULES</a> <span class="operator">)</span> <span class="operator">{
+    <span class="rule">show</span> :  <a href="#SHOW" class="token">SHOW</a> <span class="operator">(</span> <a href="#INDEXES" class="token">INDEXES</a> <a href="#nameSet" class="rule">nameSet</a><span class="operator">?</span> <span class="operator">|</span> <a href="#SCANS" class="token">SCANS</a> <span class="operator">|</span> <a href="#NAMESPACES" class="token">NAMESPACES</a> <span class="operator">|</span> <a href="#SETS" class="token">SETS</a> <span class="operator">|</span> <a href="#BINS" class="token">BINS</a> <span class="operator">|</span> <a href="#QUERIES" class="token">QUERIES</a> <span class="operator">|</span> <a href="#MODULES" class="token">MODULES</a> <span class="operator">|</span> <a href="#USER" class="token">USER</a> <a href="#user" class="rule">user</a> <span class="operator">{definitions.add(VariableDefinition.ADMIN_POLICY);}</span> <span class="operator">|</span> <a href="#USERS" class="token">USERS</a> <span class="operator">{definitions.add(VariableDefinition.ADMIN_POLICY);}</span> <span class="operator">)</span> <span class="operator">{
     	definitions.add(VariableDefinition.INFO_POLICY);
     	definitions.add(VariableDefinition.INFO_STRING);
     	}</span> ;
@@ -887,7 +1123,7 @@ footer {
   <div class="ebnf">
   <h4>Text notation:</h4>
   <div>
-    <span class="rule">desc</span> :  <a href="#DESC" class="token">DESC</a> <a href="#MODULE" class="token">MODULE</a> <a href="#moduleName" class="rule">moduleName</a> <span class="operator">{
+    <span class="rule">desc</span> :  <a href="#DESC" class="token">DESC</a> <span class="operator">(</span> <a href="#MODULE" class="token">MODULE</a> <a href="#moduleName" class="rule">moduleName</a> <span class="operator">|</span> <a href="#INDEX" class="token">INDEX</a> <a href="#namespace_name" class="rule">namespace_name</a> <a href="#index_name" class="rule">index_name</a> <span class="operator">)</span> <span class="operator">{
     	definitions.add(VariableDefinition.INFO_POLICY);
     	definitions.add(VariableDefinition.INFO_STRING);
     	}</span> ;
@@ -930,7 +1166,7 @@ footer {
   <div class="ebnf">
   <h4>Text notation:</h4>
   <div>
-    <span class="rule">set</span> :  <a href="#SET" class="token">SET</a> <span class="operator">(</span><a href="#TIMEOUT" class="token">TIMEOUT</a> <a href="#timeOut" class="rule">timeOut</a><span class="operator">=</span><a href="#INTLITERAL" class="token">INTLITERAL</a> <span class="operator">|</span> <a href="#VERBOSE" class="token">VERBOSE</a> <a href="#verboseOn" class="rule">verboseOn</a><span class="operator">=</span><a href="#booleanLiteral" class="rule">booleanLiteral</a> <span class="operator">|</span> <a href="#ECHO" class="token">ECHO</a> <a href="#echoOn" class="rule">echoOn</a><span class="operator">=</span><a href="#booleanLiteral" class="rule">booleanLiteral</a> <span class="operator">|</span> <a href="#TTL" class="token">TTL</a> <a href="#ttl" class="rule">ttl</a><span class="operator">=</span><a href="#INTLITERAL" class="token">INTLITERAL</a> <span class="operator">|</span> <a href="#VIEW" class="token">VIEW</a> <a href="#viewType" class="rule">viewType</a> <span class="operator">|</span> <a href="#OUTPUT" class="token">OUTPUT</a> <a href="#viewType" class="rule">viewType</a> <span class="operator">|</span> <a href="#LUA_USER_PATH" class="token">LUA_USER_PATH</a> <a href="#luaUserPath" class="rule">luaUserPath</a><span class="operator">=</span><a href="#STRINGLITERAL" class="token">STRINGLITERAL</a> <span class="operator">)</span> ;
+    <span class="rule">set</span> :  <a href="#SET" class="token">SET</a> <span class="operator">(</span><a href="#TIMEOUT" class="token">TIMEOUT</a> <a href="#timeOut" class="rule">timeOut</a><span class="operator">=</span><a href="#INTLITERAL" class="token">INTLITERAL</a> <span class="operator">{definitions.add(VariableDefinition.READ_POLICY);definitions.add(VariableDefinition.WRITE_POLICY);}</span> <span class="operator">|</span> <a href="#VERBOSE" class="token">VERBOSE</a> <a href="#verboseOn" class="rule">verboseOn</a><span class="operator">=</span><a href="#booleanLiteral" class="rule">booleanLiteral</a> <span class="operator">|</span> <a href="#ECHO" class="token">ECHO</a> <a href="#echoOn" class="rule">echoOn</a><span class="operator">=</span><a href="#booleanLiteral" class="rule">booleanLiteral</a> <span class="operator">|</span> <a href="#TTL" class="token">TTL</a> <a href="#ttl" class="rule">ttl</a><span class="operator">=</span><a href="#INTLITERAL" class="token">INTLITERAL</a> <span class="operator">|</span> <a href="#OUTPUT" class="token">OUTPUT</a> <a href="#viewType" class="rule">viewType</a> <span class="operator">|</span> <a href="#LUA_USER_PATH" class="token">LUA_USER_PATH</a> <a href="#luaUserPath" class="rule">luaUserPath</a><span class="operator">=</span><a href="#STRINGLITERAL" class="token">STRINGLITERAL</a> <span class="operator">|</span> <a href="#FAIL_ON_CLUSTER_CHANGE" class="token">FAIL_ON_CLUSTER_CHANGE</a> <span class="operator">|</span> <a href="#PASSWORD" class="token">PASSWORD</a> <a href="#password" class="rule">password</a> <a href="#FOR" class="token">FOR</a> <a href="#user" class="rule">user</a> <span class="operator">{definitions.add(VariableDefinition.ADMIN_POLICY);}</span> <span class="operator">)</span> ;
   </div>
   </div>
   <div class="railroad">
@@ -947,7 +1183,7 @@ footer {
   <div class="ebnf">
   <h4>Text notation:</h4>
   <div>
-    <span class="rule">get</span> :  <a href="#GET" class="token">GET</a> <span class="operator">(</span> <a href="#TIMEOUT" class="token">TIMEOUT</a> <span class="operator">|</span> <a href="#VERBOSE" class="token">VERBOSE</a> <span class="operator">|</span> <a href="#ECHO" class="token">ECHO</a> <span class="operator">|</span> <a href="#TTL" class="token">TTL</a> <span class="operator">|</span> <a href="#VIEW" class="token">VIEW</a> <span class="operator">|</span> <a href="#OUTPUT" class="token">OUTPUT</a> <span class="operator">|</span> <a href="#LUA_USER_PATH" class="token">LUA_USER_PATH</a> <span class="operator">)</span> ;
+    <span class="rule">get</span> :  <a href="#GET" class="token">GET</a> <span class="operator">(</span> <a href="#TIMEOUT" class="token">TIMEOUT</a> <span class="operator">|</span> <a href="#VERBOSE" class="token">VERBOSE</a> <span class="operator">|</span> <a href="#ECHO" class="token">ECHO</a> <span class="operator">|</span> <a href="#TTL" class="token">TTL</a> <span class="operator">|</span> <a href="#OUTPUT" class="token">OUTPUT</a> <span class="operator">|</span> <a href="#LUA_USER_PATH" class="token">LUA_USER_PATH</a> <span class="operator">|</span> <a href="#FAIL_ON_CLUSTER_CHANGE" class="token">FAIL_ON_CLUSTER_CHANGE</a> <span class="operator">)</span> ;
   </div>
   </div>
   <div class="railroad">
@@ -1174,7 +1410,9 @@ footer {
   <div class="ebnf">
   <h4>Text notation:</h4>
   <div>
-    <span class="rule">set_name</span> :  <a href="#IDENTIFIER" class="token">IDENTIFIER</a> ;
+    <span class="rule">set_name</span> :  <a href="#setName" class="rule">setName</a><span class="operator">=</span> <a href="#IDENTIFIER" class="token">IDENTIFIER</a> <span class="operator">{
+    		if ($setName.text.length() > 63) notifyErrorListeners("Set name exceeds 63 characters");
+    	}</span> ;
   </div>
   </div>
   <div class="railroad">
@@ -1191,12 +1429,31 @@ footer {
   <div class="ebnf">
   <h4>Text notation:</h4>
   <div>
-    <span class="rule">bin</span> :  <a href="#IDENTIFIER" class="token">IDENTIFIER</a> ;
+    <span class="rule">bin</span> :  <a href="#binName" class="rule">binName</a><span class="operator">=</span><a href="#IDENTIFIER" class="token">IDENTIFIER</a> <span class="operator">{
+    		if ($binName.text.length() > 14) notifyErrorListeners("Bin name exceeds 14 characters");
+    	}</span> ;
   </div>
   </div>
   <div class="railroad">
   <h4>Visual notation:</h4>
   <img border="0" src="images/bin.png" />
+  </div>
+  </li>
+  <li class="rule" id="dotPath">
+  <h3>dotPath <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">dotPath</span> :  <a href="#path" class="rule">path</a><span class="operator">=</span><a href="#IDENTIFIER" class="token">IDENTIFIER</a> <span class="operator">(</span><span class="literal">'.'</span> <a href="#path" class="rule">path</a><span class="operator">=</span><a href="#IDENTIFIER" class="token">IDENTIFIER</a><span class="operator">)</span><span class="operator">*</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/dotPath.png" />
   </div>
   </li>
   <li class="rule" id="value">
@@ -1675,8 +1932,8 @@ footer {
   <img border="0" src="images/OUTPUT.png" />
   </div>
   </li>
-  <li class="rule" id="PACKAGES">
-  <h3>PACKAGES <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <li class="rule" id="PRIVILEGE">
+  <h3>PRIVILEGE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
   <div class="doc">
     <p>
     </p>
@@ -1684,12 +1941,29 @@ footer {
   <div class="ebnf">
   <h4>Text notation:</h4>
   <div>
-    <span class="rule">PACKAGES</span> :  <span class="literal">'packages'</span> ;
+    <span class="rule">PRIVILEGE</span> :  <span class="literal">'privilege'</span> ;
   </div>
   </div>
   <div class="railroad">
   <h4>Visual notation:</h4>
-  <img border="0" src="images/PACKAGES.png" />
+  <img border="0" src="images/PRIVILEGE.png" />
+  </div>
+  </li>
+  <li class="rule" id="PRIVILEGES">
+  <h3>PRIVILEGES <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">PRIVILEGES</span> :  <span class="literal">'privileges'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/PRIVILEGES.png" />
   </div>
   </li>
   <li class="rule" id="INTO">
@@ -2032,6 +2306,74 @@ footer {
   <img border="0" src="images/EQ.png" />
   </div>
   </li>
+  <li class="rule" id="IN">
+  <h3>IN <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">IN</span> :  <span class="literal">'in'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/IN.png" />
+  </div>
+  </li>
+  <li class="rule" id="LIST">
+  <h3>LIST <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">LIST</span> :  <span class="literal">'list'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/LIST.png" />
+  </div>
+  </li>
+  <li class="rule" id="MAPKEYS">
+  <h3>MAPKEYS <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">MAPKEYS</span> :  <span class="literal">'mapkeys'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/MAPKEYS.png" />
+  </div>
+  </li>
+  <li class="rule" id="MAPVALUES">
+  <h3>MAPVALUES <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">MAPVALUES</span> :  <span class="literal">'mapvalues'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/MAPVALUES.png" />
+  </div>
+  </li>
   <li class="rule" id="STAR">
   <h3>STAR <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
   <div class="doc">
@@ -2321,23 +2663,6 @@ footer {
   <img border="0" src="images/TTL.png" />
   </div>
   </li>
-  <li class="rule" id="VIEW">
-  <h3>VIEW <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
-  <div class="doc">
-    <p>
-    </p>
-  </div>
-  <div class="ebnf">
-  <h4>Text notation:</h4>
-  <div>
-    <span class="rule">VIEW</span> :  <span class="literal">'view'</span> ;
-  </div>
-  </div>
-  <div class="railroad">
-  <h4>Visual notation:</h4>
-  <img border="0" src="images/VIEW.png" />
-  </div>
-  </li>
   <li class="rule" id="USE_SMD">
   <h3>USE_SMD <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
   <div class="doc">
@@ -2387,6 +2712,363 @@ footer {
   <div class="railroad">
   <h4>Visual notation:</h4>
   <img border="0" src="images/LUA_SYSTEM_PATH.png" />
+  </div>
+  </li>
+  <li class="rule" id="ADD">
+  <h3>ADD <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">ADD</span> :  <span class="literal">'add'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/ADD.png" />
+  </div>
+  </li>
+  <li class="rule" id="PUT">
+  <h3>PUT <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">PUT</span> :  <span class="literal">'put'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/PUT.png" />
+  </div>
+  </li>
+  <li class="rule" id="APPEND">
+  <h3>APPEND <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">APPEND</span> :  <span class="literal">'append'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/APPEND.png" />
+  </div>
+  </li>
+  <li class="rule" id="PREPEND">
+  <h3>PREPEND <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">PREPEND</span> :  <span class="literal">'prepend'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/PREPEND.png" />
+  </div>
+  </li>
+  <li class="rule" id="TOUCH">
+  <h3>TOUCH <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">TOUCH</span> :  <span class="literal">'touch'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/TOUCH.png" />
+  </div>
+  </li>
+  <li class="rule" id="HEADER">
+  <h3>HEADER <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">HEADER</span> :  <span class="literal">'header'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/HEADER.png" />
+  </div>
+  </li>
+  <li class="rule" id="LLIST">
+  <h3>LLIST <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">LLIST</span> :  <span class="literal">'llist'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/LLIST.png" />
+  </div>
+  </li>
+  <li class="rule" id="LSTACK">
+  <h3>LSTACK <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">LSTACK</span> :  <span class="literal">'lstack'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/LSTACK.png" />
+  </div>
+  </li>
+  <li class="rule" id="LSET">
+  <h3>LSET <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">LSET</span> :  <span class="literal">'lset'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/LSET.png" />
+  </div>
+  </li>
+  <li class="rule" id="LMAP">
+  <h3>LMAP <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">LMAP</span> :  <span class="literal">'lmap'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/LMAP.png" />
+  </div>
+  </li>
+  <li class="rule" id="USER">
+  <h3>USER <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">USER</span> :  <span class="literal">'user'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/USER.png" />
+  </div>
+  </li>
+  <li class="rule" id="USERS">
+  <h3>USERS <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">USERS</span> :  <span class="literal">'users'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/USERS.png" />
+  </div>
+  </li>
+  <li class="rule" id="PASSWORD">
+  <h3>PASSWORD <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">PASSWORD</span> :  <span class="literal">'password'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/PASSWORD.png" />
+  </div>
+  </li>
+  <li class="rule" id="ROLE">
+  <h3>ROLE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">ROLE</span> :  <span class="literal">'role'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/ROLE.png" />
+  </div>
+  </li>
+  <li class="rule" id="ROLES">
+  <h3>ROLES <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">ROLES</span> :  <span class="literal">'roles'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/ROLES.png" />
+  </div>
+  </li>
+  <li class="rule" id="GRANT">
+  <h3>GRANT <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">GRANT</span> :  <span class="literal">'grant'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/GRANT.png" />
+  </div>
+  </li>
+  <li class="rule" id="REVOKE">
+  <h3>REVOKE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">REVOKE</span> :  <span class="literal">'revoke'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/REVOKE.png" />
+  </div>
+  </li>
+  <li class="rule" id="TO">
+  <h3>TO <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">TO</span> :  <span class="literal">'to'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/TO.png" />
+  </div>
+  </li>
+  <li class="rule" id="FAIL_ON_CLUSTER_CHANGE">
+  <h3>FAIL_ON_CLUSTER_CHANGE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">FAIL_ON_CLUSTER_CHANGE</span> :  <span class="literal">'FAIL_ON_CLUSTER_CHANGE'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/FAIL_ON_CLUSTER_CHANGE.png" />
+  </div>
+  </li>
+  <li class="rule" id="REPAIR">
+  <h3>REPAIR <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">REPAIR</span> :  <span class="literal">'repair'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/REPAIR.png" />
+  </div>
+  </li>
+  <li class="rule" id="FOR">
+  <h3>FOR <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">FOR</span> :  <span class="literal">'for'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/FOR.png" />
   </div>
   </li>
   <li class="rule" id="IDENTIFIER">

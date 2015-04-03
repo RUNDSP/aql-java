@@ -216,7 +216,14 @@ The supported aql statements
 */	
 statement 
 locals [String source, String nameSpace, String setName]
-	: connect //generator exec
+	: insert //generator exec
+	| update //generator exec
+	| delete //generator exec
+	| select //generator exec
+	| execute //generator exec
+	| operate //generator exec
+	| aggregate //generator exec
+	| connect //generator exec
 	| disconnect //generator exec
 	| create //generator exec
 	| drop  //generator exec
@@ -224,14 +231,7 @@ locals [String source, String nameSpace, String setName]
 	| grant
 	| revoke
 	| remove //generator exec
-	| insert //generator exec
-	| update //generator exec
-	| delete //generator exec
-	| select //generator exec
 	| register //generator exec
-	| execute //generator exec
-	| aggregate //generator exec
-	| operate //generator exec
 	| show //generator exec
 	| desc //generator exec
 	| stat //generator exec
@@ -393,10 +393,10 @@ insert
 		
 	;
 /**
- * UPDATE <name space>[.<set name>] SET <bin name> = <value>, ... WHERE PK = <value> [AND generation = <value>]
+ * UPDATE <name space>[.<set name>] [SET <bin name> = <value>, ...] WHERE PK = <value> [AND generation = <value>]
  */	
 update 
-	: UPDATE nameSet SET updateList
+	: UPDATE nameSet (SET updateList)?
 		WHERE primaryKeyPredicate (AND generationPredicate)?
 	{
 		definitions.add(VariableDefinition.WRITE_POLICY);
@@ -411,7 +411,7 @@ updateList
 DELETE FROM namespace[.setname] WHERE PK = 'x'
 */
 delete 
-	: DELETE FROM nameSet WHERE primaryKeyPredicate (AND generationPredicate)?
+	: DELETE FROM nameSet (WHERE primaryKeyPredicate (AND generationPredicate)?)?
 	{
 	definitions.add(VariableDefinition.WRITE_POLICY);
 	}  	
@@ -428,11 +428,34 @@ delete
 select 
 	: SELECT 
 	( STAR  
-	| binNameList) (IN collectionType)? FROM nameSet where? 
 	{
+	definitions.add(VariableDefinition.RECORD);
+	}
+	| binNameList
+	{
+	definitions.add(VariableDefinition.RECORD);
+	}
+	| moduleFunction ('(' (valueList)? ')')?
+	{
+	definitions.add(VariableDefinition.RESULT_SET);
+	}
+	) (IN collectionType)? FROM nameSet where? 
+	{
+	definitions.add(VariableDefinition.QUERY_POLICY);
 	definitions.add(VariableDefinition.READ_POLICY);
 	definitions.add(VariableDefinition.SCAN_POLICY);
-	definitions.add(VariableDefinition.RECORD);
+	definitions.add(VariableDefinition.STMT);
+	}  	
+	;
+/**
+AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin = nnn
+AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin BETWEEN nnn AND mmm
+*/
+aggregate 
+	: AGGREGATE moduleFunction ('(' (valueList)? ')')? ON nameSet (IN collectionType)? (where)?
+	{
+	definitions.add(VariableDefinition.QUERY_POLICY);
+	definitions.add(VariableDefinition.RESULT_SET);
 	definitions.add(VariableDefinition.STMT);
 	}  	
 	;
@@ -504,18 +527,6 @@ execute
 	}  	
 	;
 
-/**
-AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin = nnn
-AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin BETWEEN nnn AND mmm
-*/
-aggregate 
-	: AGGREGATE moduleFunction ('(' (valueList)? ')')? ON nameSet (IN collectionType)? (where)?
-	{
-	definitions.add(VariableDefinition.QUERY_POLICY);
-	definitions.add(VariableDefinition.RESULT_SET);
-	definitions.add(VariableDefinition.STMT);
-	}  	
-	;
 
 moduleFunction
 	: packageName=(IDENTIFIER | LLIST | LMAP) '.' 
