@@ -2,21 +2,26 @@ aqlFile(className, statements, host, port) ::= <<
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+//using System.Json;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Aerospike.Client;
 
-namespace AerospikeTraining
+namespace AQLGeneration
 {
     class Program
     {
 
         static void Main(string[] args)
         {
+        	AerospikeClient client;
+			ClientPolicy clientPolicy;
             try
             {
 				<statements>
+            } 
             catch (AerospikeException e)
             {
                 Console.WriteLine("AerospikeException - Message: " + e.Message);
@@ -37,6 +42,11 @@ namespace AerospikeTraining
             }
             
         } //main
+        
+		public static void ScanCallback(Key key, Record record) {
+			Console.WriteLine("Key: " + key);
+			Console.WriteLine("Record: " + record);
+		} //scanCallback
 
     }
 }
@@ -45,8 +55,6 @@ namespace AerospikeTraining
 
 statements(statementList, variables) ::= <<
 // Variables for statements
-ClientPolicy clientPolicy;
-AerospikeClient client = null;
 
 <variables>
 
@@ -72,7 +80,7 @@ client = new AerospikeClient(clientPolicy, "<host>", <port>);
 
 disconnect(source)::=<<
 /* <source> */
-client.close();
+client.Close();
 
 >>
 
@@ -204,10 +212,8 @@ stmt.SetBinNames(<first(binNames):{b|"<b>"}><rest(binNames):{b|, "<b>"}>);
 recordSet = client.Query(queryPolicy, stmt);
 // Process the record set
 while (recordSet != null && recordSet.Next()) {
-	Key key = recordSet.Key();
-	Record record = recordSet.Record();
-	Console.WriteLine("Key: " + key);
-	Console.WriteLine("Record: " + record);
+	Console.WriteLine("Key: " + recordSet.Key);
+	Console.WriteLine("Record: " + recordSet.Record);
 }
 recordSet.Close();
 
@@ -225,13 +231,8 @@ record = client.Get(policy, <key>);
 
 scan(source, nameSpace, setName, binNames)::=<<
 /* <source> */
-client.scanAll(scanPolicy, "<nameSpace>", "<setName>", scanCallback<if(binNames)><binNames:{b|, "<b>"}><endif>);
+client.ScanAll(scanPolicy, "<nameSpace>", "<setName>", ScanCallback<if(binNames)><binNames:{b|, "<b>"}><endif>);
 
-	public scanCallback(Key key, Record record) {
-		Console.WriteLine("Key: " + key);
-		Console.WriteLine("Record: " + record);
-	}
-}
 >>
 
 aggregate(source, nameSpace, setName, 
@@ -246,9 +247,8 @@ resultSet = client.QueryAggregate(null, stmt,
 	"<package>", "<function>" <if(arguments)><arguments:{qq|, Value.Get(<qq>)}><endif>);
 try {
 	int count = 0;
-	while (resultSet.next()) {
-		Object object = resultSet.Object();
-		Console.WriteLine("Result: " + object);
+	while (resultSet.Next()) {
+		Console.WriteLine("Result: " + resultSet.Object);
 		count++;
 	}
 	if (count == 0) {
@@ -256,7 +256,7 @@ try {
 	}
 }
 finally {
-	resultSet.close();
+	resultSet.Close();
 }
 				
 >>
@@ -295,7 +295,7 @@ client.DropIndex(policy, "<nameSpace>", "<setName>", "<indexName>");
 
 showIndex(source, nameSpace, setName) ::= <<
 /* <source> */
-infoResult = Info.Request(infoPolicy, client.getNodes()[0], "sindex<if(nameSpace)>/<nameSpace><endif><if(setName)>/<setName><endif>");
+infoResult = Info.Request(infoPolicy, client.Nodes[0], "sindex<if(nameSpace)>/<nameSpace><endif><if(setName)>/<setName><endif>");
 
 >>
 
@@ -306,18 +306,18 @@ statIndex(source, nameSpace, indexName) ::= <<
 
 register(source, path) ::= <<
 /* <source> */
-udfFile = new File("<path>");
+
 task = client.Register(null, 
-	udfFile.getPath(), 
-	udfFile.getName(), 
+	Path.GetFullPath("<path>"), 
+	Path.GetFileName("<path>"),
 	Language.LUA); 
-task.waitTillComplete(10);
+task.Wait();
 
 >>
 
 removeModule(source, module) ::= <<
 /* <source> */
-infoResult = Info.Request(infoPolicy, client.getNodes()[0], "udf-remove:filename=<module>");
+infoResult = Info.Request(infoPolicy, client.Nodes[0], "udf-remove:filename=<module>");
 
 >>
 
@@ -385,7 +385,7 @@ useSmd(source, value) ::= <<
 
 setUserPath(source, value) ::= <<
 /* <source> */
-LuaConfig.SourceDirectory = "<value>"; 
+LuaConfig.PackagePath = "<value>"; 
 
 >>
 
@@ -428,7 +428,7 @@ getUseSMD(source) ::= <<
 >>
 getUserPath(source) ::= <<
 /* <source> */
-Console.WriteLine("Lua source directory: " + LuaConfig.SourceDirectory);
+Console.WriteLine("Lua source directory: " + LuaConfig.PackagePath);
 
 >>
 getSystemPath(source) ::= <<
@@ -438,23 +438,23 @@ getSystemPath(source) ::= <<
 
 statQuery(source) ::= <<
 /* <source> */
-infoResult = Info.Request(infoPolicy, client.getNodes()[0], "query-stat");
+infoResult = Info.Request(infoPolicy, client.Nodes[0], "query-stat");
 
 >>
 
 statSystem(source) ::= <<
 /* <source> */
-infoResult = Info.Request(infoPolicy, client.getNodes()[0], "statistics");
+infoResult = Info.Request(infoPolicy, client.Nodes[0], "statistics");
 
 >>
 
 
 filterEquals(bin, value) ::= <<
-Filter.Rqual("<bin>", Value.Get(<value>))
+Filter.Equal("<bin>", <value>)
 >>
 
 filterRange(bin, low, high) ::= <<
-Filter.Range("<bin>", Value.Get(<low>), Value.Get(<high>))
+Filter.Range("<bin>", <low>, <high>)
 >>
 
 primaryKey(namespace, set, key) ::=<<
@@ -497,46 +497,45 @@ operateFunction(functionName, bin, value) ::=<<
 <if(value)>Operation.<functionName>(new Bin("<bin>", <value>))<elseif(bin)>Operation.<functionName>("<bin>")<else>Operation.<functionName>()<endif>
 >>
 
-
 showModules(source) ::= <<
 /* <source> */
-infoResult = Info.Request(infoPolicy, client.getNodes()[0], "udf-list");
+infoResult = Info.Request(infoPolicy, client.Nodes[0], "udf-list");
 
 >>
 
 showNamespaces(source) ::= <<
 /* <source> */
-infoResult = Info.Request(infoPolicy, client.getNodes()[0], "namespaces");
+infoResult = Info.Request(infoPolicy, client.Nodes[0], "namespaces");
 
 >>
 
 showSets(source) ::= <<
 /* <source> */
-infoResult = Info.Request(infoPolicy, client.getNodes()[0], "sets");
+infoResult = Info.Request(infoPolicy, client.Nodes[0], "sets");
 
 >>
 
 showIndexes(source, nameSpace, setName) ::= <<
 /* <source> */
-infoResult = Info.Request(infoPolicy, client.getNodes()[0], "indexes");
+infoResult = Info.Request(infoPolicy, client.Nodes[0], "indexes");
 
 >>
 
 showBins(source) ::= <<
 /* <source> */
-infoResult = Info.Request(infoPolicy, client.getNodes()[0], "bins");
+infoResult = Info.Request(infoPolicy, client.Nodes[0], "bins");
 
 >>
 
 showScans(source) ::= <<
 /* <source> */
-infoResult = Info.Request(infoPolicy, client.getNodes()[0], "jobs:module=scan");
+infoResult = Info.Request(infoPolicy, client.Nodes[0], "jobs:module=scan");
 
 >>
 
 showQueries(source) ::= <<
 /* <source> */
-infoResult = Info.Request(infoPolicy, client.getNodes()[0], "jobs:module=query");
+infoResult = Info.Request(infoPolicy, client.Nodes[0], "jobs:module=query");
 
 >>
 
@@ -555,7 +554,7 @@ showUsers(source) ::= <<
 
 descIndex(source, nameSpace, indexName) ::= <<
 /* <source> */
-infoResult = Info.Request(infoPolicy, client.getNodes()[0], "sindex-describe");
+infoResult = Info.Request(infoPolicy, client.Nodes[0], "sindex-describe");
 
 >>
 
@@ -563,23 +562,24 @@ infoResult = Info.Request(infoPolicy, client.getNodes()[0], "sindex-describe");
 descModule(source, name) ::= <<
 /* <source> */
 Console.WriteLine("Module: <name>");
-infoResult = Info.Request(infoPolicy, client.getNodes()[0], "udf-get:filename=<name>");
+infoResult = Info.Request(infoPolicy, client.Nodes[0], "udf-get:filename=<name>");
 {
-	String[] udfparts = infoResult.split(";");
-	Console.WriteLine(new String(Base64.decode(udfparts[2].getBytes(), 8, udfparts[2].length()-2)));
+	string[] udfparts = infoResult.Split(';');
+	string base64 = udfparts[2];
+	Console.WriteLine(Convert.FromBase64String(base64));
 }
 
 >>
 
 killQuery(source, id) ::= <<
 /* <source> */
-Info.Request(infoPolicy, client.getNodes()[0], "query-kill=<id>");
+Info.Request(infoPolicy, client.Nodes[0], "query-kill=<id>");
 
 >>
 
 killScan(source, id) ::= <<
 /* <source> */
-Info.Request(infoPolicy, client.getNodes()[0], "scan-kill=<id>");
+Info.Request(infoPolicy, client.Nodes[0], "scan-kill=<id>");
 
 >>
 

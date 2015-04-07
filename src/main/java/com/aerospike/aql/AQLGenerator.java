@@ -198,7 +198,7 @@ public class AQLGenerator extends AQLBaseListener {
 	public void exitRegister(RegisterContext ctx) {
 		ST st = getTemplateFor("register");
 		st.add("source", ((StatementContext)ctx.getParent()).source);
-		st.add("path", ctx.MODULE().getText());
+		st.add("path", stripQuotes(ctx.filePath().getText()));
 		putCode(ctx, st);
 	}
 
@@ -300,7 +300,11 @@ public class AQLGenerator extends AQLBaseListener {
 	@Override
 	public void exitOperateFunction(OperateFunctionContext ctx) {
 		ST st = getTemplateFor("operateFunction");
-		st.add("functionName", ctx.getChild(0).getText());
+		String functionName = ctx.getChild(0).getText();
+		if (requiresUpperCase()){
+			functionName = Character.toString(functionName.charAt(0)).toUpperCase() + functionName.substring(1); // sometimes I hate Java
+		}
+		st.add("functionName", functionName);
 		st.add("bin", ctx.bin().getText());
 		st.add("value", code.get(ctx.value()));
 		putCode(ctx, st);
@@ -554,7 +558,13 @@ public class AQLGenerator extends AQLBaseListener {
 	public void exitEqualityFilter(EqualityFilterContext ctx) {
 		ST st = getTemplateFor("filterEquals");
 		st.add("bin", ctx.binValue().bin().getText());
-		st.add("value", code.get(ctx.binValue().value()));
+		String inputString = ctx.binValue().value().getText();
+		if (inputString.charAt(0) =='\'') {
+			inputString = "\"" + stripQuotes(inputString) + "\"";
+		} else {
+			inputString =  stripQuotes(inputString);
+		}
+		st.add("value", inputString);
 		putCode(ctx, st);
 	}
 
@@ -562,8 +572,8 @@ public class AQLGenerator extends AQLBaseListener {
 	public void exitRangeFilter(RangeFilterContext ctx) {
 		ST st = getTemplateFor("filterRange");
 		st.add("bin", ctx.bin().getText());
-		st.add("low", code.get(ctx.low));
-		st.add("high", code.get(ctx.high));
+		st.add("low", ctx.low.getText());
+		st.add("high", ctx.high.getText());
 		putCode(ctx, st);
 	}
 
@@ -648,7 +658,29 @@ public class AQLGenerator extends AQLBaseListener {
 	public Language getGenerationLanguage() {
 		return generationLanguage;
 	}
-
+ 
+	private boolean requiresUpperCase(){
+		Language language = getGenerationLanguage();
+		switch (language){
+		case CSHARP:
+			return true;
+		case C:
+			return true;
+		case PYTHON:
+			return true;
+		case GO:
+			return true;
+		case PHP:
+			return true;
+		case NODE:
+			return false;
+		case RUBY:
+			return false;
+		default:
+			return false;
+		}
+		
+	}
 	private URL getTemplateURL(Language language){
 		URL url = null;
 
