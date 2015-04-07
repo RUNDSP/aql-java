@@ -1,14 +1,10 @@
 package com.aerospike.aql;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.util.List;
 
 import org.junit.Test;
 
 import com.aerospike.aql.AQLGenerator.Language;
-import com.aerospike.client.ResultCode;
-import com.aerospike.client.query.RecordSet;
 
 public class AQL2GenerationTest {
 	
@@ -106,8 +102,20 @@ public class AQL2GenerationTest {
 		File inputFile = new File("src/test/resources/Everything.aql");
 		File outputFile = new File("CodeGeneration/Java/Everything.java");
 		aql2.generate(inputFile, outputFile, Language.JAVA);
-		outputFile = new File("CodeGeneration/Go/Everything.go");
+	}
+	@Test
+	public void testGoGenarateFile() throws Exception{
+		AQL aql2 = new AQL();
+		File inputFile = new File("src/test/resources/Everything.aql");
+		File outputFile = new File("CodeGeneration/Go/Everything.go");
 		aql2.generate(inputFile, outputFile, Language.GO);
+	}
+	@Test
+	public void testCsharpGenarateFile() throws Exception{
+		AQL aql2 = new AQL();
+		File inputFile = new File("src/test/resources/Everything.aql");
+		File outputFile = new File("CodeGeneration/csharp/Everything.cs");
+		aql2.generate(inputFile, outputFile, Language.CSHARP);
 	}
 
 }

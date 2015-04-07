@@ -270,7 +270,7 @@ create
 	: 
 	CREATE ((LIST | MAPVALUES | MAPKEYS)? INDEX index_name ON nameSet {definitions.add(VariableDefinition.WRITE_POLICY);} 
 		'(' binName=bin ')' iType=(NUMERIC | STRING) {definitions.add(VariableDefinition.INDEX_TASK);}
-		| USER  user PASSWORD password (ROLE role | ROLES roles*) {definitions.add(VariableDefinition.ADMIN_POLICY);}
+		| USER  user PASSWORD password (ROLE role | ROLES roles) {definitions.add(VariableDefinition.ADMIN_POLICY);}
 		| ROLE  role (PRIVILEGE | PRIVILEGES) privilege* {definitions.add(VariableDefinition.ADMIN_POLICY);}
 		)
 	
@@ -327,7 +327,8 @@ roles
 	;
 
 role
-	: IDENTIFIER
+	: IDENTIFIER 
+	| privilege
 	;
 			
 privilege returns [com.aerospike.client.admin.Privilege priv]
@@ -427,7 +428,7 @@ delete
 */	
 select 
 	: SELECT 
-	( STAR  
+	( '*'  
 	{
 	definitions.add(VariableDefinition.RECORD);
 	}
@@ -555,11 +556,11 @@ predicate
 	;
 
 primaryKeyPredicate
-	: PK EQ primaryKey[$statement::nameSpace, $statement::setName]
+	: PK '=' primaryKey[$statement::nameSpace, $statement::setName]
 	;
 
 generationPredicate
-	: 'generation' EQ INTLITERAL
+	: 'generation' '=' INTLITERAL
 	;	
 	
 filterPredicate
@@ -575,11 +576,11 @@ equalityFilter
 	;
 	
 ttlValue
-	: TTL EQ integerValue
+	: TTL '=' integerValue
 	;
 	
 binValue
-	: bin EQ value
+	: bin '=' value
 	;
 	
 rangeFilter
@@ -869,12 +870,10 @@ KILL_SCAN: 'kill_scan';
 PK : 'pk';
 STRING: 'string';
 NUMERIC: 'numeric';
-EQ: '=';
 IN: 'in';
 LIST: 'list';
 MAPKEYS: 'mapkeys';
 MAPVALUES: 'mapvalues';
-STAR: '*';
 REGISTER : 'register';
 REMOVE: 'remove';
 AGGREGATE: 'aggregate';

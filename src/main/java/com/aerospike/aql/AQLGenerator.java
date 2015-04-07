@@ -5,7 +5,6 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.TokenStream;
@@ -41,7 +40,7 @@ import com.aerospike.aql.grammar.AQLParser.PrintContext;
 import com.aerospike.aql.grammar.AQLParser.RangeFilterContext;
 import com.aerospike.aql.grammar.AQLParser.RegisterContext;
 import com.aerospike.aql.grammar.AQLParser.RemoveContext;
-import com.aerospike.aql.grammar.AQLParser.RolesContext;
+import com.aerospike.aql.grammar.AQLParser.RoleContext;
 import com.aerospike.aql.grammar.AQLParser.SelectContext;
 import com.aerospike.aql.grammar.AQLParser.SetContext;
 import com.aerospike.aql.grammar.AQLParser.ShowContext;
@@ -163,8 +162,8 @@ public class AQLGenerator extends AQLBaseListener {
 			List<String> roles = new ArrayList<String>();
 			if (ctx.role() != null){
 				roles.add(ctx.role().getText());
-			} else if (ctx.roles().size() > 0){
-				for (RolesContext role : ctx.roles()){
+			} else if (ctx.roles().role().size() > 0){
+				for (RoleContext role : ctx.roles().role()){
 					roles.add(role.getText());
 				}
 			}

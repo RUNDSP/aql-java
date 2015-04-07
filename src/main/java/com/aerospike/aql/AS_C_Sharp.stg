@@ -1,82 +1,44 @@
 aqlFile(className, statements, host, port) ::= <<
 
-import gnu.crypto.util.Base64;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Aerospike.Client;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+namespace AerospikeTraining
+{
+    class Program
+    {
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
+        static void Main(string[] args)
+        {
+            try
+            {
+				<statements>
+            catch (AerospikeException e)
+            {
+                Console.WriteLine("AerospikeException - Message: " + e.Message);
+                Console.WriteLine("AerospikeException - StackTrace: " + e.StackTrace);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception - Message: " + e.Message);
+                Console.WriteLine("Exception - StackTrace: " + e.StackTrace);
+            }
+            finally
+            {
+                if (client != null && client.Connected)
+                {
+                    // Close Aerospike server connection
+                    client.Close();
+                }
+            }
+            
+        } //main
 
-import com.aerospike.client.AerospikeClient;
-import com.aerospike.client.AerospikeException;
-import com.aerospike.client.Bin;
-import com.aerospike.client.Info;
-import com.aerospike.client.Key;
-import com.aerospike.client.Language;
-import com.aerospike.client.Operation;
-import com.aerospike.client.Record;
-import com.aerospike.client.ScanCallback;
-import com.aerospike.client.Value;
-import com.aerospike.client.cluster.Node;
-import com.aerospike.client.lua.LuaConfig;
-import com.aerospike.client.policy.AdminPolicy;
-import com.aerospike.client.policy.ClientPolicy;
-import com.aerospike.client.policy.GenerationPolicy;
-import com.aerospike.client.policy.Policy;
-import com.aerospike.client.policy.InfoPolicy;
-import com.aerospike.client.policy.QueryPolicy;
-import com.aerospike.client.policy.RecordExistsAction;
-import com.aerospike.client.policy.ScanPolicy;
-import com.aerospike.client.policy.WritePolicy;
-import com.aerospike.client.query.IndexCollectionType;
-import com.aerospike.client.query.IndexType;
-import com.aerospike.client.query.RecordSet;
-import com.aerospike.client.query.ResultSet;
-import com.aerospike.client.query.Statement;
-import com.aerospike.client.task.IndexTask;
-import com.aerospike.client.task.RegisterTask;
-
-public class <className> {
-
-	public <className>() {
-		super();
-	}
-
-	public static void main(String[] args) {
-		<className> worker = new <className>();
-		worker.run();
-	}
-	public void run()  {
-		<statements>
-	}
-	
-	protected void printInfo(String title, String infoString){
-		if (infoString == null){
-			System.out.println("Null info string");
-			return;
-		}
-		String[] outerParts = infoString.split(";");
-		System.out.println(title);
-		for (String s : outerParts){
-
-			String[] innerParts = s.split(":");
-			for (String parts : innerParts){
-				System.out.println("\t" + parts);
-			}
-			System.out.println();
-		}
-		
-	}
-	protected String infoAll(AerospikeClient client, String cmd) throws AerospikeException{
-		Node[] nodes = client.getNodes();
-		StringBuilder results = new StringBuilder();
-		for (Node node : nodes){
-			results.append(Info.request(node.getHost().name, node.getHost().port, cmd)).append("\n");
-		}
-		return results.toString();
-	}
+    }
 }
 
 >>
@@ -171,7 +133,8 @@ Statement stmt = new Statement();
 >>
 
 udfFile()::=<<
-File udfFile = null;
+string udfFileName = null;
+string udfPath = null;
 
 >>
 
@@ -193,7 +156,7 @@ IndexTask indexTask = null;
 insertStmt(source, primaryKey, binNames, values) ::= <<
 /* <source> */
 writePolicy.recordExistsAction = RecordExistsAction.CREATE_ONLY;
-client.put(writePolicy, <primaryKey>, 
+client.Put(writePolicy, <primaryKey>, 
 	<first(binNames),first(values):{z,vv|new Bin("<z>", <vv>)}><rest(binNames),rest(values):{z,vv|, new Bin("<z>", <vv>)}>);
 			
 >>
@@ -204,9 +167,9 @@ updateStmt(source, primaryKey, binList, generation, ttl)::=<<
 <if(generation)><generation><endif>
 writePolicy.recordExistsAction = RecordExistsAction.UPDATE;
 <if(binList)>
-client.put(writePolicy, <primaryKey>, <first(binList):{z|<z>}><rest(binList):{z|, <z>}>);
+client.Put(writePolicy, <primaryKey>, <first(binList):{z|<z>}><rest(binList):{z|, <z>}>);
 <else>
-client.touch(writePolicy, <primaryKey>);
+client.Touch(writePolicy, <primaryKey>);
 <endif>
 
 >>
@@ -224,56 +187,51 @@ deleteStmt(source, primaryKey, generation) ::= <<
 <if(generation)>
 writePolicy.generation = <generation>;
 <endif>
-client.delete(writePolicy, <primaryKey>);
+client.Delete(writePolicy, <primaryKey>);
 
 >>
 
 query(source, nameSpace, setName, binNames, where) ::= <<
 /* <source> */
 stmt = new Statement();
-stmt.setNamespace("<nameSpace>");
-stmt.setSetName("<setName>");
-stmt.setFilters(<where>);
+stmt.SetNamespace("<nameSpace>");
+stmt.SetSetName("<setName>");
+stmt.SetFilters(<where>);
 <if(binNames)>
-stmt.setBinNames(<first(binNames):{b|"<b>"}><rest(binNames):{b|, "<b>"}>);
+stmt.SetBinNames(<first(binNames):{b|"<b>"}><rest(binNames):{b|, "<b>"}>);
 <endif>
 // Execute the query
-recordSet = client.query(queryPolicy, stmt);
+recordSet = client.Query(queryPolicy, stmt);
 // Process the record set
-try {
-	while (recordSet != null && recordSet.next()) {
-		Key key = recordSet.getKey();
-		record = recordSet.getRecord();
-		System.out.println("Key: " + key);
-		System.out.println("Record: " + record);
-	}
+while (recordSet != null && recordSet.Next()) {
+	Key key = recordSet.Key();
+	Record record = recordSet.Record();
+	Console.WriteLine("Key: " + key);
+	Console.WriteLine("Record: " + record);
 }
-finally {
-	recordSet.close();
-}
+recordSet.Close();
 
 >>
 
 get(source, binNames, key) ::= <<
 /* <source> */
 <if(binNames)>
-record = client.get(policy, <key>, <first(binNames):{b|"<b>"}><rest(binNames):{b|, "<b>"}>);
+record = client.Get(policy, <key>, <first(binNames):{b|"<b>"}><rest(binNames):{b|, "<b>"}>);
 <else>
-record = client.get(policy, <key>);
+record = client.Get(policy, <key>);
 <endif>
 
 >>
 
 scan(source, nameSpace, setName, binNames)::=<<
 /* <source> */
-client.scanAll(scanPolicy, "<nameSpace>", "<setName>", new ScanCallback() {
-	@Override
-	public void scanCallback(Key key, Record record) throws AerospikeException {
-		System.out.println("Key: " + key);
-		System.out.println("Record: " + record);
-	}
-}<if(binNames)><binNames:{b|, "<b>"}><endif>);
+client.scanAll(scanPolicy, "<nameSpace>", "<setName>", scanCallback<if(binNames)><binNames:{b|, "<b>"}><endif>);
 
+	public scanCallback(Key key, Record record) {
+		Console.WriteLine("Key: " + key);
+		Console.WriteLine("Record: " + record);
+	}
+}
 >>
 
 aggregate(source, nameSpace, setName, 
@@ -281,20 +239,20 @@ aggregate(source, nameSpace, setName,
 				arguments, where) ::= <<
 /* <source> */
 stmt = new Statement();
-stmt.setNamespace("<nameSpace>");
-stmt.setSetName("<setName>");
-stmt.setFilters(<where>);
-resultSet = client.queryAggregate(null, stmt, 
-	"<package>", "<function>" <if(arguments)><arguments:{qq|, Value.get(<qq>)}><endif>);
+stmt.SetNamespace("<nameSpace>");
+stmt.SetSetName("<setName>");
+stmt.SetFilters(<where>);
+resultSet = client.QueryAggregate(null, stmt, 
+	"<package>", "<function>" <if(arguments)><arguments:{qq|, Value.Get(<qq>)}><endif>);
 try {
 	int count = 0;
 	while (resultSet.next()) {
-		Object object = resultSet.getObject();
-		System.out.println("Result: " + object);
+		Object object = resultSet.Object();
+		Console.WriteLine("Result: " + object);
 		count++;
 	}
 	if (count == 0) {
-		System.out.println("No results returned.");			
+		Console.WriteLine("No results returned.");			
 	}
 }
 finally {
@@ -310,13 +268,13 @@ List\<String> roles = new ArrayList\<String>();
 <roles:{r|roles.add("<r>");
 }>
 <endif>
-client.createUser(adminPolicy, "<user>", "<password>"<if(roles)>, roles<endif>);
+client.CreateUser(adminPolicy, "<user>", "<password>"<if(roles)>, roles<endif>);
 
 >>
 
 dropUser(source, user)::=<<
 /* <source> */
-client.dropUser(adminPolicy, "<user>");
+client.DropUser(adminPolicy, "<user>");
 
 >>
 
@@ -324,20 +282,20 @@ client.dropUser(adminPolicy, "<user>");
 
 create(source, indexName, nameSpace, setName, binName, type, collectionType) ::= <<
 /* <source> */
-indexTask = client.createIndex(policy, "<nameSpace>", "<setName>", "<indexName>", "<binName>", IndexType.<type>, IndexCollectionType.<collectionType>);
-indexTask.waitTillComplete(10);
+indexTask = client.CreateIndex(policy, "<nameSpace>", "<setName>", "<indexName>", "<binName>", IndexType.<type>, IndexCollectionType.<collectionType>);
+indexTask.Wait();
 				
 >>
 
 dropIndex(source, indexName, nameSpace, setName) ::= <<
 /* <source> */
-client.dropIndex(policy, "<nameSpace>", "<setName>", "<indexName>");
+client.DropIndex(policy, "<nameSpace>", "<setName>", "<indexName>");
 
 >>
 
 showIndex(source, nameSpace, setName) ::= <<
 /* <source> */
-infoResult = Info.request(infoPolicy, client.getNodes()[0], "sindex<if(nameSpace)>/<nameSpace><endif><if(setName)>/<setName><endif>");
+infoResult = Info.Request(infoPolicy, client.getNodes()[0], "sindex<if(nameSpace)>/<nameSpace><endif><if(setName)>/<setName><endif>");
 
 >>
 
@@ -349,7 +307,7 @@ statIndex(source, nameSpace, indexName) ::= <<
 register(source, path) ::= <<
 /* <source> */
 udfFile = new File("<path>");
-task = client.register(null, 
+task = client.Register(null, 
 	udfFile.getPath(), 
 	udfFile.getName(), 
 	Language.LUA); 
@@ -359,7 +317,7 @@ task.waitTillComplete(10);
 
 removeModule(source, module) ::= <<
 /* <source> */
-infoResult = Info.request(infoPolicy, client.getNodes()[0], "udf-remove:filename=<module>");
+infoResult = Info.Request(infoPolicy, client.getNodes()[0], "udf-remove:filename=<module>");
 
 >>
 
@@ -368,7 +326,7 @@ operateStatement(source, operations, key, generation)::=<<
 <if(generation)>
 <generation>
 <endif>
-record = client.operate(writePolicy, <key>, <first(operations):{b|<b>}><rest(operations):{b|, <b>}>);
+record = client.Operate(writePolicy, <key>, <first(operations):{b|<b>}><rest(operations):{b|, <b>}>);
 
 >>
 
@@ -381,12 +339,12 @@ String[] infoResults = infoAll("set-config:context=namespace;id=<namespace>;set=
 execute(source, nameSpace, nameSpace, setName, key, module, udf, arguments) ::= <<
 /* <source> */
 <if(key)>
-client.execute(null, <key>, "<module>", "<udf>"<if(arguments)><arguments:{z|, <z>}><endif>);
+client.Execute(null, <key>, "<module>", "<udf>"<if(arguments)><arguments:{z|, <z>}><endif>);
 <else>
 stmt = new Statement();
-stmt.setNamespace("<nameSpace>");
-stmt.setSetName("<setName>");
-client.queryAggregate(null, stmt, "<module>", "<udf>"<if(arguments)><arguments:{z|, <z>}><endif>);
+stmt.SetNamespace("<nameSpace>");
+stmt.SetSetName("<setName>");
+client.QueryAggregate(null, stmt, "<module>", "<udf>"<if(arguments)><arguments:{z|, <z>}><endif>);
 <endif>
 
 >>
@@ -443,8 +401,8 @@ setUserPassword(source, user, password) ::= <<
 
 getTimeout(source) ::= <<
 /* <source> */
-System.out.println("Policy timeout: " + policy.timeout);
-System.out.println("Write policy timeout: " + writePolicy.timeout);
+Console.WriteLine("Policy timeout: " + policy.timeout);
+Console.WriteLine("Write policy timeout: " + writePolicy.timeout);
 
 >>
 getVerbose(source) ::= <<
@@ -457,7 +415,7 @@ getEcho(source) ::= <<
 >>
 getTTL(source) ::= <<
 /* <source> */
-System.out.println("Write policy expiration: " + writePolicy.expiration);
+Console.WriteLine("Write policy expiration: " + writePolicy.expiration);
 
 >>
 getView(source) ::= <<
@@ -470,7 +428,7 @@ getUseSMD(source) ::= <<
 >>
 getUserPath(source) ::= <<
 /* <source> */
-System.out.println("Lua source directory: " + LuaConfig.SourceDirectory);
+Console.WriteLine("Lua source directory: " + LuaConfig.SourceDirectory);
 
 >>
 getSystemPath(source) ::= <<
@@ -480,23 +438,23 @@ getSystemPath(source) ::= <<
 
 statQuery(source) ::= <<
 /* <source> */
-infoResult = Info.request(infoPolicy, client.getNodes()[0], "query-stat");
+infoResult = Info.Request(infoPolicy, client.getNodes()[0], "query-stat");
 
 >>
 
 statSystem(source) ::= <<
 /* <source> */
-infoResult = Info.request(infoPolicy, client.getNodes()[0], "statistics");
+infoResult = Info.Request(infoPolicy, client.getNodes()[0], "statistics");
 
 >>
 
 
 filterEquals(bin, value) ::= <<
-Filter.equal("<bin>", Value.get(<value>))
+Filter.Rqual("<bin>", Value.Get(<value>))
 >>
 
 filterRange(bin, low, high) ::= <<
-Filter.range("<bin>", Value.get(<low>), Value.get(<high>))
+Filter.Range("<bin>", Value.Get(<low>), Value.Get(<high>))
 >>
 
 primaryKey(namespace, set, key) ::=<<
@@ -513,19 +471,19 @@ primaryKeyNumeric(key)::=<<
 
 
 value(value) ::= <<
-Value.get(<value>)
+Value.Get(<value>)
 >>
 
 stringValue(value) ::= <<
-Value.get("<value>")
+Value.Get("<value>")
 >>
 
 jsonArrayValue(value) ::= <<
-Value.getAsList((JSONArray)JSONValue.parse("<value>"))
+Value.GetAsList((JSONArray)JSONValue.parse("<value>"))
 >>
 
 jsonObjectValue(value) ::= <<
-Value.getAsMap((JSONObject)JSONValue.parse("<value>"))
+Value.GetAsMap((JSONObject)JSONValue.parse("<value>"))
 >>
 
 
@@ -542,43 +500,43 @@ operateFunction(functionName, bin, value) ::=<<
 
 showModules(source) ::= <<
 /* <source> */
-infoResult = Info.request(infoPolicy, client.getNodes()[0], "udf-list");
+infoResult = Info.Request(infoPolicy, client.getNodes()[0], "udf-list");
 
 >>
 
 showNamespaces(source) ::= <<
 /* <source> */
-infoResult = Info.request(infoPolicy, client.getNodes()[0], "namespaces");
+infoResult = Info.Request(infoPolicy, client.getNodes()[0], "namespaces");
 
 >>
 
 showSets(source) ::= <<
 /* <source> */
-infoResult = Info.request(infoPolicy, client.getNodes()[0], "sets");
+infoResult = Info.Request(infoPolicy, client.getNodes()[0], "sets");
 
 >>
 
 showIndexes(source, nameSpace, setName) ::= <<
 /* <source> */
-infoResult = Info.request(infoPolicy, client.getNodes()[0], "indexes");
+infoResult = Info.Request(infoPolicy, client.getNodes()[0], "indexes");
 
 >>
 
 showBins(source) ::= <<
 /* <source> */
-infoResult = Info.request(infoPolicy, client.getNodes()[0], "bins");
+infoResult = Info.Request(infoPolicy, client.getNodes()[0], "bins");
 
 >>
 
 showScans(source) ::= <<
 /* <source> */
-infoResult = Info.request(infoPolicy, client.getNodes()[0], "jobs:module=scan");
+infoResult = Info.Request(infoPolicy, client.getNodes()[0], "jobs:module=scan");
 
 >>
 
 showQueries(source) ::= <<
 /* <source> */
-infoResult = Info.request(infoPolicy, client.getNodes()[0], "jobs:module=query");
+infoResult = Info.Request(infoPolicy, client.getNodes()[0], "jobs:module=query");
 
 >>
 
@@ -597,41 +555,41 @@ showUsers(source) ::= <<
 
 descIndex(source, nameSpace, indexName) ::= <<
 /* <source> */
-infoResult = Info.request(infoPolicy, client.getNodes()[0], "sindex-describe");
+infoResult = Info.Request(infoPolicy, client.getNodes()[0], "sindex-describe");
 
 >>
 
 
 descModule(source, name) ::= <<
 /* <source> */
-System.out.println("Module: <name>");
-infoResult = Info.request(infoPolicy, client.getNodes()[0], "udf-get:filename=<name>");
+Console.WriteLine("Module: <name>");
+infoResult = Info.Request(infoPolicy, client.getNodes()[0], "udf-get:filename=<name>");
 {
 	String[] udfparts = infoResult.split(";");
-	System.out.println(new String(Base64.decode(udfparts[2].getBytes(), 8, udfparts[2].length()-2)));
+	Console.WriteLine(new String(Base64.decode(udfparts[2].getBytes(), 8, udfparts[2].length()-2)));
 }
 
 >>
 
 killQuery(source, id) ::= <<
 /* <source> */
-Info.request(infoPolicy, client.getNodes()[0], "query-kill=<id>");
+Info.Request(infoPolicy, client.getNodes()[0], "query-kill=<id>");
 
 >>
 
 killScan(source, id) ::= <<
 /* <source> */
-Info.request(infoPolicy, client.getNodes()[0], "scan-kill=<id>");
+Info.Request(infoPolicy, client.getNodes()[0], "scan-kill=<id>");
 
 >>
 
 run(source, fileName) ::= <<
 /* <source> */
-System.out.println("Run file: " + <fileName>);
+Console.WriteLine("Run file: " + <fileName>);
 
 >>
 print(source, value) ::= <<
 /* <source> */
-System.out.println("<value>");
+Console.WriteLine("<value>");
 
 >>

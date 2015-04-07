@@ -216,8 +216,8 @@ public class AQLExecutor extends AQLBaseListener {
 				List<String> roles = new ArrayList<String>();
 				if (ctx.role() != null){
 					roles.add(ctx.role().getText());
-				} else if (ctx.roles().size() > 0){
-					for (RolesContext role : ctx.roles()){
+				} else if (ctx.roles().role().size() > 0){
+					for (RoleContext role : ctx.roles().role()){
 						roles.add(role.getText());
 					}
 				}
