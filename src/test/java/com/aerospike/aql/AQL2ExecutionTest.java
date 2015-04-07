@@ -44,6 +44,33 @@ public class AQL2ExecutionTest {
 		aql2.execute("select * from test.demo where pk = 'test-select'", ex);
 	}
 	@Test
+	public void testJavaExecuteSelectRange() throws Exception {
+		AQL aql2 = new AQL(client, 20);
+		GenericResult result = aql2.go("delete from test.demo where pk = 'test-select-1'");
+		result = aql2.go("delete from test.demo where pk = 'test-select-2'");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.go("delete from test.demo where pk = 'test-select-3'");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.go("drop index test.demo index_bn2");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.go("INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('test-select-1', 5, '2', 2)");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.go("INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('test-select-2', 6, '2', 2)");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.go("INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('test-select-3', 7, '2', 2)");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.go("CREATE INDEX index_bn2 ON test.demo (bn2) NUMERIC");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.go("select * from test.demo where bn2 between 5 and 7");
+		assertTrue(result.resultCode == ResultCode.OK);
+		int count = 0;
+		while (result.recordSet.next()){
+			count++;
+		}
+		result.recordSet.close();
+		assertTrue(count >= 3);
+	}
+	@Test
 	public void testJavaExecuteCreateMapKeysIndex() throws Exception {
 		AQL aql2 = new AQL(client, 20);
 		GenericResult result = aql2.go("CREATE MAPKEYS INDEX index_on_mapkeys ON test.demo (amap) string");

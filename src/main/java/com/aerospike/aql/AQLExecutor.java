@@ -209,7 +209,7 @@ public class AQLExecutor extends AQLBaseListener {
 				}
 				IndexTask indexTask = client.createIndex(null, namespace, set, indexName, binName, type, collectionType);
 				indexTask.waitTillComplete(10);
-				results.report(String.format("Index %s created", indexName));
+				results.report(String.format("OK, Index %s added", indexName));
 			} else if (ctx.USER() != null) { // its a user
 				String user = ctx.user().getText();
 				String password = ctx.password().getText();

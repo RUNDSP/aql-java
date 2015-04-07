@@ -30,6 +30,7 @@ import com.aerospike.client.policy.QueryPolicy;
 import com.aerospike.client.policy.RecordExistsAction;
 import com.aerospike.client.policy.ScanPolicy;
 import com.aerospike.client.policy.WritePolicy;
+import com.aerospike.client.query.Filter;
 import com.aerospike.client.query.IndexCollectionType;
 import com.aerospike.client.query.IndexType;
 import com.aerospike.client.query.RecordSet;
@@ -492,11 +493,11 @@ infoResult = Info.request(infoPolicy, client.getNodes()[0], "statistics");
 
 
 filterEquals(bin, value) ::= <<
-Filter.equal("<bin>", Value.get(<value>))
+Filter.equal("<bin>", <value>)
 >>
 
 filterRange(bin, low, high) ::= <<
-Filter.range("<bin>", Value.get(<low>), Value.get(<high>))
+Filter.range("<bin>", <low>, <high>)
 >>
 
 primaryKey(namespace, set, key) ::=<<
@@ -511,13 +512,20 @@ primaryKeyNumeric(key)::=<<
 <key>
 >>
 
-
 value(value) ::= <<
 Value.get(<value>)
 >>
 
 stringValue(value) ::= <<
 Value.get("<value>")
+>>
+
+string(value)::=<<
+"<value>"
+>>
+
+object(value)::=<<
+<value>
 >>
 
 jsonArrayValue(value) ::= <<

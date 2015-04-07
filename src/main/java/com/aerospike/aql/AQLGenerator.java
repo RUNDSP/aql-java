@@ -28,6 +28,7 @@ import com.aerospike.aql.grammar.AQLParser.DisconnectContext;
 import com.aerospike.aql.grammar.AQLParser.DropContext;
 import com.aerospike.aql.grammar.AQLParser.EqualityFilterContext;
 import com.aerospike.aql.grammar.AQLParser.ExecuteContext;
+import com.aerospike.aql.grammar.AQLParser.FilterPredicateContext;
 import com.aerospike.aql.grammar.AQLParser.GenerationPredicateContext;
 import com.aerospike.aql.grammar.AQLParser.GetContext;
 import com.aerospike.aql.grammar.AQLParser.InsertContext;
@@ -252,7 +253,8 @@ public class AQLGenerator extends AQLBaseListener {
 				st = getTemplateFor("query");
 				st.add("nameSpace", ns);
 				st.add("setName", set);
-				st.add("where", code.get(ctx.where().predicate().filterPredicate()));
+				FilterPredicateContext fc = ctx.where().predicate().filterPredicate();
+				st.add("where", code.get(fc));
 			}
 		} else { // its a scan
 			st = getTemplateFor("scan");
@@ -488,6 +490,7 @@ public class AQLGenerator extends AQLBaseListener {
 		putCode(ctx, st);
 	}
 
+	
 	@Override
 	public void exitValue(ValueContext ctx) {
 		putCode(ctx, code.get(ctx.getChild(0)));
@@ -515,6 +518,8 @@ public class AQLGenerator extends AQLBaseListener {
 		}
 		putCode(ctx, st);
 	}
+	
+	
 	private String escapeJsonString(String json){
 		
 		String escapedString = quotefixer.matcher(json).replaceAll("\\\\\""); //json.replaceAll("\"", "\\\"");
@@ -538,6 +543,11 @@ public class AQLGenerator extends AQLBaseListener {
 		}
 		st.add("key", key);
 		putCode(ctx, st);
+	}
+
+	@Override
+	public void exitFilterPredicate(FilterPredicateContext ctx) {
+		putCode(ctx, code.get(ctx.getChild(0)));
 	}
 
 	@Override
