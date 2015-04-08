@@ -1,8 +1,6 @@
 #AQL implemented in Java
 Aerospike [AQL](https://docs.aerospike.com/pages/viewpage.action?pageId=3807532) is a utility that executes Aerospike Query Language. Like the other Aerospike utilities, it is Linux only. It is does not exercise Aerospikes advanced capabilities.
 
-AQL2 is written in Java, so it will run anywhere where Java will run.
-
 [AQL2 is written in Java](https://github.com/aerospike/aql-java), so it will run anywhere where Java will run.] is a utility written in Java so it can run where ever Java can run. It will execute in one of following modes:
 
  1. Translate - translates the AQL to a runnable Java application with the correct Aerospike API calls
