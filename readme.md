@@ -23,8 +23,9 @@ The grammar that generates the parser is AQL.g4. The generated parser uses a tre
 ###Code generation
 code generation is achieved using [StringTemplates](http://www.stringtemplate.org/). There is a StringTemplate for each target language, these are:
 
-* AS_Go.st - for Go
-* AS_Java.st - for Java
+* AS_Go.stg - for Go
+* AS_Java.stg - for Java
+* AS_C_Sharp.stg - for C#
 
 The templates are located in the same directory as AQL.java at: src/main/java/com/aerospike/aql. The AQL class expects them to be there, so don't move them!
 
@@ -44,24 +45,25 @@ The code can be built with Maven.
 
 ##Dependencies
 
-* Aerospike Java client 3.0.33
+* Aerospike Java client 3.1.00
 * Apache commons cli 1.2
-* Log4j 1.2.14
+* Log4j 1.2.17
 * ANTLR 4.x
 
 
 ##Status
  1. Java generation - complete
  2. Go generation - partial
- 3. Execution - tested
- 4. API calls - limited testing
+ 3. C# generation - complete
+ 4. Execution - complete
+ 5. API calls - limited testing
 ```
 
 ## Usage
 The packaged Jar can be run with the following:
 
 ```bash
-java -jar aql2-3.0.0-jar-full.jar -h 192.168.21.150 -p 3000 -c test/resources/PkTest.aql -o output/PkTest.java -l JAVA
+java -jar aql2-2.0.0-jar-full.jar -h localhost -p 3000 -c test/resources/PkTest.aql -o output/PkTest.java -l JAVA
 ```	
 
 Where:
