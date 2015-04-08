@@ -40,9 +40,9 @@ Developers work on many platforms. Most developers are use SQL and AQL will be v
  
 ##Build
 The code can be built with Maven. 
-	
+```bash	
 	mvn clean package
-
+```
 ##Dependencies
 
 * Aerospike Java client 3.1.00
