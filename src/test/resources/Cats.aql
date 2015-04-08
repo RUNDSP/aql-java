@@ -1,0 +1,16 @@
+delete from test.demo where pk = 'test-select-list2'
+CREATE MAPKEYS INDEX index_on_mapkeys ON test.demo (amap) string
+	CREATE INDEX index_bn2 ON test.demo (bn2) NUMERIC
+	CREATE INDEX index_bn3 ON cats.demo (bn3) STRING
+	CREATE INDEX index_bn4 ON test.demo (bn4) NUMERIC
+
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('1', 1, '1', 1)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('2', 2, '2', 2)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('3', 3, '2', 2)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('4', 4, '2', 2)
+
+INSERT INTO test.demo (PK, bn2, bn3, bn4, amap) VALUES ('test-select-map', 5, '2', 2, 'JSON{"first": 123, "second": [4, 5, 6], "third": 789}')
+
+select * in mapkeys from test.demo where amap = 'first'
+
+

@@ -1,3 +1,6 @@
+connect '127.0.0.1' 3000
+
+
 drop module flight-package.lua
 REGISTER module 'src/test/resources/flight-package.lua'
 show modules

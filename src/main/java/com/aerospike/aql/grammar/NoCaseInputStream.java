@@ -2,33 +2,59 @@ package com.aerospike.aql.grammar;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 
-import org.antlr.runtime.ANTLRInputStream;
-import org.antlr.runtime.CharStream;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CharStream;
 
 public class NoCaseInputStream extends ANTLRInputStream {
 	
 	
-	public NoCaseInputStream(InputStream arg0, int arg1, int arg2, String arg3)
-			throws IOException {
-		super(arg0, arg1, arg2, arg3);
-	}
-
-	public NoCaseInputStream(InputStream input, int size, String encoding)
-			throws IOException {
-		super(input, size, encoding);
-	}
-
-	public NoCaseInputStream(InputStream input, int size) throws IOException {
-		super(input, size);
-	}
-
-	public NoCaseInputStream(InputStream input, String encoding)
-			throws IOException {
-		super(input, encoding);
-	}
 
 	public NoCaseInputStream(InputStream input) throws IOException {
+		super(input);
+	}
+
+
+	public NoCaseInputStream() {
+		super();
+	}
+
+
+	public NoCaseInputStream(char[] data, int numberOfActualCharsInArray) {
+		super(data, numberOfActualCharsInArray);
+	}
+
+
+	public NoCaseInputStream(InputStream input, int initialSize,
+			int readChunkSize) throws IOException {
+		super(input, initialSize, readChunkSize);
+	}
+
+
+	public NoCaseInputStream(InputStream input, int initialSize)
+			throws IOException {
+		super(input, initialSize);
+	}
+
+
+	public NoCaseInputStream(Reader r, int initialSize, int readChunkSize)
+			throws IOException {
+		super(r, initialSize, readChunkSize);
+	}
+
+
+	public NoCaseInputStream(Reader r, int initialSize) throws IOException {
+		super(r, initialSize);
+	}
+
+
+	public NoCaseInputStream(Reader r) throws IOException {
+		super(r);
+	}
+
+
+	public NoCaseInputStream(String input) {
 		super(input);
 	}
 

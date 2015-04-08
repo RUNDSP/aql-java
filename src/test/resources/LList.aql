@@ -1,3 +1,5 @@
+connect '127.0.0.1' 3000
+
 delete from test.demo where pk = 'Key_1'
 print 'Simple Large List'
 execute llist.add('LLIST_BIN', 55) on test.demo where pk = 'Key_1'
@@ -16,5 +18,3 @@ execute llist.get_config('LLIST_BIN') on test.demo where pk = 'Key_1'
 execute llist.get_capacity('LLIST_BIN') on test.demo where pk = 'Key_1'
 execute llist.destroy('LLIST_BIN') on test.demo where pk = 'Key_1'
 
-
-#print 'Complex Large List'

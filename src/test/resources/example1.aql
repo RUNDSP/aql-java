@@ -1,3 +1,5 @@
+connect '127.0.0.1' 3000
+
 # asql command usage example file. 
 # To execute this file, at the terminal prompt do:  
 # >asql -c "run 'example1.asql'"
@@ -8,7 +10,7 @@
 SET ECHO true
 
 # Set record time to live to 100 seconds so the records are automatically purged.
-SET RECORD_TTL 100
+SET TTL 100
 PRINT '>>> Set record time to live to 100 seconds.'
 
 # Define secondary indexes on the data that we will insert

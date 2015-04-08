@@ -1,0 +1,569 @@
+aqlFile(className, statements, host, port) ::= <<
+
+package main
+
+import (
+	"bufio"
+	"flag"
+	"fmt"
+	. "github.com/aerospike/aerospike-client-go"
+	"math/rand"
+	"os"
+	"strings"
+	"time"
+)
+
+func panicOnError(err error) {
+	if err != nil {
+		fmt.Printf("Aerospike error: %d", err)
+		panic(err)
+	}
+}
+
+func main() {
+	// Establish connection to Aerospike server
+	client, err := NewClient("<host>", <port>)
+	panicOnError(err)
+	defer client.Close()
+
+	if !client.IsConnected() {
+		fmt.Println("ERROR: Connection to Aerospike cluster failed! Please check the server settings and try again!")
+		fmt.Scanf("%s", &c)
+		return
+	}
+	
+	<statements>
+
+}
+
+>>
+
+statements(statementList, variables) ::= <<
+// Variables for statements
+
+<variables>
+
+// AQL statements - start
+<statementList>
+// AQL statements - finish, total: <length(statementList)>
+
+>>
+
+
+connect(source, host, port)::=<<
+// <source> 
+/*
+clientPolicy := NewClientPolicy()
+client, err := NewClientWithPolicyAndHost(clientPolicy, NewHost("a.host", 3000),
+							NewHost("another.host", 3000),
+							NewHost("and.another.host", 300))
+*/
+clientPolicy = NewClientPolicy()
+client, err := NewClientWithPolicy(clientPolicy, "<host>", <port>)
+
+>>
+
+disconnect(source)::=<<
+// <source>
+client.Close()
+
+>>
+
+queryPolicy()::=<<
+queryPolicy := NewQueryPolicy()
+
+>>
+
+readPolicy()::=<<
+policy := NewPolicy()
+
+>>
+
+infoPolicy()::=<<
+infoPolicy := NewInfoPolicy()
+
+>>
+
+infoString()::=<<
+>>
+
+record()::=<<
+>>
+
+recordSet()::=<<
+>>
+
+resultSet()::=<<
+>>
+
+scanPolicy()::=<<
+scanPolicy := NewScanPolicy()
+
+>>
+
+writePolicy()::=<<
+writePolicy := NewWritePolicy()
+
+>>
+
+adminPolicy()::=<<
+adminPolicy := NewAdminPolicy()
+
+>>
+
+
+stmt()::=<<
+stmt := NewStatement()
+
+>>
+
+udfFile()::=<<
+File udfFile
+
+>>
+
+registerTask()::=<<
+>>
+
+indexTask()::=<<
+>>
+
+insertStmt(source, primaryKey, binNames, values) ::= <<
+// <source> 
+writePolicy.recordExistsAction = CREATE_ONLY
+err := client.PutBins(writePolicy, <primaryKey>, 
+	<first(binNames),first(values):{z,vv|NewBin("<z>", <vv>)}><rest(binNames),rest(values):{z,vv|, NewBin("<z>", <vv>)}>)
+
+>>
+
+updateStmt(source, primaryKey, binList, generation, ttl)::=<<
+// <source> 
+<if(ttl)>writePolicy.expiration = <ttl><endif>
+<if(generation)><generation><endif>
+writePolicy.recordExistsAction = UPDATE
+<if(binList)>
+err := client.PutBins(writePolicy, <primaryKey>, <first(binList):{z|<z>}><rest(binList):{z|, <z>}>)
+<else>
+err := client.Touch(writePolicy, <primaryKey>)
+<endif>
+
+>>
+
+binList(bins) ::=<<
+<first(binList):{z|<z>}><rest(binList):{z|, <z>}>
+>>
+
+binValue(binName, binValue) ::= <<
+NewBin("<binName>", <binValue>)
+>>
+
+deleteStmt(source, primaryKey, generation) ::= <<
+// <source> 
+<if(generation)>
+writePolicy.generation = <generation>
+<endif>
+err := client.Delete(writePolicy, <primaryKey>)
+
+>>
+
+query(source, nameSpace, setName, binNames, where) ::= <<
+// <source> 
+stmt = NewStatement("<nameSpace>", "<nameSpace>"<first(binNames):{b|, "<b>"}><rest(binNames):{b|, "<b>"}>)
+stmt.Addfilter(<where>)
+// Execute the query
+recordSet, err := client.Query(queryPolicy, stmt);
+panicOnError(err)
+// Process the record set
+L:
+	for {
+		select {
+			case record, chanOpen := \<-recordset.Records:
+				if !chanOpen {
+					break L
+				}
+				key := record.Key
+				fmt.Printf("Key: %v\n", key)
+				fmt.Printf("Record: %v\n", record)
+			case err := \<-recordset.Errors:
+				panicOnError(err)
+		}
+	}
+	recordset.Close()
+
+>>
+
+get(source, binNames, key) ::= <<
+// <source>
+<if(binNames)>
+record, err := client.GetBins(policy, <key>, <first(binNames):{b|"<b>"}><rest(binNames):{b|, "<b>"}>)
+<else>
+record, err := client.Get(policy, <key>)
+<endif>
+panicOnError(err)
+
+>>
+
+scan(source, nameSpace, setName, binNames)::=<<
+// <source> 
+records, err := client.ScanAll(scanPolicy, "<nameSpace>", "<setName>"<if(binNames)><binNames:{b|, "<b>"}><endif>)
+panicOnError(err)
+for element := range records.Records {
+	fmt.Println(element)
+}
+
+>>
+
+aggregate(source, nameSpace, setName, 
+				package, function,  
+				arguments, where) ::= <<
+// <source>
+stmt := NewStatement("<nameSpace>", "<setName>");
+stmt.Addfilters(<where>);
+resultSet, err := client.QueryAggregate(null, stmt, 
+	"<package>", "<function>" <if(arguments)><arguments:{qq|, Value.get(<qq>)}><endif>);
+panicOnError(err)
+try {
+	int count = 0;
+	while (resultSet.next()) {
+		Object object = resultSet.getObject();
+		System.out.println("Result: " + object);
+		count++;
+	}
+	if (count == 0) {
+		System.out.println("No results returned.");			
+	}
+}
+finally {
+	resultSet.close();
+}
+				
+>>
+
+createUser(source, user, password, roles)::=<<
+// <source>
+<if(roles)>
+List\<String\> roles = new ArrayList\<String\>();
+<roles:{r|roles.add("<r>");}>
+<endif>
+client.createUser(adminPolicy, "<user>", "<password>"<if(roles)>, roles<endif>);
+
+>>
+
+dropUser(source, user)::=<<
+// <source>
+client.dropUser(adminPolicy, "<user>");
+
+>>
+
+
+
+create(source, indexName, nameSpace, setName, binName, type, collectionType) ::= <<
+// <source>
+indexTask = client.CreateIndex(writePolicy, "<nameSpace>", "<setName>", "<indexName>", "<binName>", <type>, "<collectionType>");
+indexTask.waitTillComplete(10);
+				
+>>
+
+dropIndex(source, indexName, nameSpace, setName) ::= <<
+// <source>
+client.DropIndex(writePolicy, "<nameSpace>", "<setName>", "<indexName>");
+
+>>
+
+showIndex(source, nameSpace, setName) ::= <<
+// <source>
+infoResult = RequestInfo(infoPolicy, client.getNodes()[0], "sindex<if(nameSpace)>/<nameSpace><endif><if(setName)>/<setName><endif>");
+
+>>
+
+statIndex(source, nameSpace, indexName) ::= <<
+// <source>
+
+>>
+
+register(source, path) ::= <<
+// <source>
+udfFile = new File("<path>");
+task = client.register(null, 
+	udfFile.getPath(), 
+	udfFile.getName(), 
+	Language.LUA); 
+task.waitTillComplete(10);
+
+>>
+
+removeModule(source, module) ::= <<
+// <source>
+infoResult = RequestInfo(infoPolicy, client.getNodes()[0], "udf-remove:filename=<module>");
+
+>>
+
+operateStatement(source, operations, key, generation)::=<<
+// <source> 
+<if(generation)>
+<generation>
+<endif>
+record, err := client.Operate(writePolicy, <key>, <first(operations):{b|<b>}><rest(operations):{b|, <b>}>);
+
+>>
+
+deleteSet(source, namespace, set)::= <<
+// <source>
+String[] infoResults = infoAll("set-config:context=namespace;id=<namespace>;set=<set>;set-delete=true;"));
+
+>>
+
+execute(source, nameSpace, nameSpace, setName, key, module, udf, arguments) ::= <<
+// <source>
+<if(key)>
+client.Execute(policy, <key>, "<module>", "<udf>"<if(arguments)><arguments:{z|, <z>}><endif>)
+<else>
+// No aggregations for Go
+<endif>
+
+>>
+
+setTimeOut(source, value) ::= <<
+// <source>
+clientPolicy.timeout = <value>
+policy.timeout = <value>
+writePolicy.timeout = <value>
+
+>>
+ 
+setVerbose(source, value) ::= <<
+// <source>
+
+>>
+
+setEcho(source, value) ::= <<
+// <source>
+
+>>
+
+setTTL(source, value) ::= <<
+// <source>
+writePolicy.expiration = <value>
+
+>>
+
+setView(source, type) ::= <<
+// <source>
+
+>>
+
+useSmd(source, value) ::= <<
+// <source>
+
+>>
+
+setUserPath(source, value) ::= <<
+// <source>
+LuaConfig.SourceDirectory = "<value>" 
+
+>>
+
+setSystemPath(source, value) ::= <<
+// <source>
+
+>>
+
+setUserPassword(source, user, password) ::= <<
+// <source>
+
+>>
+
+getTimeout(source) ::= <<
+// <source>
+fmt.printf("Policy timeout: %d\n", policy.timeout);
+fmt.printf("Write policy timeout: %d", writePolicy.timeout);
+
+>>
+getVerbose(source) ::= <<
+// <source>
+
+>>
+getEcho(source) ::= <<
+// <source>
+
+>>
+getTTL(source) ::= <<
+// <source>
+fmt.printf("Write policy expiration: %d\n", writePolicy.expiration);
+
+>>
+getView(source) ::= <<
+// <source>
+
+>>
+getUseSMD(source) ::= <<
+// <source>
+
+>>
+getUserPath(source) ::= <<
+// <source>
+fmt.printf("Lua source directory: " + LuaConfig.SourceDirectory);
+
+>>
+getSystemPath(source) ::= <<
+// <source>
+
+>>
+
+statQuery(source) ::= <<
+// <source>
+infoResult = RequestInfo(infoPolicy, client.getNodes()[0], "query-stat")
+
+>>
+
+statSystem(source) ::= <<
+// <source>
+infoResult = RequestInfo(infoPolicy, client.getNodes()[0], "statistics")
+
+>>
+
+
+filterEquals(bin, value) ::= <<
+Filter.equal("<bin>", Value.get(<value>))
+>>
+
+filterRange(bin, low, high) ::= <<
+Filter.range("<bin>", Value.get(<low>), Value.get(<high>))
+>>
+
+primaryKey(namespace, set, key) ::=<<
+NewKey("<namespace>", "<set>", <key>)
+>> 
+
+primaryKeyString(key)::=<<
+"<key>"
+>>
+
+primaryKeyNumeric(key)::=<<
+<key>
+>>
+
+
+value(value) ::= <<
+NewValue(<value>)
+>>
+
+stringValue(value) ::= <<
+NewValue("<value>")
+>>
+
+jsonArrayValue(value) ::= <<
+NewValue("<value>")
+>>
+
+jsonObjectValue(value) ::= <<
+NewValue("<value>")
+>>
+
+
+generationPredicate(generation) ::=<<
+writePolicy.generation = <generation>
+writePolicy.generationPolicy = GenerationPolicy.EXPECT_GEN_EQUAL
+
+>>
+
+operateFunction(functionName, bin, value) ::=<<
+<if(value)>Operation.<functionName>(new Bin("<bin>", <value>))<elseif(bin)>Operation.<functionName>("<bin>")<else>Operation.<functionName>()<endif>
+>>
+
+
+showModules(source) ::= <<
+// <source>
+infoResult = RequestInfo(infoPolicy, client.getNodes()[0], "udf-list")
+
+>>
+
+showNamespaces(source) ::= <<
+// <source>
+infoResult = RequestInfo(infoPolicy, client.getNodes()[0], "namespaces")
+
+>>
+
+showSets(source) ::= <<
+// <source>
+infoResult = RequestInfo(infoPolicy, client.getNodes()[0], "sets")
+
+>>
+
+showIndexes(source, nameSpace, setName) ::= <<
+// <source>
+infoResult = RequestInfo(infoPolicy, client.getNodes()[0], "indexes")
+
+>>
+
+showBins(source) ::= <<
+// <source>
+infoResult = RequestInfo(infoPolicy, client.getNodes()[0], "bins")
+
+>>
+
+showScans(source) ::= <<
+// <source>
+infoResult = RequestInfo(infoPolicy, client.getNodes()[0], "jobs:module=scan")
+
+>>
+
+showQueries(source) ::= <<
+// <source>
+infoResult = RequestInfo(infoPolicy, client.getNodes()[0], "jobs:module=query")
+
+>>
+
+showUser(source, user) ::= <<
+// <source>
+//TODO
+
+>>
+
+showUsers(source) ::= <<
+// <source>
+//TODO
+
+>>
+
+
+descIndex(source, nameSpace, indexName) ::= <<
+// <source>
+infoResult = RequestInfo(infoPolicy, client.getNodes()[0], "sindex-describe")
+
+>>
+
+
+descModule(source, name) ::= <<
+// <source>
+fmt.printf("Module: <name>\n");
+infoResult = RequestInfo(infoPolicy, client.getNodes()[0], "udf-get:filename=<name>")
+{
+	String[] udfparts = infoResult.split(";");
+	fmt.printf(new String(Base64.decode(udfparts[2].getBytes(), 8, udfparts[2].length()-2)));
+}
+
+>>
+
+killQuery(source, id) ::= <<
+// <source>
+RequestInfo(infoPolicy, client.getNodes()[0], "query-kill=<id>")
+
+>>
+
+killScan(source, id) ::= <<
+// <source>
+RequestInfo(infoPolicy, client.getNodes()[0], "scan-kill=<id>")
+
+>>
+
+run(source, fileName) ::= <<
+// <source>
+fmt.printf("Run file: <fileName>\n")
+
+>>
+print(source, value) ::= <<
+// <source>
+fmt.printf("<value>\n")
+
+>>

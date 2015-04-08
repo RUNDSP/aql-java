@@ -1,40 +1,62 @@
-COMMANDS
-    
+
+    CONNECTION
+    	CONNECT <host name> <port> [<timeout>]
+    	DISCONNECT
+    	
+    		<host name> address of a cluster node
+    		<port> port for connection - default 3000
+    		<timeout> client timeout
+
     DDL
         CREATE INDEX <index> ON <ns>[.<set>] (<bin>) NUMERIC|STRING
+        CREATE LIST/MAPKEYS/MAVALUES INDEX <index> ON <ns>[.<set>] (<bin>) NUMERIC|STRING
         DROP INDEX <ns>[.<set>] <index>
-        
+        REPAIR INDEX <index> ON <ns>[.<set>]
+		DROP SET <ns>[.<set>]
+		
             <ns> is the namespace for the index.
             <set> is the set name for the index.
             <index> is the name of the index.
-        
+
         Examples:
-        
+
             CREATE INDEX idx_foo ON test.demo (foo) NUMERIC
             DROP INDEX test.demo idx_foo
-        
+            REPAIR INDEX idx_foo ON test.demo
+
     DML
         INSERT INTO <ns>[.<set>] (PK, <bins>) VALUES (<key>, <values>)
         DELETE FROM <ns>[.<set>] WHERE PK = <key>
-        
+		DELETE FROM <ns>[.<set>] WHERE PK = <key> AND GENERATION = <generation>
+		UPDATE <ns>[.<demo>] SET <bin name> = <bin value>, ... WHERE PK = <key>
+		UPDATE <ns>[.<demo>] SET TTL = <ttl>, <bin name> = <bin value>, ... WHERE PK = <key> AND GENERATION = <generation>
+		OPERATE <operation function>[.<bin name>[,<value>]] ON <ns>[.<set>] WHERE PK = <key> AND GENERATION = <generation>
+		
             <ns> is the namespace for the record.
             <set> is the set name for the record.
             <key> is the record's primary key.
             <key> is the record's primary key.
             <bins> is a comma-separated list of bin names.
-            <values> is comma-separated list of bin values.
-        
+            <values> is comma-separated list of bin values. Keep it NULL (case insensitive & w/o quotes) to delete the bin
+            <bin name> is the name of the bin to be updated
+            <bin value> is the value
+            <generation> is the expected generation value
+            <ttl> is the time to live in seconds
+            <operation function> is ADD, PUT, APPEND, PREPEND, GET, TOUCH, HEADER
+
         Examples:
-        
+
             INSERT INTO test.demo (PK, foo, bar) VALUES ('key1', 123, 'abc')
             DELETE FROM test.demo WHERE PK = 'key1'
-        
+			UPDATE test.demo SET bn2 = 6, bn3 = '22', bn4 = 22 where pk = '6'
+			UPDATE test.cats SET bob = 23, sue = 'abc' WHER PK = '1234' AND GENERATION = 98765
+
     QUERY
         SELECT <bins> FROM <ns>[.<set>]
         SELECT <bins> FROM <ns>[.<set>] WHERE <bin> = <value>
         SELECT <bins> FROM <ns>[.<set>] WHERE <bin> BETWEEN <lower> AND <upper>
         SELECT <bins> FROM <ns>[.<set>] WHERE PK = <key>
-        
+
             <ns> is the namespace for the records to be queried.
             <set> is the set name for the record to be queried.
             <key> is the record's primary key.
@@ -43,37 +65,38 @@ COMMANDS
             <bins> can be either a wildcard (*) or a comma-separated list of bin names.
             <lower> is the lower bound for a numeric range query.
             <upper> is the lower bound for a numeric range query.
-        
+
         Examples:
-        
+
             SELECT * FROM test.demo
             SELECT * FROM test.demo WHERE PK = 'key1'
             SELECT foo, bar FROM test.demo WHERE PK = 'key1'
             SELECT foo, bar FROM test.demo WHERE foo = 123
             SELECT foo, bar FROM test.demo WHERE foo BETWEEN 0 AND 999
-        
+
     MANAGE UDFS
-        REGISTER MODULE <filepath>
+        REGISTER MODULE '<filepath>'
         SHOW MODULES
-        REMOVE MODULE <filename>
-        DESC MODULE <filename>
-        
-            <filepath> is file path to the UDF module.
-            <filename> is file name of the UDF module.
-        
+        REMOVE MODULE <module name>
+        DROP MODULE <module name>
+        DESC MODULE <module name>
+
+            <filepath> is file path to the UDF module(in single quotes).
+            <module name> is file name of the UDF module.
+
         Examples:
-        
-            REGISTER MODULE ~/test.lua
+
+            REGISTER MODULE '~/test.lua'
             SHOW MODULES
             DESC MODULE test.lua
             REMOVE MODULE test.lua
-        
+
     INVOKING UDFS
         EXECUTE <module>.<function>(<args>) ON <ns>[.<set>]
         EXECUTE <module>.<function>(<args>) ON <ns>[.<set>] WHERE PK = <key>
         AGGREGATE <module>.<function>(<args>) ON <ns>[.<set>] WHERE <bin> = <value>
         AGGREGATE <module>.<function>(<args>) ON <ns>[.<set>] WHERE <bin> BETWEEN <lower> AND <upper>
-        
+
             <module> is UDF module containing the function to invoke.
             <function> is UDF to invoke.
             <args> is a comma-separated list of argument values for the UDF.
@@ -84,41 +107,60 @@ COMMANDS
             <value> is the value of a bin.
             <lower> is the lower bound for a numeric range query.
             <upper> is the lower bound for a numeric range query.
-        
+
         Examples:
-        
+
             EXECUTE myudfs.udf1(2) ON test.demo
             EXECUTE myudfs.udf1(2) ON test.demo WHERE PK = 'key1'
             AGGREGATE myudfs.udf2(2) ON test.demo WHERE foo = 123
             AGGREGATE myudfs.udf2(2) ON test.demo WHERE foo BETWEEN 0 AND 999
-        
+
     INFO
         SHOW NAMESPACES | SETS | BINS | INDEXES
         SHOW SCANS | QUERIES
         STAT NAMESPACE <ns> | INDEX <ns> <indexname>
         STAT SYSTEM
-        
+
     JOB MANAGEMENT
-        KILL_QUERY <transaction_id>
-        KILL_SCAN <scan_id>
-        
+        KILL QUERY <transaction_id>
+        KILL SCAN <scan_id>
+
+    USER ADMINISTRATION
+        CREATE USER <user> PASSWORD <password> ROLE[S] <role1>,<role2>...
+            pre-defined roles: read|read-write|read-write-udf|sys-admin|user-admin
+        DROP USER <user>
+        SET PASSWORD <password> [FOR <user>]
+        GRANT ROLE[S] <role1>,<role2>... TO <user>
+        REVOKE ROLE[S] <role1>,<role2>... FROM <user>
+        CREATE ROLE <role> PRIVILEGE[S] <priv1[.ns1[.set1]]>,<priv2[.ns2[.set2]]>...
+            priv: read|read-write|read-write-udf|sys-admin|user-admin
+            ns:   namespace.  Applies to all namespaces if not set.
+            set:  set name.  Applie to all sets within namespace if not set.
+                  sys-admin and user-admin can't be qualified with namespace or set.
+        DROP ROLE <role>
+        GRANT PRIVILEGE[S] <priv1[.ns1[.set1]]>,<priv2[.ns2[.set2]]>... TO <role>
+        REVOKE PRIVILEGE[S] <priv1[.ns1[.set1]]>,<priv2[.ns2[.set2]]>... FROM <role>
+        SHOW USER [<user>]
+        SHOW USERS
+        SHOW ROLE <role>
+        SHOW ROLES
     SETTINGS
-        TIMEOUT        (time in ms)  
-        RECORD_TTL     (time in ms)  
-        VERBOSE        (true | false)
-        ECHO           (true | false)
-        OUTPUT         (table | json) 
-        LUA_USERPATH   <path>
-        LUA_SYSPATH    <path>
-        
+        TIMEOUT                       (time in ms, default: 1000 ms)
+        TTL                    		  (time in ms, default: 0 ms)
+        VERBOSE                       (true | false, default false)
+        ECHO                          (true | false, default false)
+        FAIL_ON_CLUSTER_CHANGE        (true | false, default true, policy applies to scans)
+        OUTPUT                        (table | json, default table)
+        LUA_USERPATH                  <path>, default : /opt/aerospike/usr/udf/lua
+
         To get the value of a setting, run:
-        	
+
             aql> GET <setting>
-        	
+
         To set the value of a setting, run:
-        	
+
             aql> SET <setting> <value>
-        	
+
     OTHER
         RUN <filepath>
         HELP

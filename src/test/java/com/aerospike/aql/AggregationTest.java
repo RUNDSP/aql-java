@@ -2,6 +2,8 @@ package com.aerospike.aql;
 
 import org.junit.Test;
 
+import com.aerospike.aql.AQLGenerator.Language;
+
 public class AggregationTest extends AQLTest{
 	@Test
 	public void testFileAggregationSyntax() throws Exception {
@@ -10,9 +12,9 @@ public class AggregationTest extends AQLTest{
 	}
 
 	@Test
-	public void testAdminFile() throws Exception {
-		System.out.println("----- testAdminFile -----");
-		testFileGeneration("LateFlights.aql", AQL.Language.JAVA);
+	public void testFileAggregationFileGeneration() throws Exception {
+		System.out.println("----- testFileAggregationGeneration -----");
+		testFileGeneration("LateFlights.aql", Language.JAVA);
 			
 	}
 

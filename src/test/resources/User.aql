@@ -1,0 +1,34 @@
+connect '127.0.0.1' 3000
+
+#   USER ADMINISTRATION
+#        CREATE USER <user> PASSWORD <password> ROLE[S] <role1>,<role2>...
+#            pre-defined roles: read|read-write|read-write-udf|sys-admin|user-admin
+#        DROP USER <user>
+#        SET PASSWORD <password> [FOR <user>]
+#        GRANT ROLE[S] <role1>,<role2>... TO <user>
+#        REVOKE ROLE[S] <role1>,<role2>... FROM <user>
+#        CREATE ROLE <role> PRIVILEGE[S] <priv1[.ns1[.set1]]>,<priv2[.ns2[.set2]]>...
+#            priv: read|read-write|read-write-udf|sys-admin|user-admin
+#            ns:   namespace.  Applies to all namespaces if not set.
+#            set:  set name.  Applie to all sets within namespace if not set.
+#                  sys-admin and user-admin can't be qualified with namespace or set.
+#        DROP ROLE <role>
+#        GRANT PRIVILEGE[S] <priv1[.ns1[.set1]]>,<priv2[.ns2[.set2]]>... TO <role>
+#        REVOKE PRIVILEGE[S] <priv1[.ns1[.set1]]>,<priv2[.ns2[.set2]]>... FROM <role>
+#        SHOW USER [<user>]
+#        SHOW USERS
+#        SHOW ROLE <role>
+#        SHOW ROLES
+
+CREATE USER bob PASSWORD bob1 ROLE read
+CREATE USER mary PASSWORD mary1 ROLES read, read-write, user-admin, sys-admin
+SET PASSWORD bob2 FOR bob
+GRANT ROLE read-write TO bob
+GRANT ROLES user-admin, sys-admin TO bob
+SHOW USER bob
+REVOKE ROLE sys-admin FROM bob
+SHOW USER bob
+REVOKE ROLES user-admin, read-write FROM bob
+SHOW USER bob
+SHOW USERS
+DROP USER bob

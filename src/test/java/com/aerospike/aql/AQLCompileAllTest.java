@@ -11,11 +11,11 @@ public class AQLCompileAllTest {
 	public void testJavaAll() throws Exception {
 		AQLrun.main(new String[]{"-h", HOST, "-p", PORT, "-c", "src/test/resources/everything.aql", "-o", "src/output/everything.java", "-l", "JAVA"});
 	}
-	@Test
+	//@Test
 	public void testCAll() throws Exception {
 		AQLrun.main(new String[]{"-h", HOST, "-p", PORT, "-c", "src/test/resources/everything.aql", "-o", "src/output/everything.c", "-l", "C"});
 	}
-	@Test
+	//@Test
 	public void testCSharpAll() throws Exception {
 		AQLrun.main(new String[]{"-h", HOST, "-p", PORT, "-c", "src/test/resources/everything.aql", "-o", "src/output/everything.cs", "-l", "CSHARP"});
 	}

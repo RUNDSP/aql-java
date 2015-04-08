@@ -2,6 +2,8 @@ package com.aerospike.aql;
 
 import org.junit.Test;
 
+import com.aerospike.aql.AQLGenerator.Language;
+
 
 public class NewlineSyntax extends AQLTest{
 	@Test
@@ -25,13 +27,13 @@ public class NewlineSyntax extends AQLTest{
 				"INSERT INTO test.demo\n" +
 				"	(PK, bn2, bn3, bn4)\n" + 
 				"		VALUES\n" + 
-				"			('3', 3, '2', 2)\n", AQL.Language.JAVA);
+				"			('3', 3, '2', 2)\n", Language.JAVA);
 		System.out.println(result);
 	}
 	@Test
 	public void newlineSyntaxFileGenerationJava() throws Exception {
 		System.out.println("----- newlineSyntaxFileGenerationJava -----");
-		testFileGeneration("Newline.aql", AQL.Language.JAVA);
+		testFileGeneration("Newline.aql", Language.JAVA);
 	}
 
 }

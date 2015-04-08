@@ -1,3 +1,5 @@
+connect '127.0.0.1' 3000
+
 CREATE INDEX index_bn2 ON test.demo (bn2) NUMERIC 
 CREATE INDEX index_bn3 ON test.demo (bn3) STRING 
 CREATE INDEX index_bn4 ON test.demo (bn4) NUMERIC 

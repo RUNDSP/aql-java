@@ -1,12 +1,13 @@
+connect '127.0.0.1' 3000
 #INFO:
+
 	SHOW NAMESPACES
 	show SETS
 	sHoW BiNS
 	SHOW SCAnS
 	shoW qUERIES
-	SHOW packages
-	SHOW INDEXES test.demo
-	DESC INDEX test index_bn2
+	SHOW modules
+	SHOW INDEXES 
 	STAT INDEX test index_bn3
 	STAT QUERY
 	STAT SYSTEM
@@ -20,18 +21,14 @@
 	SET ECHO true
 	SET ECHO false 
 	SET TIMEOUT 150 
-	SET RECORD_TTL 0 
-	SET VIEW TABLE 
-	SET VIEW JSON
+	SET OUTPUT TABLE 
+	SET output JSON
 	SET LUA_USERPATH '/opt/citrusleaf/usr/udf/lua' 
-	SET LUA_SYSPATH '/opt/citrusleaf/sys/udf/lua' 
 
 	GET VERBOSE 
 	GET ECHO 
 	GET TIMEOUT 
-	GET RECORD_TTL 
-	GET VIEW  
+	GET output  
 	GET LUA_USERPATH 
-	GET LUA_SYSPATH 
 	# Note: These are client side paths for lua files.
 	

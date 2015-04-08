@@ -1,0 +1,24 @@
+# Insert statements
+INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('9', 9, '2', 2)
+INSERT INTO test.demo (PK, bn2, bn3, bn4, bn4) VALUES ('10', 9, '2', 2, 'JSON{"key": 1}')
+# Update statements
+UPDATE test.demo SET bn2 = 6, bn3 = '22', bn4 = 22 where pk = '6'
+update test.cats SET bob = 23, sue = 'abc' where pk = '1234' and generation = 98765
+update test.cats SET ttl = 3000 where pk = '1234' and generation = 98765
+# Select statements including aggregations
+SELECT * FROM test.demo
+SELECT * FROM test.demo WHERE bn4 = 2
+SELECT bn2,bn3,bn4  FROM test.demo WHERE bn4 BETWEEN 1 AND 2
+SELECT bn2,bn3,bn4  FROM test.demo WHERE PK = '10'
+select sum_example.sum_single_bin('bn4') ON test.demo WHERE bn4 BETWEEN 1 AND 2
+select filter_example.profile_filter('ghjks') on test.profile where username = 'Mary'
+# Delete statements
+DELETE From test.demo where pk = '4'
+DELETE From test.demo
+DELETE From test.demo where showsize = 16
+# Operate statements
+operate add(cat, 23), get(cat) on test.demo where pk = 9989
+operate add(cat, 23), get(cat) on test.demo where pk = 9989 and generation = 20967
+# Record UDF execution
+EXECUTE example1.foo('arg1','arg2',3) ON test.demo WHERE PK = '1' 
+EXECUTE example1.foo('arg1','arg2',3) ON test.demo 

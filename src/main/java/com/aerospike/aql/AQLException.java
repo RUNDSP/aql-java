@@ -8,4 +8,8 @@ public class AQLException extends RuntimeException {
 		super(message, e);
 	}
 
+	public AQLException(String message) {
+		super (message);
+	}
+
 }

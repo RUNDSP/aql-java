@@ -1,4 +1,6 @@
-/AQLCodeGenerator.java
-/AQLastLexer.java
-/AQLastParser.java
-/AQLExecutor.java
+/AQL.tokens
+/AQLBaseListener.java
+/AQLListener.java
+/AQLParser.java
+/AQLLexer.java
+/AQLLexer.tokens

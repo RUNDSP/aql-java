@@ -1,0 +1,12 @@
+SEMICOLON=2
+TRUE=4
+COLON=1
+FALSE=5
+IDENTIFIER=7
+EQ=3
+INTEGER=6
+'false'=5
+'='=3
+';'=2
+':'=1
+'true'=4

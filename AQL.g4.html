@@ -1,0 +1,3371 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>AQL.g4</title>
+<style type="text/css">
+body { 
+  color: #000;
+  font-family: sans-serif;
+  font-size: 12px;
+  margin: 20px 5px 10px 20px;
+}
+/* resets */
+ul {
+  list-style: none;
+  padding: 0;
+}
+a {
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+img {
+  border: 0;
+}
+.clear {
+  clear: both;
+}
+.container {
+  position: relative;
+}
+/* Grammar name */
+h1 {
+  font-size: 20px;
+}
+/*Grammar documentation*/
+.gdoc {
+  margin-left: 20px;
+  margin-bottom: 20px;
+}
+#index {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200px;
+  overflow: auto;
+}
+#index h2 {
+  margin: 0;
+}
+#index ol {
+  padding-left: 30px;
+  list-style-type: square;
+  color: #364559;
+}
+#index ol li {
+  margin: 2px 0;
+}
+#index ol li a {
+  color: #366199;
+  font-family: monospace;
+}
+#rules {
+  margin-left: 210px;
+  padding-left: 20px;
+  border-left: 1px solid #AAA;
+}
+.rule {
+  margin-bottom: 30px;
+}
+/* Rule name*/
+.rule h3 {
+  color: #364559;
+  background-color: #DADFE6;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 4px 5px;
+  border-bottom: 1px solid #828B99;
+}
+.rule h3 a.topLink {
+  font-family: sans-serif;
+  font-size: 10px;
+  color: #000;
+  margin-left: 20px;
+}
+.rule h3, .rule .ebnf div {
+  font-family: monospace;
+}
+/* Sections: ebnf, railroad*/
+.doc, .ebnf, .railroad {
+  padding-left: 20px;
+}
+.doc h4, .ebnf h4, .railroad h4 {
+  font-size: 12px;
+  margin: 15px 0 10px -20px;
+}
+.ebnf div {
+  background-color: #F7F7F7;
+  border-top: 1px solid #E8E8E8;
+  border-bottom: 1px solid #E8E8E8;
+  padding: 10px 5px;
+}
+.ebnf div .literal {
+  color: #0000FF;
+}
+.ebnf div .keyword {
+  color: #7F0055;
+  font-weight: bold;
+}
+.ebnf div .rule {
+  color: #004084;
+  font-weight: bold;
+}
+.ebnf div .token {
+  font-style:italic;
+}
+.railroad img {
+  display: block;
+}
+footer {
+  float: right;
+}
+</style>
+</head>
+<body>
+<h1><a href="AQL.g4.html" name="top">AQL</a></h1>
+<p class="gdoc"></p>
+<div class="container">
+<div id="index">
+<h2>Rules</h2>
+<ol>
+  <li><a href="#aql">aql</a></li>
+  <li><a href="#statements">statements</a></li>
+  <li><a href="#statement">statement</a></li>
+  <li><a href="#connect">connect</a></li>
+  <li><a href="#disconnect">disconnect</a></li>
+  <li><a href="#create">create</a></li>
+  <li><a href="#drop">drop</a></li>
+  <li><a href="#repair">repair</a></li>
+  <li><a href="#grant">grant</a></li>
+  <li><a href="#revoke">revoke</a></li>
+  <li><a href="#user">user</a></li>
+  <li><a href="#password">password</a></li>
+  <li><a href="#roles">roles</a></li>
+  <li><a href="#role">role</a></li>
+  <li><a href="#privilege">privilege</a></li>
+  <li><a href="#remove">remove</a></li>
+  <li><a href="#operate">operate</a></li>
+  <li><a href="#insert">insert</a></li>
+  <li><a href="#update">update</a></li>
+  <li><a href="#updateList">updateList</a></li>
+  <li><a href="#delete">delete</a></li>
+  <li><a href="#select">select</a></li>
+  <li><a href="#aggregate">aggregate</a></li>
+  <li><a href="#collectionType">collectionType</a></li>
+  <li><a href="#where">where</a></li>
+  <li><a href="#operateFunction">operateFunction</a></li>
+  <li><a href="#nameSet">nameSet</a></li>
+  <li><a href="#register">register</a></li>
+  <li><a href="#execute">execute</a></li>
+  <li><a href="#aggregate">aggregate</a></li>
+  <li><a href="#moduleFunction">moduleFunction</a></li>
+  <li><a href="#binNameList">binNameList</a></li>
+  <li><a href="#valueList">valueList</a></li>
+  <li><a href="#predicate">predicate</a></li>
+  <li><a href="#primaryKeyPredicate">primaryKeyPredicate</a></li>
+  <li><a href="#generationPredicate">generationPredicate</a></li>
+  <li><a href="#filterPredicate">filterPredicate</a></li>
+  <li><a href="#equalityFilter">equalityFilter</a></li>
+  <li><a href="#ttlValue">ttlValue</a></li>
+  <li><a href="#binValue">binValue</a></li>
+  <li><a href="#rangeFilter">rangeFilter</a></li>
+  <li><a href="#show">show</a></li>
+  <li><a href="#desc">desc</a></li>
+  <li><a href="#stat">stat</a></li>
+  <li><a href="#set">set</a></li>
+  <li><a href="#get">get</a></li>
+  <li><a href="#viewType">viewType</a></li>
+  <li><a href="#run">run</a></li>
+  <li><a href="#print">print</a></li>
+  <li><a href="#kill">kill</a></li>
+  <li><a href="#kill_query">kill_query</a></li>
+  <li><a href="#kill_scan">kill_scan</a></li>
+  <li><a href="#quit">quit</a></li>
+  <li><a href="#help">help</a></li>
+  <li><a href="#primaryKey">primaryKey</a></li>
+  <li><a href="#package_name">package_name</a></li>
+  <li><a href="#index_name">index_name</a></li>
+  <li><a href="#namespace_name">namespace_name</a></li>
+  <li><a href="#set_name">set_name</a></li>
+  <li><a href="#bin">bin</a></li>
+  <li><a href="#dotPath">dotPath</a></li>
+  <li><a href="#value">value</a></li>
+  <li><a href="#textValue">textValue</a></li>
+  <li><a href="#integerValue">integerValue</a></li>
+  <li><a href="#booleanLiteral">booleanLiteral</a></li>
+  <li><a href="#moduleName">moduleName</a></li>
+  <li><a href="#filePath">filePath</a></li>
+  <li><a href="#TRUE">TRUE</a></li>
+  <li><a href="#FALSE">FALSE</a></li>
+  <li><a href="#CONNECT">CONNECT</a></li>
+  <li><a href="#DISCONNECT">DISCONNECT</a></li>
+  <li><a href="#DESC">DESC</a></li>
+  <li><a href="#INSERT">INSERT</a></li>
+  <li><a href="#SELECT">SELECT</a></li>
+  <li><a href="#DELETE">DELETE</a></li>
+  <li><a href="#CREATE">CREATE</a></li>
+  <li><a href="#INDEX">INDEX</a></li>
+  <li><a href="#EXECUTE">EXECUTE</a></li>
+  <li><a href="#WHERE">WHERE</a></li>
+  <li><a href="#SHOW">SHOW</a></li>
+  <li><a href="#DROP">DROP</a></li>
+  <li><a href="#INDEXES">INDEXES</a></li>
+  <li><a href="#VALUES">VALUES</a></li>
+  <li><a href="#SET">SET</a></li>
+  <li><a href="#GET">GET</a></li>
+  <li><a href="#MODULE">MODULE</a></li>
+  <li><a href="#ON">ON</a></li>
+  <li><a href="#OPERATE">OPERATE</a></li>
+  <li><a href="#OUTPUT">OUTPUT</a></li>
+  <li><a href="#PRIVILEGE">PRIVILEGE</a></li>
+  <li><a href="#PRIVILEGES">PRIVILEGES</a></li>
+  <li><a href="#INTO">INTO</a></li>
+  <li><a href="#FUNCTION">FUNCTION</a></li>
+  <li><a href="#FROM">FROM</a></li>
+  <li><a href="#BY">BY</a></li>
+  <li><a href="#AND">AND</a></li>
+  <li><a href="#BETWEEN">BETWEEN</a></li>
+  <li><a href="#RUN">RUN</a></li>
+  <li><a href="#STAT">STAT</a></li>
+  <li><a href="#QUERY">QUERY</a></li>
+  <li><a href="#SCAN">SCAN</a></li>
+  <li><a href="#TIMEOUT">TIMEOUT</a></li>
+  <li><a href="#QUIT">QUIT</a></li>
+  <li><a href="#EXIT">EXIT</a></li>
+  <li><a href="#KILL">KILL</a></li>
+  <li><a href="#KILL_QUERY">KILL_QUERY</a></li>
+  <li><a href="#KILL_SCAN">KILL_SCAN</a></li>
+  <li><a href="#PK">PK</a></li>
+  <li><a href="#STRING">STRING</a></li>
+  <li><a href="#NUMERIC">NUMERIC</a></li>
+  <li><a href="#EQ">EQ</a></li>
+  <li><a href="#IN">IN</a></li>
+  <li><a href="#LIST">LIST</a></li>
+  <li><a href="#MAPKEYS">MAPKEYS</a></li>
+  <li><a href="#MAPVALUES">MAPVALUES</a></li>
+  <li><a href="#STAR">STAR</a></li>
+  <li><a href="#REGISTER">REGISTER</a></li>
+  <li><a href="#REMOVE">REMOVE</a></li>
+  <li><a href="#AGGREGATE">AGGREGATE</a></li>
+  <li><a href="#MODULES">MODULES</a></li>
+  <li><a href="#NAMESPACES">NAMESPACES</a></li>
+  <li><a href="#SETS">SETS</a></li>
+  <li><a href="#BINS">BINS</a></li>
+  <li><a href="#SCANS">SCANS</a></li>
+  <li><a href="#QUERIES">QUERIES</a></li>
+  <li><a href="#SYSTEM">SYSTEM</a></li>
+  <li><a href="#ORDER">ORDER</a></li>
+  <li><a href="#PRINT">PRINT</a></li>
+  <li><a href="#UPDATE">UPDATE</a></li>
+  <li><a href="#VERBOSE">VERBOSE</a></li>
+  <li><a href="#ECHO">ECHO</a></li>
+  <li><a href="#TTL">TTL</a></li>
+  <li><a href="#USE_SMD">USE_SMD</a></li>
+  <li><a href="#LUA_USER_PATH">LUA_USER_PATH</a></li>
+  <li><a href="#LUA_SYSTEM_PATH">LUA_SYSTEM_PATH</a></li>
+  <li><a href="#ADD">ADD</a></li>
+  <li><a href="#PUT">PUT</a></li>
+  <li><a href="#APPEND">APPEND</a></li>
+  <li><a href="#PREPEND">PREPEND</a></li>
+  <li><a href="#TOUCH">TOUCH</a></li>
+  <li><a href="#HEADER">HEADER</a></li>
+  <li><a href="#LLIST">LLIST</a></li>
+  <li><a href="#LSTACK">LSTACK</a></li>
+  <li><a href="#LSET">LSET</a></li>
+  <li><a href="#LMAP">LMAP</a></li>
+  <li><a href="#USER">USER</a></li>
+  <li><a href="#USERS">USERS</a></li>
+  <li><a href="#PASSWORD">PASSWORD</a></li>
+  <li><a href="#ROLE">ROLE</a></li>
+  <li><a href="#ROLES">ROLES</a></li>
+  <li><a href="#GRANT">GRANT</a></li>
+  <li><a href="#REVOKE">REVOKE</a></li>
+  <li><a href="#TO">TO</a></li>
+  <li><a href="#FAIL_ON_CLUSTER_CHANGE">FAIL_ON_CLUSTER_CHANGE</a></li>
+  <li><a href="#REPAIR">REPAIR</a></li>
+  <li><a href="#FOR">FOR</a></li>
+  <li><a href="#IDENTIFIER">IDENTIFIER</a></li>
+  <li><a href="#STRINGLITERAL">STRINGLITERAL</a></li>
+  <li><a href="#FLOATLITERAL">FLOATLITERAL</a></li>
+  <li><a href="#INTLITERAL">INTLITERAL</a></li>
+  <li><a href="#HEXLITERAL">HEXLITERAL</a></li>
+  <li><a href="#IntegerNumber">IntegerNumber</a></li>
+  <li><a href="#HexPrefix">HexPrefix</a></li>
+  <li><a href="#HexDigit">HexDigit</a></li>
+  <li><a href="#LETTER">LETTER</a></li>
+  <li><a href="#DIGIT">DIGIT</a></li>
+  <li><a href="#UNDERSCORE">UNDERSCORE</a></li>
+  <li><a href="#HYPHEN">HYPHEN</a></li>
+  <li><a href="#SEMICOLON">SEMICOLON</a></li>
+  <li><a href="#EscapeSequence">EscapeSequence</a></li>
+  <li><a href="#NEWLINE">NEWLINE</a></li>
+  <li><a href="#WS">WS</a></li>
+  <li><a href="#COMMENT">COMMENT</a></li>
+</ol>
+</div>
+
+<div id="rules">
+<ul>
+  <li class="rule" id="aql">
+  <h3>aql <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      A whole qql file
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">aql</span> :  <a href="#statements" class="rule">statements</a> <span class="keyword">EOF</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/aql.png" />
+  </div>
+  </li>
+  <li class="rule" id="statements">
+  <h3>statements <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">statements</span> :  <a href="#statement" class="rule">statement</a><span class="operator">*</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/statements.png" />
+  </div>
+  </li>
+  <li class="rule" id="statement">
+  <h3>statement <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      The supported aql statements
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">statement</span> :  <a href="#insert" class="rule">insert</a>   <span class="operator">|</span> <a href="#update" class="rule">update</a>   <span class="operator">|</span> <a href="#delete" class="rule">delete</a>   <span class="operator">|</span> <a href="#select" class="rule">select</a>   <span class="operator">|</span> <a href="#execute" class="rule">execute</a>   <span class="operator">|</span> <a href="#operate" class="rule">operate</a>   <span class="operator">|</span> <a href="#aggregate" class="rule">aggregate</a>   <span class="operator">|</span> <a href="#connect" class="rule">connect</a>   <span class="operator">|</span> <a href="#disconnect" class="rule">disconnect</a>   <span class="operator">|</span> <a href="#create" class="rule">create</a>   <span class="operator">|</span> <a href="#drop" class="rule">drop</a>   <span class="operator">|</span> <a href="#repair" class="rule">repair</a> <span class="operator">|</span> <a href="#grant" class="rule">grant</a> <span class="operator">|</span> <a href="#revoke" class="rule">revoke</a> <span class="operator">|</span> <a href="#remove" class="rule">remove</a>   <span class="operator">|</span> <a href="#register" class="rule">register</a>   <span class="operator">|</span> <a href="#show" class="rule">show</a>   <span class="operator">|</span> <a href="#desc" class="rule">desc</a>   <span class="operator">|</span> <a href="#stat" class="rule">stat</a>   <span class="operator">|</span> <a href="#set" class="rule">set</a>   <span class="operator">|</span> <a href="#get" class="rule">get</a>   <span class="operator">|</span> <a href="#run" class="rule">run</a>   <span class="operator">|</span> <a href="#kill" class="rule">kill</a>   <span class="operator">|</span> <a href="#quit" class="rule">quit</a>   <span class="operator">|</span> <a href="#help" class="rule">help</a> <span class="operator">|</span> <a href="#print" class="rule">print</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/statement.png" />
+  </div>
+  </li>
+  <li class="rule" id="connect">
+  <h3>connect <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      CONNECTION
+      CONNECT <host name> <port> [<timeout>]
+      DISCONNECT
+      
+      <host name> address of a cluster node
+      <port> port for connection - default 3000
+      <timeout> client timeout
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">connect</span> :  <a href="#CONNECT" class="token">CONNECT</a> <a href="#hostName" class="rule">hostName</a><span class="operator">=</span><a href="#STRINGLITERAL" class="token">STRINGLITERAL</a> <a href="#port" class="rule">port</a><span class="operator">=</span><a href="#INTLITERAL" class="token">INTLITERAL</a> <span class="operator">(</span><a href="#timeout" class="rule">timeout</a><span class="operator">=</span><a href="#INTLITERAL" class="token">INTLITERAL</a><span class="operator">)</span><span class="operator">?</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/connect.png" />
+  </div>
+  </li>
+  <li class="rule" id="disconnect">
+  <h3>disconnect <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">disconnect</span> :  <a href="#DISCONNECT" class="token">DISCONNECT</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/disconnect.png" />
+  </div>
+  </li>
+  <li class="rule" id="create">
+  <h3>create <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      CREATE INDEX <index> ON <ns>[.<set>] (<bin>) NUMERIC|STRING
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">create</span> :  <a href="#CREATE" class="token">CREATE</a> <span class="operator">(</span><span class="operator">(</span><a href="#LIST" class="token">LIST</a> <span class="operator">|</span> <a href="#MAPVALUES" class="token">MAPVALUES</a> <span class="operator">|</span> <a href="#MAPKEYS" class="token">MAPKEYS</a><span class="operator">)</span><span class="operator">?</span> <a href="#INDEX" class="token">INDEX</a> <a href="#index_name" class="rule">index_name</a> <a href="#ON" class="token">ON</a> <a href="#nameSet" class="rule">nameSet</a> <span class="operator">{definitions.add(VariableDefinition.WRITE_POLICY);}</span> <span class="literal">'('</span> <a href="#binName" class="rule">binName</a><span class="operator">=</span><a href="#bin" class="rule">bin</a> <span class="literal">')'</span> <a href="#iType" class="rule">iType</a><span class="operator">=</span><span class="operator">(</span><a href="#NUMERIC" class="token">NUMERIC</a> <span class="operator">|</span> <a href="#STRING" class="token">STRING</a><span class="operator">)</span> <span class="operator">{definitions.add(VariableDefinition.INDEX_TASK);}</span> <span class="operator">|</span> <a href="#USER" class="token">USER</a> <a href="#user" class="rule">user</a> <a href="#PASSWORD" class="token">PASSWORD</a> <a href="#password" class="rule">password</a> <span class="operator">(</span><a href="#ROLE" class="token">ROLE</a> <a href="#role" class="rule">role</a> <span class="operator">|</span> <a href="#ROLES" class="token">ROLES</a> <a href="#roles" class="rule">roles</a><span class="operator">*</span><span class="operator">)</span> <span class="operator">{definitions.add(VariableDefinition.ADMIN_POLICY);}</span> <span class="operator">|</span> <a href="#ROLE" class="token">ROLE</a> <a href="#role" class="rule">role</a> <span class="operator">(</span><a href="#PRIVILEGE" class="token">PRIVILEGE</a> <span class="operator">|</span> <a href="#PRIVILEGES" class="token">PRIVILEGES</a><span class="operator">)</span> <a href="#privilege" class="rule">privilege</a><span class="operator">*</span> <span class="operator">{definitions.add(VariableDefinition.ADMIN_POLICY);}</span> <span class="operator">)</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/create.png" />
+  </div>
+  </li>
+  <li class="rule" id="drop">
+  <h3>drop <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      DROP INDEX <ns>[.<set>] <index>
+      DROP MODULE modulename.extension
+      DROP SET <ns>[.<set>]
+      DROP USER <username>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">drop</span> :  <a href="#DROP" class="token">DROP</a> <span class="operator">(</span> <a href="#INDEX" class="token">INDEX</a> <a href="#nameSet" class="rule">nameSet</a> <a href="#index_name" class="rule">index_name</a> <span class="operator">|</span> <a href="#MODULE" class="token">MODULE</a> <a href="#moduleName" class="rule">moduleName</a> <span class="operator">|</span> <a href="#SET" class="token">SET</a> <a href="#nameSet" class="rule">nameSet</a> <span class="operator">|</span> <a href="#USER" class="token">USER</a> <a href="#user" class="rule">user</a> <span class="operator">{definitions.add(VariableDefinition.ADMIN_POLICY);}</span> <span class="operator">|</span> <a href="#ROLE" class="token">ROLE</a> <a href="#role" class="rule">role</a> <span class="operator">{definitions.add(VariableDefinition.ADMIN_POLICY);}</span> <span class="operator">)</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/drop.png" />
+  </div>
+  </li>
+  <li class="rule" id="repair">
+  <h3>repair <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      REPAIR INDEX <index> ON <ns>[.<set>]
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">repair</span> :  <a href="#REPAIR" class="token">REPAIR</a> <a href="#INDEX" class="token">INDEX</a> <a href="#index_name" class="rule">index_name</a> <a href="#ON" class="token">ON</a> <a href="#nameSet" class="rule">nameSet</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/repair.png" />
+  </div>
+  </li>
+  <li class="rule" id="grant">
+  <h3>grant <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">grant</span> :  <a href="#GRANT" class="token">GRANT</a> <span class="operator">(</span><a href="#ROLES" class="token">ROLES</a> <a href="#roles" class="rule">roles</a> <span class="operator">|</span> <a href="#ROLE" class="token">ROLE</a> <a href="#role" class="rule">role</a><span class="operator">)</span> <a href="#TO" class="token">TO</a> <a href="#user" class="rule">user</a> <span class="operator">|</span> <span class="operator">(</span><a href="#PRIVILEGE" class="token">PRIVILEGE</a> <a href="#privilege" class="rule">privilege</a> <span class="operator">|</span> <a href="#PRIVILEGES" class="token">PRIVILEGES</a> <a href="#privilege" class="rule">privilege</a><span class="operator">+</span><span class="operator">)</span> <a href="#TO" class="token">TO</a> <a href="#role" class="rule">role</a> <span class="operator">{definitions.add(VariableDefinition.ADMIN_POLICY);}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/grant.png" />
+  </div>
+  </li>
+  <li class="rule" id="revoke">
+  <h3>revoke <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">revoke</span> :  <a href="#REVOKE" class="token">REVOKE</a> <span class="operator">(</span><a href="#ROLES" class="token">ROLES</a> <a href="#roles" class="rule">roles</a> <span class="operator">|</span> <a href="#ROLE" class="token">ROLE</a> <a href="#role" class="rule">role</a> <span class="operator">)</span> <a href="#FROM" class="token">FROM</a> <a href="#user" class="rule">user</a> <span class="operator">|</span> <span class="operator">(</span><a href="#PRIVILEGE" class="token">PRIVILEGE</a> <a href="#privilege" class="rule">privilege</a> <span class="operator">|</span> <a href="#PRIVILEGES" class="token">PRIVILEGES</a> <a href="#privilege" class="rule">privilege</a><span class="operator">+</span><span class="operator">)</span> <a href="#FROM" class="token">FROM</a> <a href="#role" class="rule">role</a> <span class="operator">{definitions.add(VariableDefinition.ADMIN_POLICY);}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/revoke.png" />
+  </div>
+  </li>
+  <li class="rule" id="user">
+  <h3>user <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">user</span> :  <a href="#IDENTIFIER" class="token">IDENTIFIER</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/user.png" />
+  </div>
+  </li>
+  <li class="rule" id="password">
+  <h3>password <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">password</span> :  <a href="#IDENTIFIER" class="token">IDENTIFIER</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/password.png" />
+  </div>
+  </li>
+  <li class="rule" id="roles">
+  <h3>roles <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">roles</span> :  <a href="#role" class="rule">role</a> <span class="operator">(</span><span class="literal">','</span> <a href="#role" class="rule">role</a><span class="operator">)</span><span class="operator">*</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/roles.png" />
+  </div>
+  </li>
+  <li class="rule" id="role">
+  <h3>role <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">role</span> :  <a href="#IDENTIFIER" class="token">IDENTIFIER</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/role.png" />
+  </div>
+  </li>
+  <li class="rule" id="privilege">
+  <h3>privilege <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">privilege</span> :  <span class="operator">(</span><span class="literal">'read'</span> <span class="operator">{
+    			$priv.code = PrivilegeCode.READ;
+    		}</span> <span class="operator">|</span> <span class="literal">'read-write'</span> <span class="operator">(</span><span class="literal">'.'</span> <a href="#nameSet" class="rule">nameSet</a><span class="operator">)</span><span class="operator">?</span> <span class="operator">{
+    			$priv.code = PrivilegeCode.READ_WRITE;
+    		}</span> <span class="operator">|</span> <span class="literal">'read-write-udf'</span> <span class="operator">(</span><span class="literal">'.'</span> <a href="#nameSet" class="rule">nameSet</a><span class="operator">)</span><span class="operator">?</span> <span class="operator">{
+    			$priv.code = PrivilegeCode.READ_WRITE_UDF;
+    		}</span> <span class="operator">)</span> <span class="operator">(</span><span class="literal">'.'</span> <a href="#nameSet" class="rule">nameSet</a> <span class="operator">{
+    			$priv.namespace = $nameSet.namespaceName;
+    			$priv.setName = $nameSet.setName;
+    		}</span><span class="operator">)</span><span class="operator">?</span> <span class="operator">|</span> <span class="literal">'sys-admin'</span> <span class="operator">{
+    			$priv.code = PrivilegeCode.READ_WRITE_UDF;
+    		}</span> <span class="operator">|</span> <span class="literal">'user-admin'</span> <span class="operator">{
+    			$priv.code = PrivilegeCode.READ_WRITE_UDF;
+    		}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/privilege.png" />
+  </div>
+  </li>
+  <li class="rule" id="remove">
+  <h3>remove <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">remove</span> :  <a href="#REMOVE" class="token">REMOVE</a> <a href="#MODULE" class="token">MODULE</a> <a href="#moduleName" class="rule">moduleName</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/remove.png" />
+  </div>
+  </li>
+  <li class="rule" id="operate">
+  <h3>operate <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">operate</span> :  <a href="#OPERATE" class="token">OPERATE</a> <a href="#operateFunction" class="rule">operateFunction</a> <span class="operator">(</span><span class="literal">','</span> <a href="#operateFunction" class="rule">operateFunction</a><span class="operator">)</span><span class="operator">*</span> <a href="#ON" class="token">ON</a> <a href="#nameSet" class="rule">nameSet</a> <a href="#WHERE" class="token">WHERE</a> <a href="#primaryKeyPredicate" class="rule">primaryKeyPredicate</a> <span class="operator">(</span><a href="#AND" class="token">AND</a> <a href="#generationPredicate" class="rule">generationPredicate</a><span class="operator">)</span><span class="operator">?</span> <span class="operator">{
+    	  	definitions.add(VariableDefinition.WRITE_POLICY);
+    	  	definitions.add(VariableDefinition.READ_POLICY);
+    	  	definitions.add(VariableDefinition.RECORD);
+    	}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/operate.png" />
+  </div>
+  </li>
+  <li class="rule" id="insert">
+  <h3>insert <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      INSERT INTO namespace[.setname] (PK,binnames,,,) VALUES ('pk',nnn,'xxx',,)
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">insert</span> :  <a href="#INSERT" class="token">INSERT</a> <a href="#INTO" class="token">INTO</a> <a href="#nameSet" class="rule">nameSet</a> <span class="literal">'('</span> <a href="#PK" class="token">PK</a> <span class="literal">','</span> <a href="#binNameList" class="rule">binNameList</a> <span class="literal">')'</span> <a href="#VALUES" class="token">VALUES</a> <span class="literal">'('</span> <a href="#primaryKey" class="rule">primaryKey</a>[<span class="literal">$statement::nameSpace, $statement::setName</span>] <span class="literal">','</span> <a href="#valueList" class="rule">valueList</a> <span class="literal">')'</span> <span class="operator">{
+    		definitions.add(VariableDefinition.WRITE_POLICY);
+    	}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/insert.png" />
+  </div>
+  </li>
+  <li class="rule" id="update">
+  <h3>update <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      UPDATE <name space>[.<set name>] SET <bin name> = <value>, ... WHERE PK = <value> [AND generation = <value>]
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">update</span> :  <a href="#UPDATE" class="token">UPDATE</a> <a href="#nameSet" class="rule">nameSet</a> <a href="#SET" class="token">SET</a> <a href="#updateList" class="rule">updateList</a> <a href="#WHERE" class="token">WHERE</a> <a href="#primaryKeyPredicate" class="rule">primaryKeyPredicate</a> <span class="operator">(</span><a href="#AND" class="token">AND</a> <a href="#generationPredicate" class="rule">generationPredicate</a><span class="operator">)</span><span class="operator">?</span> <span class="operator">{
+    		definitions.add(VariableDefinition.WRITE_POLICY);
+    	}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/update.png" />
+  </div>
+  </li>
+  <li class="rule" id="updateList">
+  <h3>updateList <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">updateList</span> :  <span class="operator">(</span><a href="#ttlValue" class="rule">ttlValue</a> <span class="operator">|</span> <a href="#binValue" class="rule">binValue</a><span class="operator">)</span> <span class="operator">(</span><span class="literal">','</span> <a href="#binValue" class="rule">binValue</a><span class="operator">)</span><span class="operator">*</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/updateList.png" />
+  </div>
+  </li>
+  <li class="rule" id="delete">
+  <h3>delete <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      DELETE FROM namespace[.setname] WHERE PK = 'x'
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">delete</span> :  <a href="#DELETE" class="token">DELETE</a> <a href="#FROM" class="token">FROM</a> <a href="#nameSet" class="rule">nameSet</a> <span class="operator">(</span><a href="#WHERE" class="token">WHERE</a> <a href="#primaryKeyPredicate" class="rule">primaryKeyPredicate</a> <span class="operator">(</span><a href="#AND" class="token">AND</a> <a href="#generationPredicate" class="rule">generationPredicate</a><span class="operator">)</span><span class="operator">?</span><span class="operator">)</span><span class="operator">?</span> <span class="operator">{
+    	definitions.add(VariableDefinition.WRITE_POLICY);
+    	}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/delete.png" />
+  </div>
+  </li>
+  <li class="rule" id="select">
+  <h3>select <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      SELECT *|bin,,,  FROM namespace[.setname]
+      SELECT *|bin,,,  FROM namespace[.setname] ORDER BY xxx
+      SELECT *|bin,,,  FROM namespace[.setname] WHERE bin = nnn
+      SELECT *|bin,,,  FROM namespace[.setname] WHERE bin = 'xxx'
+      SELECT *|bin,,,  FROM namespace[.setname] WHERE bin BETWEEN nnn AND mmm
+      SELECT *|bin,,,  FROM namespace[.setname] WHERE PK = 'x'
+      Note:SELECT...WHERE bin ... needs an INDEX on bin. Use CREATE INDEX first.
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">select</span> :  <a href="#SELECT" class="token">SELECT</a> <span class="operator">(</span> <a href="#STAR" class="token">STAR</a> <span class="operator">{
+    	definitions.add(VariableDefinition.RECORD);
+    	}</span> <span class="operator">|</span> <a href="#binNameList" class="rule">binNameList</a> <span class="operator">{
+    	definitions.add(VariableDefinition.RECORD);
+    	}</span> <span class="operator">|</span> <a href="#moduleFunction" class="rule">moduleFunction</a> <span class="operator">(</span><span class="literal">'('</span> <span class="operator">(</span><a href="#valueList" class="rule">valueList</a><span class="operator">)</span><span class="operator">?</span> <span class="literal">')'</span><span class="operator">)</span><span class="operator">?</span> <span class="operator">{
+    	definitions.add(VariableDefinition.RESULT_SET);
+    	}</span> <span class="operator">)</span> <span class="operator">(</span><a href="#IN" class="token">IN</a> <a href="#collectionType" class="rule">collectionType</a><span class="operator">)</span><span class="operator">?</span> <a href="#FROM" class="token">FROM</a> <a href="#nameSet" class="rule">nameSet</a> <a href="#where" class="rule">where</a><span class="operator">?</span> <span class="operator">{
+    	definitions.add(VariableDefinition.QUERY_POLICY);
+    	definitions.add(VariableDefinition.READ_POLICY);
+    	definitions.add(VariableDefinition.SCAN_POLICY);
+    	definitions.add(VariableDefinition.STMT);
+    	}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/select.png" />
+  </div>
+  </li>
+  <li class="rule" id="aggregate">
+  <h3>aggregate <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin = nnn
+      AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin BETWEEN nnn AND mmm
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">aggregate</span> :  <a href="#AGGREGATE" class="token">AGGREGATE</a> <a href="#moduleFunction" class="rule">moduleFunction</a> <span class="operator">(</span><span class="literal">'('</span> <span class="operator">(</span><a href="#valueList" class="rule">valueList</a><span class="operator">)</span><span class="operator">?</span> <span class="literal">')'</span><span class="operator">)</span><span class="operator">?</span> <a href="#ON" class="token">ON</a> <a href="#nameSet" class="rule">nameSet</a> <span class="operator">(</span><a href="#IN" class="token">IN</a> <a href="#collectionType" class="rule">collectionType</a><span class="operator">)</span><span class="operator">?</span> <span class="operator">(</span><a href="#where" class="rule">where</a><span class="operator">)</span><span class="operator">?</span> <span class="operator">{
+    	definitions.add(VariableDefinition.QUERY_POLICY);
+    	definitions.add(VariableDefinition.RESULT_SET);
+    	definitions.add(VariableDefinition.STMT);
+    	}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/aggregate.png" />
+  </div>
+  </li>
+  <li class="rule" id="collectionType">
+  <h3>collectionType <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">collectionType</span> :  <a href="#LIST" class="token">LIST</a> <span class="operator">|</span> <a href="#MAPKEYS" class="token">MAPKEYS</a> <span class="operator">|</span> <a href="#MAPVALUES" class="token">MAPVALUES</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/collectionType.png" />
+  </div>
+  </li>
+  <li class="rule" id="where">
+  <h3>where <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">where</span> :  <a href="#WHERE" class="token">WHERE</a> <a href="#predicate" class="rule">predicate</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/where.png" />
+  </div>
+  </li>
+  <li class="rule" id="operateFunction">
+  <h3>operateFunction <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">operateFunction</span> :  <a href="#ADD" class="token">ADD</a> <span class="literal">'('</span> <a href="#bin" class="rule">bin</a> <span class="literal">','</span> <a href="#value" class="rule">value</a> <span class="literal">')'</span> <span class="operator">|</span> <a href="#PUT" class="token">PUT</a> <span class="literal">'('</span> <a href="#bin" class="rule">bin</a> <span class="literal">','</span> <a href="#value" class="rule">value</a> <span class="literal">')'</span> <span class="operator">|</span> <a href="#APPEND" class="token">APPEND</a> <span class="literal">'('</span> <a href="#bin" class="rule">bin</a> <span class="literal">','</span> <a href="#value" class="rule">value</a> <span class="literal">')'</span> <span class="operator">|</span> <a href="#PREPEND" class="token">PREPEND</a> <span class="literal">'('</span> <a href="#bin" class="rule">bin</a> <span class="literal">','</span> <a href="#value" class="rule">value</a> <span class="literal">')'</span> <span class="operator">|</span> <a href="#GET" class="token">GET</a> <span class="operator">(</span><span class="literal">'('</span> <a href="#bin" class="rule">bin</a> <span class="literal">')'</span><span class="operator">)</span><span class="operator">?</span> <span class="operator">|</span> <a href="#TOUCH" class="token">TOUCH</a> <span class="operator">|</span> <a href="#HEADER" class="token">HEADER</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/operateFunction.png" />
+  </div>
+  </li>
+  <li class="rule" id="nameSet">
+  <h3>nameSet <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">nameSet</span> :  <a href="#namespace_name" class="rule">namespace_name</a> <span class="operator">{$namespaceName = $namespace_name.text;}</span> <span class="operator">(</span><span class="literal">'.'</span> <a href="#set_name" class="rule">set_name</a> <span class="operator">{$setName = $set_name.text;}</span><span class="operator">)</span><span class="operator">?</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/nameSet.png" />
+  </div>
+  </li>
+  <li class="rule" id="register">
+  <h3>register <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      REGISTER MODULE 'filepath'
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">register</span> :  <a href="#REGISTER" class="token">REGISTER</a> <a href="#MODULE" class="token">MODULE</a> <a href="#filepath" class="rule">filepath</a><span class="operator">=</span><a href="#filePath" class="rule">filePath</a> <span class="operator">{
+    	definitions.add(VariableDefinition.READ_POLICY);
+    	definitions.add(VariableDefinition.REGISTER_TASK);
+    	definitions.add(VariableDefinition.UDF_FILE);
+    	}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/register.png" />
+  </div>
+  </li>
+  <li class="rule" id="execute">
+  <h3>execute <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      EXECUTE pkgname.funcname(arg1,arg2,,) ON namespace[.setname]
+      EXECUTE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE PK = 'X'
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">execute</span> :  <a href="#EXECUTE" class="token">EXECUTE</a> <a href="#moduleFunction" class="rule">moduleFunction</a> <span class="literal">'('</span> <a href="#valueList" class="rule">valueList</a><span class="operator">?</span> <span class="literal">')'</span> <a href="#ON" class="token">ON</a> <a href="#nameSet" class="rule">nameSet</a> <span class="operator">(</span><a href="#where" class="rule">where</a><span class="operator">)</span><span class="operator">?</span> <span class="operator">{
+    	definitions.add(VariableDefinition.READ_POLICY);
+    	}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/execute.png" />
+  </div>
+  </li>
+  <li class="rule" id="aggregate">
+  <h3>aggregate <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin = nnn
+      AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin BETWEEN nnn AND mmm
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">aggregate</span> :  <a href="#AGGREGATE" class="token">AGGREGATE</a> <a href="#moduleFunction" class="rule">moduleFunction</a> <span class="operator">(</span><span class="literal">'('</span> <span class="operator">(</span><a href="#valueList" class="rule">valueList</a><span class="operator">)</span><span class="operator">?</span> <span class="literal">')'</span><span class="operator">)</span><span class="operator">?</span> <a href="#ON" class="token">ON</a> <a href="#nameSet" class="rule">nameSet</a> <span class="operator">(</span><a href="#IN" class="token">IN</a> <a href="#collectionType" class="rule">collectionType</a><span class="operator">)</span><span class="operator">?</span> <span class="operator">(</span><a href="#where" class="rule">where</a><span class="operator">)</span><span class="operator">?</span> <span class="operator">{
+    	definitions.add(VariableDefinition.QUERY_POLICY);
+    	definitions.add(VariableDefinition.RESULT_SET);
+    	definitions.add(VariableDefinition.STMT);
+    	}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/aggregate.png" />
+  </div>
+  </li>
+  <li class="rule" id="moduleFunction">
+  <h3>moduleFunction <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">moduleFunction</span> :  <a href="#packageName" class="rule">packageName</a><span class="operator">=</span><span class="operator">(</span><a href="#IDENTIFIER" class="token">IDENTIFIER</a> <span class="operator">|</span> <a href="#LLIST" class="token">LLIST</a> <span class="operator">|</span> <a href="#LMAP" class="token">LMAP</a><span class="operator">)</span> <span class="literal">'.'</span> <a href="#functionName" class="rule">functionName</a><span class="operator">=</span><span class="operator">(</span><a href="#IDENTIFIER" class="token">IDENTIFIER</a> <span class="operator">|</span> <a href="#ADD" class="token">ADD</a> <span class="operator">|</span> <a href="#SCAN" class="token">SCAN</a> <span class="operator">|</span> <span class="literal">'find'</span> <span class="operator">|</span> <span class="literal">'size'</span> <span class="operator">|</span> <span class="literal">'remove'</span> <span class="operator">|</span> <span class="literal">'destroy'</span> <span class="operator">|</span> <span class="literal">'get_config'</span> <span class="operator">|</span> <span class="literal">'get_capacity'</span> <span class="operator">|</span> <span class="literal">'put'</span> <span class="operator">|</span> <span class="literal">'get'</span><span class="operator">)</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/moduleFunction.png" />
+  </div>
+  </li>
+  <li class="rule" id="binNameList">
+  <h3>binNameList <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">binNameList</span> :  <span class="operator">(</span><a href="#TTL" class="token">TTL</a><span class="operator">|</span><a href="#bin" class="rule">bin</a><span class="operator">)</span> <span class="operator">(</span><span class="literal">','</span> <a href="#bin" class="rule">bin</a><span class="operator">)</span><span class="operator">*</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/binNameList.png" />
+  </div>
+  </li>
+  <li class="rule" id="valueList">
+  <h3>valueList <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">valueList</span> :  <a href="#value" class="rule">value</a> <span class="operator">(</span><span class="literal">','</span> <a href="#value" class="rule">value</a> <span class="operator">)</span><span class="operator">*</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/valueList.png" />
+  </div>
+  </li>
+  <li class="rule" id="predicate">
+  <h3>predicate <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">predicate</span> :  <span class="operator">(</span><a href="#primaryKeyPredicate" class="rule">primaryKeyPredicate</a> <span class="operator">|</span> <a href="#filterPredicate" class="rule">filterPredicate</a><span class="operator">)</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/predicate.png" />
+  </div>
+  </li>
+  <li class="rule" id="primaryKeyPredicate">
+  <h3>primaryKeyPredicate <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">primaryKeyPredicate</span> :  <a href="#PK" class="token">PK</a> <a href="#EQ" class="token">EQ</a> <a href="#primaryKey" class="rule">primaryKey</a>[<span class="literal">$statement::nameSpace, $statement::setName</span>] ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/primaryKeyPredicate.png" />
+  </div>
+  </li>
+  <li class="rule" id="generationPredicate">
+  <h3>generationPredicate <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">generationPredicate</span> :  <span class="literal">'generation'</span> <a href="#EQ" class="token">EQ</a> <a href="#INTLITERAL" class="token">INTLITERAL</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/generationPredicate.png" />
+  </div>
+  </li>
+  <li class="rule" id="filterPredicate">
+  <h3>filterPredicate <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">filterPredicate</span> :  <span class="operator">(</span><a href="#equalityFilter" class="rule">equalityFilter</a> <span class="operator">|</span> <a href="#rangeFilter" class="rule">rangeFilter</a><span class="operator">)</span> <span class="operator">{
+    	definitions.add(VariableDefinition.QUERY_POLICY);
+    	definitions.add(VariableDefinition.RECORD_SET);
+    	}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/filterPredicate.png" />
+  </div>
+  </li>
+  <li class="rule" id="equalityFilter">
+  <h3>equalityFilter <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">equalityFilter</span> :  <a href="#binValue" class="rule">binValue</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/equalityFilter.png" />
+  </div>
+  </li>
+  <li class="rule" id="ttlValue">
+  <h3>ttlValue <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">ttlValue</span> :  <a href="#TTL" class="token">TTL</a> <a href="#EQ" class="token">EQ</a> <a href="#integerValue" class="rule">integerValue</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/ttlValue.png" />
+  </div>
+  </li>
+  <li class="rule" id="binValue">
+  <h3>binValue <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">binValue</span> :  <a href="#bin" class="rule">bin</a> <a href="#EQ" class="token">EQ</a> <a href="#value" class="rule">value</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/binValue.png" />
+  </div>
+  </li>
+  <li class="rule" id="rangeFilter">
+  <h3>rangeFilter <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">rangeFilter</span> :  <a href="#bin" class="rule">bin</a> <a href="#BETWEEN" class="token">BETWEEN</a> <a href="#low" class="rule">low</a><span class="operator">=</span><a href="#integerValue" class="rule">integerValue</a> <a href="#AND" class="token">AND</a> <a href="#high" class="rule">high</a><span class="operator">=</span><a href="#integerValue" class="rule">integerValue</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/rangeFilter.png" />
+  </div>
+  </li>
+  <li class="rule" id="show">
+  <h3>show <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      SHOW MODULES
+      SHOW NAMESPACES|SETS|BINS
+      SHOW SCANS|QUERIES
+      SHOW INDEXES [namespace[.set]]
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">show</span> :  <a href="#SHOW" class="token">SHOW</a> <span class="operator">(</span> <a href="#INDEXES" class="token">INDEXES</a> <a href="#nameSet" class="rule">nameSet</a><span class="operator">?</span> <span class="operator">|</span> <a href="#SCANS" class="token">SCANS</a> <span class="operator">|</span> <a href="#NAMESPACES" class="token">NAMESPACES</a> <span class="operator">|</span> <a href="#SETS" class="token">SETS</a> <span class="operator">|</span> <a href="#BINS" class="token">BINS</a> <span class="operator">|</span> <a href="#QUERIES" class="token">QUERIES</a> <span class="operator">|</span> <a href="#MODULES" class="token">MODULES</a> <span class="operator">|</span> <a href="#USER" class="token">USER</a> <a href="#user" class="rule">user</a> <span class="operator">{definitions.add(VariableDefinition.ADMIN_POLICY);}</span> <span class="operator">|</span> <a href="#USERS" class="token">USERS</a> <span class="operator">{definitions.add(VariableDefinition.ADMIN_POLICY);}</span> <span class="operator">)</span> <span class="operator">{
+    	definitions.add(VariableDefinition.INFO_POLICY);
+    	definitions.add(VariableDefinition.INFO_STRING);
+    	}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/show.png" />
+  </div>
+  </li>
+  <li class="rule" id="desc">
+  <h3>desc <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      DESC INDEX namespace indexname
+      DESC MODULE pkgname.extension
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">desc</span> :  <a href="#DESC" class="token">DESC</a> <span class="operator">(</span> <a href="#MODULE" class="token">MODULE</a> <a href="#moduleName" class="rule">moduleName</a> <span class="operator">|</span> <a href="#INDEX" class="token">INDEX</a> <a href="#namespace_name" class="rule">namespace_name</a> <a href="#index_name" class="rule">index_name</a> <span class="operator">)</span> <span class="operator">{
+    	definitions.add(VariableDefinition.INFO_POLICY);
+    	definitions.add(VariableDefinition.INFO_STRING);
+    	}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/desc.png" />
+  </div>
+  </li>
+  <li class="rule" id="stat">
+  <h3>stat <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      STAT INDEX namespace indexname
+      STAT QUERY
+      STAT SYSTEM
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">stat</span> :  <a href="#STAT" class="token">STAT</a> <span class="operator">(</span><a href="#INDEX" class="token">INDEX</a> <a href="#namespace_name" class="rule">namespace_name</a> <a href="#index_name" class="rule">index_name</a> <span class="operator">|</span> <a href="#QUERY" class="token">QUERY</a> <span class="operator">|</span> <a href="#SYSTEM" class="token">SYSTEM</a> <span class="operator">)</span> <span class="operator">{
+    	definitions.add(VariableDefinition.INFO_POLICY);
+    	definitions.add(VariableDefinition.INFO_STRING);
+    	}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/stat.png" />
+  </div>
+  </li>
+  <li class="rule" id="set">
+  <h3>set <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">set</span> :  <a href="#SET" class="token">SET</a> <span class="operator">(</span><a href="#TIMEOUT" class="token">TIMEOUT</a> <a href="#timeOut" class="rule">timeOut</a><span class="operator">=</span><a href="#INTLITERAL" class="token">INTLITERAL</a> <span class="operator">{definitions.add(VariableDefinition.READ_POLICY);definitions.add(VariableDefinition.WRITE_POLICY);}</span> <span class="operator">|</span> <a href="#VERBOSE" class="token">VERBOSE</a> <a href="#verboseOn" class="rule">verboseOn</a><span class="operator">=</span><a href="#booleanLiteral" class="rule">booleanLiteral</a> <span class="operator">|</span> <a href="#ECHO" class="token">ECHO</a> <a href="#echoOn" class="rule">echoOn</a><span class="operator">=</span><a href="#booleanLiteral" class="rule">booleanLiteral</a> <span class="operator">|</span> <a href="#TTL" class="token">TTL</a> <a href="#ttl" class="rule">ttl</a><span class="operator">=</span><a href="#INTLITERAL" class="token">INTLITERAL</a> <span class="operator">|</span> <a href="#OUTPUT" class="token">OUTPUT</a> <a href="#viewType" class="rule">viewType</a> <span class="operator">|</span> <a href="#LUA_USER_PATH" class="token">LUA_USER_PATH</a> <a href="#luaUserPath" class="rule">luaUserPath</a><span class="operator">=</span><a href="#STRINGLITERAL" class="token">STRINGLITERAL</a> <span class="operator">|</span> <a href="#FAIL_ON_CLUSTER_CHANGE" class="token">FAIL_ON_CLUSTER_CHANGE</a> <span class="operator">|</span> <a href="#PASSWORD" class="token">PASSWORD</a> <a href="#password" class="rule">password</a> <a href="#FOR" class="token">FOR</a> <a href="#user" class="rule">user</a> <span class="operator">{definitions.add(VariableDefinition.ADMIN_POLICY);}</span> <span class="operator">)</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/set.png" />
+  </div>
+  </li>
+  <li class="rule" id="get">
+  <h3>get <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">get</span> :  <a href="#GET" class="token">GET</a> <span class="operator">(</span> <a href="#TIMEOUT" class="token">TIMEOUT</a> <span class="operator">|</span> <a href="#VERBOSE" class="token">VERBOSE</a> <span class="operator">|</span> <a href="#ECHO" class="token">ECHO</a> <span class="operator">|</span> <a href="#TTL" class="token">TTL</a> <span class="operator">|</span> <a href="#OUTPUT" class="token">OUTPUT</a> <span class="operator">|</span> <a href="#LUA_USER_PATH" class="token">LUA_USER_PATH</a> <span class="operator">|</span> <a href="#FAIL_ON_CLUSTER_CHANGE" class="token">FAIL_ON_CLUSTER_CHANGE</a> <span class="operator">)</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/get.png" />
+  </div>
+  </li>
+  <li class="rule" id="viewType">
+  <h3>viewType <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">viewType</span> :  <span class="literal">'json'</span><span class="operator">|</span><span class="literal">'table'</span><span class="operator">|</span><span class="literal">'nosql'</span><span class="operator">|</span><span class="literal">'lua'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/viewType.png" />
+  </div>
+  </li>
+  <li class="rule" id="run">
+  <h3>run <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      RUN 'filename' 	(Each line in the file contains an asql command)
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">run</span> :  <a href="#RUN" class="token">RUN</a> <a href="#STRINGLITERAL" class="token">STRINGLITERAL</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/run.png" />
+  </div>
+  </li>
+  <li class="rule" id="print">
+  <h3>print <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      PRINT text_string
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">print</span> :  <a href="#PRINT" class="token">PRINT</a> <a href="#STRINGLITERAL" class="token">STRINGLITERAL</a><span class="operator">?</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/print.png" />
+  </div>
+  </li>
+  <li class="rule" id="kill">
+  <h3>kill <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">kill</span> :  <a href="#KILL" class="token">KILL</a> <span class="operator">(</span> <a href="#QUERY" class="token">QUERY</a> <span class="operator">|</span> <a href="#SCAN" class="token">SCAN</a> <span class="operator">)</span> <a href="#INTLITERAL" class="token">INTLITERAL</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/kill.png" />
+  </div>
+  </li>
+  <li class="rule" id="kill_query">
+  <h3>kill_query <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      KILL_QUERY transaction_id
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">kill_query</span> :  <a href="#KILL_QUERY" class="token">KILL_QUERY</a> <a href="#INTLITERAL" class="token">INTLITERAL</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/kill_query.png" />
+  </div>
+  </li>
+  <li class="rule" id="kill_scan">
+  <h3>kill_scan <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      KILL_SCAN scan_id
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">kill_scan</span> :  <a href="#KILL_SCAN" class="token">KILL_SCAN</a> <a href="#INTLITERAL" class="token">INTLITERAL</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/kill_scan.png" />
+  </div>
+  </li>
+  <li class="rule" id="quit">
+  <h3>quit <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      QUIT|EXIT|Q
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">quit</span> :  <a href="#QUIT" class="token">QUIT</a> <span class="operator">|</span> <a href="#EXIT" class="token">EXIT</a> <span class="operator">|</span> <span class="literal">'q'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/quit.png" />
+  </div>
+  </li>
+  <li class="rule" id="help">
+  <h3>help <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      HELP
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">help</span> :  <span class="literal">'help'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/help.png" />
+  </div>
+  </li>
+  <li class="rule" id="primaryKey">
+  <h3>primaryKey <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">primaryKey</span> :  <a href="#key" class="rule">key</a><span class="operator">=</span><span class="operator">(</span><a href="#STRINGLITERAL" class="token">STRINGLITERAL</a> <span class="operator">|</span> <a href="#INTLITERAL" class="token">INTLITERAL</a><span class="operator">)</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/primaryKey.png" />
+  </div>
+  </li>
+  <li class="rule" id="package_name">
+  <h3>package_name <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">package_name</span> :  <a href="#IDENTIFIER" class="token">IDENTIFIER</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/package_name.png" />
+  </div>
+  </li>
+  <li class="rule" id="index_name">
+  <h3>index_name <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">index_name</span> :  <a href="#IDENTIFIER" class="token">IDENTIFIER</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/index_name.png" />
+  </div>
+  </li>
+  <li class="rule" id="namespace_name">
+  <h3>namespace_name <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">namespace_name</span> :  <a href="#IDENTIFIER" class="token">IDENTIFIER</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/namespace_name.png" />
+  </div>
+  </li>
+  <li class="rule" id="set_name">
+  <h3>set_name <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">set_name</span> :  <a href="#setName" class="rule">setName</a><span class="operator">=</span> <a href="#IDENTIFIER" class="token">IDENTIFIER</a> <span class="operator">{
+    		if ($setName.text.length() > 63) notifyErrorListeners("Set name exceeds 63 characters");
+    	}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/set_name.png" />
+  </div>
+  </li>
+  <li class="rule" id="bin">
+  <h3>bin <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">bin</span> :  <a href="#binName" class="rule">binName</a><span class="operator">=</span><a href="#IDENTIFIER" class="token">IDENTIFIER</a> <span class="operator">{
+    		if ($binName.text.length() > 14) notifyErrorListeners("Bin name exceeds 14 characters");
+    	}</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/bin.png" />
+  </div>
+  </li>
+  <li class="rule" id="dotPath">
+  <h3>dotPath <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">dotPath</span> :  <a href="#path" class="rule">path</a><span class="operator">=</span><a href="#IDENTIFIER" class="token">IDENTIFIER</a> <span class="operator">(</span><span class="literal">'.'</span> <a href="#path" class="rule">path</a><span class="operator">=</span><a href="#IDENTIFIER" class="token">IDENTIFIER</a><span class="operator">)</span><span class="operator">*</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/dotPath.png" />
+  </div>
+  </li>
+  <li class="rule" id="value">
+  <h3>value <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">value</span> :  <a href="#integerValue" class="rule">integerValue</a> <span class="operator">|</span> <a href="#textValue" class="rule">textValue</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/value.png" />
+  </div>
+  </li>
+  <li class="rule" id="textValue">
+  <h3>textValue <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">textValue</span> :  <a href="#STRINGLITERAL" class="token">STRINGLITERAL</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/textValue.png" />
+  </div>
+  </li>
+  <li class="rule" id="integerValue">
+  <h3>integerValue <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">integerValue</span> :  <a href="#INTLITERAL" class="token">INTLITERAL</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/integerValue.png" />
+  </div>
+  </li>
+  <li class="rule" id="booleanLiteral">
+  <h3>booleanLiteral <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">booleanLiteral</span> :  <a href="#TRUE" class="token">TRUE</a> <span class="operator">|</span> <a href="#FALSE" class="token">FALSE</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/booleanLiteral.png" />
+  </div>
+  </li>
+  <li class="rule" id="moduleName">
+  <h3>moduleName <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">moduleName</span> :  <a href="#IDENTIFIER" class="token">IDENTIFIER</a> <span class="literal">'.'</span> <span class="operator">(</span><span class="literal">'lua'</span><span class="operator">|</span><span class="literal">'so'</span><span class="operator">)</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/moduleName.png" />
+  </div>
+  </li>
+  <li class="rule" id="filePath">
+  <h3>filePath <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">filePath</span> :  <a href="#STRINGLITERAL" class="token">STRINGLITERAL</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/filePath.png" />
+  </div>
+  </li>
+  <li class="rule" id="TRUE">
+  <h3>TRUE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">TRUE</span> :  <span class="literal">'true'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/TRUE.png" />
+  </div>
+  </li>
+  <li class="rule" id="FALSE">
+  <h3>FALSE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">FALSE</span> :  <span class="literal">'false'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/FALSE.png" />
+  </div>
+  </li>
+  <li class="rule" id="CONNECT">
+  <h3>CONNECT <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">CONNECT</span> :  <span class="literal">'connect'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/CONNECT.png" />
+  </div>
+  </li>
+  <li class="rule" id="DISCONNECT">
+  <h3>DISCONNECT <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">DISCONNECT</span> :  <span class="literal">'disconnect'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/DISCONNECT.png" />
+  </div>
+  </li>
+  <li class="rule" id="DESC">
+  <h3>DESC <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">DESC</span> :  <span class="literal">'desc'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/DESC.png" />
+  </div>
+  </li>
+  <li class="rule" id="INSERT">
+  <h3>INSERT <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">INSERT</span> :  <span class="literal">'insert'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/INSERT.png" />
+  </div>
+  </li>
+  <li class="rule" id="SELECT">
+  <h3>SELECT <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">SELECT</span> :  <span class="literal">'select'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/SELECT.png" />
+  </div>
+  </li>
+  <li class="rule" id="DELETE">
+  <h3>DELETE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">DELETE</span> :  <span class="literal">'delete'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/DELETE.png" />
+  </div>
+  </li>
+  <li class="rule" id="CREATE">
+  <h3>CREATE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">CREATE</span> :  <span class="literal">'create'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/CREATE.png" />
+  </div>
+  </li>
+  <li class="rule" id="INDEX">
+  <h3>INDEX <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">INDEX</span> :  <span class="literal">'index'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/INDEX.png" />
+  </div>
+  </li>
+  <li class="rule" id="EXECUTE">
+  <h3>EXECUTE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">EXECUTE</span> :  <span class="literal">'execute'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/EXECUTE.png" />
+  </div>
+  </li>
+  <li class="rule" id="WHERE">
+  <h3>WHERE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">WHERE</span> :  <span class="literal">'where'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/WHERE.png" />
+  </div>
+  </li>
+  <li class="rule" id="SHOW">
+  <h3>SHOW <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">SHOW</span> :  <span class="literal">'show'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/SHOW.png" />
+  </div>
+  </li>
+  <li class="rule" id="DROP">
+  <h3>DROP <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">DROP</span> :  <span class="literal">'drop'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/DROP.png" />
+  </div>
+  </li>
+  <li class="rule" id="INDEXES">
+  <h3>INDEXES <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">INDEXES</span> :  <span class="literal">'indexes'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/INDEXES.png" />
+  </div>
+  </li>
+  <li class="rule" id="VALUES">
+  <h3>VALUES <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">VALUES</span> :  <span class="literal">'values'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/VALUES.png" />
+  </div>
+  </li>
+  <li class="rule" id="SET">
+  <h3>SET <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">SET</span> :  <span class="literal">'set'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/SET.png" />
+  </div>
+  </li>
+  <li class="rule" id="GET">
+  <h3>GET <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">GET</span> :  <span class="literal">'get'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/GET.png" />
+  </div>
+  </li>
+  <li class="rule" id="MODULE">
+  <h3>MODULE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">MODULE</span> :  <span class="literal">'module'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/MODULE.png" />
+  </div>
+  </li>
+  <li class="rule" id="ON">
+  <h3>ON <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">ON</span> :  <span class="literal">'on'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/ON.png" />
+  </div>
+  </li>
+  <li class="rule" id="OPERATE">
+  <h3>OPERATE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">OPERATE</span> :  <span class="literal">'operate'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/OPERATE.png" />
+  </div>
+  </li>
+  <li class="rule" id="OUTPUT">
+  <h3>OUTPUT <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">OUTPUT</span> :  <span class="literal">'output'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/OUTPUT.png" />
+  </div>
+  </li>
+  <li class="rule" id="PRIVILEGE">
+  <h3>PRIVILEGE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">PRIVILEGE</span> :  <span class="literal">'privilege'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/PRIVILEGE.png" />
+  </div>
+  </li>
+  <li class="rule" id="PRIVILEGES">
+  <h3>PRIVILEGES <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">PRIVILEGES</span> :  <span class="literal">'privileges'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/PRIVILEGES.png" />
+  </div>
+  </li>
+  <li class="rule" id="INTO">
+  <h3>INTO <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">INTO</span> :  <span class="literal">'into'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/INTO.png" />
+  </div>
+  </li>
+  <li class="rule" id="FUNCTION">
+  <h3>FUNCTION <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">FUNCTION</span> :  <span class="literal">'function'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/FUNCTION.png" />
+  </div>
+  </li>
+  <li class="rule" id="FROM">
+  <h3>FROM <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">FROM</span> :  <span class="literal">'from'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/FROM.png" />
+  </div>
+  </li>
+  <li class="rule" id="BY">
+  <h3>BY <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">BY</span> :  <span class="literal">'by'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/BY.png" />
+  </div>
+  </li>
+  <li class="rule" id="AND">
+  <h3>AND <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">AND</span> :  <span class="literal">'and'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/AND.png" />
+  </div>
+  </li>
+  <li class="rule" id="BETWEEN">
+  <h3>BETWEEN <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">BETWEEN</span> :  <span class="literal">'between'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/BETWEEN.png" />
+  </div>
+  </li>
+  <li class="rule" id="RUN">
+  <h3>RUN <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">RUN</span> :  <span class="literal">'run'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/RUN.png" />
+  </div>
+  </li>
+  <li class="rule" id="STAT">
+  <h3>STAT <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">STAT</span> :  <span class="literal">'stat'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/STAT.png" />
+  </div>
+  </li>
+  <li class="rule" id="QUERY">
+  <h3>QUERY <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">QUERY</span> :  <span class="literal">'query'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/QUERY.png" />
+  </div>
+  </li>
+  <li class="rule" id="SCAN">
+  <h3>SCAN <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">SCAN</span> :  <span class="literal">'scan'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/SCAN.png" />
+  </div>
+  </li>
+  <li class="rule" id="TIMEOUT">
+  <h3>TIMEOUT <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">TIMEOUT</span> :  <span class="literal">'timeout'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/TIMEOUT.png" />
+  </div>
+  </li>
+  <li class="rule" id="QUIT">
+  <h3>QUIT <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">QUIT</span> :  <span class="literal">'quit'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/QUIT.png" />
+  </div>
+  </li>
+  <li class="rule" id="EXIT">
+  <h3>EXIT <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">EXIT</span> :  <span class="literal">'exit'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/EXIT.png" />
+  </div>
+  </li>
+  <li class="rule" id="KILL">
+  <h3>KILL <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">KILL</span> :  <span class="literal">'kill'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/KILL.png" />
+  </div>
+  </li>
+  <li class="rule" id="KILL_QUERY">
+  <h3>KILL_QUERY <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">KILL_QUERY</span> :  <span class="literal">'kill_query'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/KILL_QUERY.png" />
+  </div>
+  </li>
+  <li class="rule" id="KILL_SCAN">
+  <h3>KILL_SCAN <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">KILL_SCAN</span> :  <span class="literal">'kill_scan'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/KILL_SCAN.png" />
+  </div>
+  </li>
+  <li class="rule" id="PK">
+  <h3>PK <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">PK</span> :  <span class="literal">'pk'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/PK.png" />
+  </div>
+  </li>
+  <li class="rule" id="STRING">
+  <h3>STRING <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">STRING</span> :  <span class="literal">'string'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/STRING.png" />
+  </div>
+  </li>
+  <li class="rule" id="NUMERIC">
+  <h3>NUMERIC <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">NUMERIC</span> :  <span class="literal">'numeric'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/NUMERIC.png" />
+  </div>
+  </li>
+  <li class="rule" id="EQ">
+  <h3>EQ <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">EQ</span> :  <span class="literal">'='</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/EQ.png" />
+  </div>
+  </li>
+  <li class="rule" id="IN">
+  <h3>IN <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">IN</span> :  <span class="literal">'in'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/IN.png" />
+  </div>
+  </li>
+  <li class="rule" id="LIST">
+  <h3>LIST <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">LIST</span> :  <span class="literal">'list'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/LIST.png" />
+  </div>
+  </li>
+  <li class="rule" id="MAPKEYS">
+  <h3>MAPKEYS <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">MAPKEYS</span> :  <span class="literal">'mapkeys'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/MAPKEYS.png" />
+  </div>
+  </li>
+  <li class="rule" id="MAPVALUES">
+  <h3>MAPVALUES <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">MAPVALUES</span> :  <span class="literal">'mapvalues'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/MAPVALUES.png" />
+  </div>
+  </li>
+  <li class="rule" id="STAR">
+  <h3>STAR <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">STAR</span> :  <span class="literal">'*'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/STAR.png" />
+  </div>
+  </li>
+  <li class="rule" id="REGISTER">
+  <h3>REGISTER <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">REGISTER</span> :  <span class="literal">'register'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/REGISTER.png" />
+  </div>
+  </li>
+  <li class="rule" id="REMOVE">
+  <h3>REMOVE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">REMOVE</span> :  <span class="literal">'remove'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/REMOVE.png" />
+  </div>
+  </li>
+  <li class="rule" id="AGGREGATE">
+  <h3>AGGREGATE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">AGGREGATE</span> :  <span class="literal">'aggregate'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/AGGREGATE.png" />
+  </div>
+  </li>
+  <li class="rule" id="MODULES">
+  <h3>MODULES <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">MODULES</span> :  <span class="literal">'modules'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/MODULES.png" />
+  </div>
+  </li>
+  <li class="rule" id="NAMESPACES">
+  <h3>NAMESPACES <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">NAMESPACES</span> :  <span class="literal">'namespaces'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/NAMESPACES.png" />
+  </div>
+  </li>
+  <li class="rule" id="SETS">
+  <h3>SETS <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">SETS</span> :  <span class="literal">'sets'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/SETS.png" />
+  </div>
+  </li>
+  <li class="rule" id="BINS">
+  <h3>BINS <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">BINS</span> :  <span class="literal">'bins'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/BINS.png" />
+  </div>
+  </li>
+  <li class="rule" id="SCANS">
+  <h3>SCANS <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">SCANS</span> :  <span class="literal">'scans'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/SCANS.png" />
+  </div>
+  </li>
+  <li class="rule" id="QUERIES">
+  <h3>QUERIES <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">QUERIES</span> :  <span class="literal">'queries'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/QUERIES.png" />
+  </div>
+  </li>
+  <li class="rule" id="SYSTEM">
+  <h3>SYSTEM <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">SYSTEM</span> :  <span class="literal">'system'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/SYSTEM.png" />
+  </div>
+  </li>
+  <li class="rule" id="ORDER">
+  <h3>ORDER <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">ORDER</span> :  <span class="literal">'order'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/ORDER.png" />
+  </div>
+  </li>
+  <li class="rule" id="PRINT">
+  <h3>PRINT <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">PRINT</span> :  <span class="literal">'print'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/PRINT.png" />
+  </div>
+  </li>
+  <li class="rule" id="UPDATE">
+  <h3>UPDATE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">UPDATE</span> :  <span class="literal">'update'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/UPDATE.png" />
+  </div>
+  </li>
+  <li class="rule" id="VERBOSE">
+  <h3>VERBOSE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">VERBOSE</span> :  <span class="literal">'verbose'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/VERBOSE.png" />
+  </div>
+  </li>
+  <li class="rule" id="ECHO">
+  <h3>ECHO <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">ECHO</span> :  <span class="literal">'echo'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/ECHO.png" />
+  </div>
+  </li>
+  <li class="rule" id="TTL">
+  <h3>TTL <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">TTL</span> :  <span class="literal">'ttl'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/TTL.png" />
+  </div>
+  </li>
+  <li class="rule" id="USE_SMD">
+  <h3>USE_SMD <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">USE_SMD</span> :  <span class="literal">'use_smd'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/USE_SMD.png" />
+  </div>
+  </li>
+  <li class="rule" id="LUA_USER_PATH">
+  <h3>LUA_USER_PATH <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">LUA_USER_PATH</span> :  <span class="literal">'lua_userpath'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/LUA_USER_PATH.png" />
+  </div>
+  </li>
+  <li class="rule" id="LUA_SYSTEM_PATH">
+  <h3>LUA_SYSTEM_PATH <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">LUA_SYSTEM_PATH</span> :  <span class="literal">'lua_syspath'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/LUA_SYSTEM_PATH.png" />
+  </div>
+  </li>
+  <li class="rule" id="ADD">
+  <h3>ADD <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">ADD</span> :  <span class="literal">'add'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/ADD.png" />
+  </div>
+  </li>
+  <li class="rule" id="PUT">
+  <h3>PUT <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">PUT</span> :  <span class="literal">'put'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/PUT.png" />
+  </div>
+  </li>
+  <li class="rule" id="APPEND">
+  <h3>APPEND <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">APPEND</span> :  <span class="literal">'append'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/APPEND.png" />
+  </div>
+  </li>
+  <li class="rule" id="PREPEND">
+  <h3>PREPEND <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">PREPEND</span> :  <span class="literal">'prepend'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/PREPEND.png" />
+  </div>
+  </li>
+  <li class="rule" id="TOUCH">
+  <h3>TOUCH <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">TOUCH</span> :  <span class="literal">'touch'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/TOUCH.png" />
+  </div>
+  </li>
+  <li class="rule" id="HEADER">
+  <h3>HEADER <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">HEADER</span> :  <span class="literal">'header'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/HEADER.png" />
+  </div>
+  </li>
+  <li class="rule" id="LLIST">
+  <h3>LLIST <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">LLIST</span> :  <span class="literal">'llist'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/LLIST.png" />
+  </div>
+  </li>
+  <li class="rule" id="LSTACK">
+  <h3>LSTACK <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">LSTACK</span> :  <span class="literal">'lstack'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/LSTACK.png" />
+  </div>
+  </li>
+  <li class="rule" id="LSET">
+  <h3>LSET <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">LSET</span> :  <span class="literal">'lset'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/LSET.png" />
+  </div>
+  </li>
+  <li class="rule" id="LMAP">
+  <h3>LMAP <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">LMAP</span> :  <span class="literal">'lmap'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/LMAP.png" />
+  </div>
+  </li>
+  <li class="rule" id="USER">
+  <h3>USER <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">USER</span> :  <span class="literal">'user'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/USER.png" />
+  </div>
+  </li>
+  <li class="rule" id="USERS">
+  <h3>USERS <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">USERS</span> :  <span class="literal">'users'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/USERS.png" />
+  </div>
+  </li>
+  <li class="rule" id="PASSWORD">
+  <h3>PASSWORD <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">PASSWORD</span> :  <span class="literal">'password'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/PASSWORD.png" />
+  </div>
+  </li>
+  <li class="rule" id="ROLE">
+  <h3>ROLE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">ROLE</span> :  <span class="literal">'role'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/ROLE.png" />
+  </div>
+  </li>
+  <li class="rule" id="ROLES">
+  <h3>ROLES <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">ROLES</span> :  <span class="literal">'roles'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/ROLES.png" />
+  </div>
+  </li>
+  <li class="rule" id="GRANT">
+  <h3>GRANT <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">GRANT</span> :  <span class="literal">'grant'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/GRANT.png" />
+  </div>
+  </li>
+  <li class="rule" id="REVOKE">
+  <h3>REVOKE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">REVOKE</span> :  <span class="literal">'revoke'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/REVOKE.png" />
+  </div>
+  </li>
+  <li class="rule" id="TO">
+  <h3>TO <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">TO</span> :  <span class="literal">'to'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/TO.png" />
+  </div>
+  </li>
+  <li class="rule" id="FAIL_ON_CLUSTER_CHANGE">
+  <h3>FAIL_ON_CLUSTER_CHANGE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">FAIL_ON_CLUSTER_CHANGE</span> :  <span class="literal">'FAIL_ON_CLUSTER_CHANGE'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/FAIL_ON_CLUSTER_CHANGE.png" />
+  </div>
+  </li>
+  <li class="rule" id="REPAIR">
+  <h3>REPAIR <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">REPAIR</span> :  <span class="literal">'repair'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/REPAIR.png" />
+  </div>
+  </li>
+  <li class="rule" id="FOR">
+  <h3>FOR <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">FOR</span> :  <span class="literal">'for'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/FOR.png" />
+  </div>
+  </li>
+  <li class="rule" id="IDENTIFIER">
+  <h3>IDENTIFIER <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">IDENTIFIER</span> :  <span class="operator">(</span> <a href="#LETTER" class="token">LETTER</a> <span class="operator">|</span> <a href="#UNDERSCORE" class="token">UNDERSCORE</a> <span class="operator">)</span><span class="operator">(</span> <a href="#LETTER" class="token">LETTER</a><span class="operator">|</span> <a href="#DIGIT" class="token">DIGIT</a> <span class="operator">|</span> <a href="#UNDERSCORE" class="token">UNDERSCORE</a> <span class="operator">|</span> <a href="#HYPHEN" class="token">HYPHEN</a><span class="operator">)</span><span class="operator">*</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/IDENTIFIER.png" />
+  </div>
+  </li>
+  <li class="rule" id="STRINGLITERAL">
+  <h3>STRINGLITERAL <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      Single quote delimited string
+      e.g. 'cats' or 'cat\'s'
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">STRINGLITERAL</span> :  <span class="literal">'\''</span> <span class="operator">(</span> <a href="#EscapeSequence" class="token">EscapeSequence</a> <span class="operator">|</span> <span class="operator">~</span><span class="operator">(</span><span class="literal">'\\'</span><span class="operator">|</span><span class="literal">'\''</span><span class="operator">)</span> <span class="operator">)</span><span class="operator">*</span> <span class="literal">'\''</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/STRINGLITERAL.png" />
+  </div>
+  </li>
+  <li class="rule" id="FLOATLITERAL">
+  <h3>FLOATLITERAL <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">FLOATLITERAL</span> :  <span class="operator">(</span><span class="literal">'+'</span><span class="operator">|</span><span class="literal">'-'</span><span class="operator">)</span><span class="operator">?</span> <a href="#IntegerNumber" class="token">IntegerNumber</a> <span class="literal">'.'</span> <a href="#IntegerNumber" class="token">IntegerNumber</a><span class="operator">?</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/FLOATLITERAL.png" />
+  </div>
+  </li>
+  <li class="rule" id="INTLITERAL">
+  <h3>INTLITERAL <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">INTLITERAL</span> :  <span class="operator">(</span><span class="literal">'+'</span><span class="operator">|</span><span class="literal">'-'</span><span class="operator">)</span><span class="operator">?</span> <a href="#IntegerNumber" class="token">IntegerNumber</a> <span class="literal">'L'</span><span class="operator">?</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/INTLITERAL.png" />
+  </div>
+  </li>
+  <li class="rule" id="HEXLITERAL">
+  <h3>HEXLITERAL <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">HEXLITERAL</span> :  <a href="#HexPrefix" class="token">HexPrefix</a> <a href="#HexDigit" class="token">HexDigit</a> <a href="#HexDigit" class="token">HexDigit</a> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/HEXLITERAL.png" />
+  </div>
+  </li>
+  <li class="rule" id="IntegerNumber">
+  <h3>IntegerNumber <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">IntegerNumber</span> :  <span class="literal">'0'</span> <span class="operator">|</span> <span class="literal">'1'</span><span class="operator">..</span><span class="literal">'9'</span> <span class="operator">(</span><span class="literal">'0'</span><span class="operator">..</span><span class="literal">'9'</span><span class="operator">)</span><span class="operator">*</span> <span class="operator">|</span> <span class="literal">'0'</span> <span class="operator">(</span><span class="literal">'0'</span><span class="operator">..</span><span class="literal">'7'</span><span class="operator">)</span><span class="operator">+</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/IntegerNumber.png" />
+  </div>
+  </li>
+  <li class="rule" id="HexPrefix">
+  <h3>HexPrefix <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">HexPrefix</span> :  <span class="literal">'\\x'</span> <span class="operator">|</span> <span class="literal">'\\X'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/HexPrefix.png" />
+  </div>
+  </li>
+  <li class="rule" id="HexDigit">
+  <h3>HexDigit <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">HexDigit</span> :  <span class="operator">(</span><a href="#DIGIT" class="token">DIGIT</a><span class="operator">|</span><span class="literal">'a'</span><span class="operator">..</span><span class="literal">'f'</span><span class="operator">|</span><span class="literal">'A'</span><span class="operator">..</span><span class="literal">'F'</span><span class="operator">)</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/HexDigit.png" />
+  </div>
+  </li>
+  <li class="rule" id="LETTER">
+  <h3>LETTER <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">LETTER</span> :  <span class="operator">(</span><span class="literal">'a'</span><span class="operator">..</span><span class="literal">'z'</span> <span class="operator">|</span> <span class="literal">'A'</span><span class="operator">..</span><span class="literal">'Z'</span><span class="operator">)</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/LETTER.png" />
+  </div>
+  </li>
+  <li class="rule" id="DIGIT">
+  <h3>DIGIT <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">DIGIT</span> :  <span class="literal">'0'</span><span class="operator">..</span><span class="literal">'9'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/DIGIT.png" />
+  </div>
+  </li>
+  <li class="rule" id="UNDERSCORE">
+  <h3>UNDERSCORE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">UNDERSCORE</span> :  <span class="literal">'_'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/UNDERSCORE.png" />
+  </div>
+  </li>
+  <li class="rule" id="HYPHEN">
+  <h3>HYPHEN <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">HYPHEN</span> :  <span class="literal">'-'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/HYPHEN.png" />
+  </div>
+  </li>
+  <li class="rule" id="SEMICOLON">
+  <h3>SEMICOLON <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">SEMICOLON</span> :  <span class="literal">';'</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/SEMICOLON.png" />
+  </div>
+  </li>
+  <li class="rule" id="EscapeSequence">
+  <h3>EscapeSequence <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">EscapeSequence</span> :  <span class="literal">'\\'</span> <span class="operator">(</span><span class="literal">'b'</span><span class="operator">|</span><span class="literal">'t'</span><span class="operator">|</span><span class="literal">'n'</span><span class="operator">|</span><span class="literal">'f'</span><span class="operator">|</span><span class="literal">'r'</span><span class="operator">|</span><span class="literal">'\''</span><span class="operator">|</span><span class="literal">'\\'</span><span class="operator">)</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/EscapeSequence.png" />
+  </div>
+  </li>
+  <li class="rule" id="NEWLINE">
+  <h3>NEWLINE <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">NEWLINE</span> :  <span class="literal">'\r'</span><span class="operator">?</span> <span class="literal">'\n'</span> <span class="operator">-></span> <a href="#channel" class="rule">channel</a><span class="operator">(</span><a href="#HIDDEN" class="token">HIDDEN</a><span class="operator">)</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/NEWLINE.png" />
+  </div>
+  </li>
+  <li class="rule" id="WS">
+  <h3>WS <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">WS</span> :  [<span class="literal"> \r\t\u000C\n</span>]<span class="operator">+</span> <span class="operator">-></span> <a href="#channel" class="rule">channel</a><span class="operator">(</span><a href="#HIDDEN" class="token">HIDDEN</a><span class="operator">)</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/WS.png" />
+  </div>
+  </li>
+  <li class="rule" id="COMMENT">
+  <h3>COMMENT <a class="topLink" title="Go to top" href="AQL.g4.html">Top</a></h3>
+  <div class="doc">
+    <p>
+      # text_string - comment in script, line skipped.
+    </p>
+  </div>
+  <div class="ebnf">
+  <h4>Text notation:</h4>
+  <div>
+    <span class="rule">COMMENT</span> :  <span class="literal">'#'</span> <span class="operator">~</span>[<span class="literal">\r\n</span>]<span class="operator">*</span> <span class="literal">'\r'</span><span class="operator">?</span> <span class="literal">'\n'</span> <span class="operator">-></span> <a href="#channel" class="rule">channel</a><span class="operator">(</span><a href="#HIDDEN" class="token">HIDDEN</a><span class="operator">)</span> ;
+  </div>
+  </div>
+  <div class="railroad">
+  <h4>Visual notation:</h4>
+  <img border="0" src="images/COMMENT.png" />
+  </div>
+  </li>
+</ul>
+</div>
+</div>
+<footer>Generated by: <a href="https://github.com/jknack/antlr4ide">ANTLR 4 IDE</a>. Copyright (c) 2013 <a href="https://twitter.com/edgarespina">Edgar Espina</a></footer>
+</body>
+</html>

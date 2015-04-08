@@ -1,17 +1,48 @@
-select * from test.people where pk = 'toby'
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('1', 1, '1', 1)
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('2', 2, '2', 2)
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('3', 3, '2', 2)
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('4', 4, '2', 2)
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('5', 5, '2', 2)
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('6', 6, '2', 2)
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('7', 7, '2', 2)
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('8', 8, '2', 2)
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('9', 9, '2', 2)
-INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('10', 10, '2', 2)
-CREATE INDEX index_bn2 ON test.demo (bn2) NUMERIC
-CREATE INDEX index_bn3 ON test.demo (bn3) STRING
+set echo true
+#Connect
+connect '127.0.0.1' 3000 100
 
+print '@#$--$#@'
+
+#Insert
+
+	DELETE From test.demo where pk = '1'
+	DELETE From test.demo where pk = '2'
+	DELETE From test.demo where pk = '3'
+	DELETE From test.demo where pk = '4'
+
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('1', 1, '1', 1)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('2', 2, '2', 2)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('3', 3, '2', 2)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('4', 4, '2', 2)
+
+	Select *  From test.demo where pk = '1'
+	Select *  From test.demo where pk = '2'
+	Select *  From test.demo where pk = '3'
+	Select *  From test.demo where pk = '4'
+
+
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('5', 5, '2', 2)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('6', 6, '2', 2)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('7', 7, '2', 2)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('8', 8, '2', 2)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('9', 9, '2', 2)
+	INSERT INTO test.demo (PK, bn2, bn3, bn4, bn4) VALUES ('10', 9, '2', 2, 'JSON{"key": 1}')
+
+#Create
+	CREATE INDEX index_bn2 ON test.demo (bn2) NUMERIC
+	CREATE INDEX index_bn3 ON cats.demo (bn3) STRING
+	CREATE INDEX index_bn4 ON test.demo (bn4) NUMERIC
+    REPAIR INDEX index_bn4 ON test.demo 
+
+#Update
+	UPDATE test.demo SET bn2 = 9, bn3 = '22', bn4 = 22 where pk = '9'
+	UPDATE test.demo SET bn2 = 8, bn3 = '22', bn4 = 22 where pk = '8'
+	UPDATE test.demo SET bn2 = 7, bn3 = '22', bn4 = 22 where pk = '7'
+	UPDATE test.demo SET bn2 = 6, bn3 = '22', bn4 = 22 where pk = '6'
+	update test.cats SET bob = 23, sue = 'abc' where pk = '1234' and generation = 98765
+	update test.cats SET ttl = 3000 where pk = '1234' and generation = 98765
+	update test.cats SET ttl = 3000, bob = 23, sue = 'abc' where pk = '1234' and generation = 98765
 
 #QUERY:
 	SELECT * FROM test.demo
@@ -26,7 +57,9 @@ CREATE INDEX index_bn3 ON test.demo (bn3) STRING
 	SELECT bn2,bn3,bn4  FROM test.demo WHERE bn4 BETWEEN 1 AND 2
 	SELECT bn2,bn3,bn4  FROM test.demo WHERE PK = '10'
 
-
+#Operate
+	operate add(cat, 23), get(cat) on test.demo where pk = 9989
+	operate add(cat, 23), get(cat) on test.demo where pk = 9989 and generation = 20967
 
 #UDF:
 	REGISTER module 'src/test/resources/example1.lua'
@@ -36,9 +69,10 @@ CREATE INDEX index_bn3 ON test.demo (bn3) STRING
 	desc module example1.lua
 	desc module average_example.lua
 	EXECUTE example1.foo('arg1','arg2',3) ON test.demo WHERE PK = '1' 
+	EXECUTE example1.foo('arg1','arg2',3) ON test.demo 
 	drop module example1.lua
 	AGGREGATE sum_example.sum_single_bin('bn4') ON test.demo WHERE bn4 BETWEEN 1 AND 2
-
+	aggregate filter_example.profile_filter('ghjks') on test.profile where username = 'Mary'
 
 #ADMIN:
 	SHOW NAMESPACES
@@ -46,7 +80,7 @@ CREATE INDEX index_bn3 ON test.demo (bn3) STRING
 	sHoW BiNS
 	SHOW SCAnS
 	shoW qUERIES
-	#SHOW INDEXES
+	SHOW INDEXES
 	SHOW INDEXES test.demo
 	DESC INDEX test index_bn2
 	STAT INDEX test index_bn3
@@ -62,19 +96,17 @@ CREATE INDEX index_bn3 ON test.demo (bn3) STRING
 	SET ECHO true
 	SET ECHO false #[default false]
 	SET TIMEOUT 1500 #[default 1500ms]
-	SET RECORD_TTL 0 #[default 0 - never expire]
-	SET VIEW TABLE #[default at startup - TABLE]
-	SET VIEW JSON
+	SET TTL 0 #[default 0 - never expire]
+	SET OUTPUT TABLE #[default at startup - TABLE]
+	SET OUTPUT JSON
 	SET LUA_USERPATH '/opt/citrusleaf/usr/udf/lua' #[default /opt/citrusleaf/usr/udf/lua]
-	SET LUA_SYSPATH '/opt/citrusleaf/sys/udf/lua' #[default /opt/citrusleaf/sys/udf/lua]
 
 	GET VERBOSE 
 	GET ECHO 
 	GET TIMEOUT 
-	GET RECORD_TTL 
-	GET VIEW  
+	GET TTL 
+	GET OUTPUT  
 	GET LUA_USERPATH 
-	GET LUA_SYSPATH 
 	# Note: These are client side paths for lua files.
 
 
@@ -84,17 +116,20 @@ DELETE FROM test.demo WHERE PK = '1'
 DELETE FROM test.demo WHERE PK = '2'
 DELETE FROM test.demo WHERE PK = '3'
 DELETE FROM test.demo WHERE PK = '4'
-DELETE FROM test.demo WHERE PK = '5'
+#DELETE FROM test.demo WHERE PK = '5'
 DELETE FROM test.demo WHERE PK = '6'
-DELETE FROM test.demo WHERE PK = '7'
+#DELETE FROM test.demo WHERE PK = '7'
 DELETE FROM test.demo WHERE PK = '8'
-DELETE FROM test.demo WHERE PK = '9'
+#DELETE FROM test.demo WHERE PK = '9'
 DELETE FROM test.demo WHERE PK = '10'
 
-DROP INDEX test.demo index_bn2
-DROP INDEX test.demo index_bn3
+#DROP INDEX test.demo index_bn2
+#DROP INDEX test.demo index_bn3
+	DroP INDEX test.demo index_bn4
+
+disconnect	
 	
-QUIT 
-EXIT
-Q
-	
+#QUIT 
+#EXIT
+#Q
+
