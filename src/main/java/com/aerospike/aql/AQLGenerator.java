@@ -362,9 +362,8 @@ public class AQLGenerator extends AQLBaseListener {
 			st = getTemplateFor("showNamespaces");
 		else if (ctx.INDEXES() != null){
 			st = getTemplateFor("showIndexes"); 
-			if (ctx.nameSet() != null) {
-				st.add("nameSpace", ctx.nameSet().namespaceName);
-				st.add("setName", ctx.nameSet().setName);
+			if (ctx.namespace_name() != null) {
+				st.add("nameSpace", ctx.namespace_name().getText());
 			}
 		}
 		else if (ctx.MODULES() != null)
@@ -390,14 +389,14 @@ public class AQLGenerator extends AQLBaseListener {
 	@Override
 	public void exitDesc(DescContext ctx) {
 		ST st = null;
-		if (ctx.INDEX() != null) {
-			st = getTemplateFor("descIndex");
-			st.add("nameSpace", ctx.namespace_name().getText());
-			st.add("indexName", ctx.index_name().getText());
-		} else { // Module
+//		if (ctx.INDEX() != null) {
+//			st = getTemplateFor("descIndex");
+//			st.add("nameSpace", ctx.namespace_name().getText());
+//			st.add("indexName", ctx.index_name().getText());
+//		} else { // Module
 			st = getTemplateFor("descModule");
 			st.add("name", ctx.moduleName().getText());
-		}
+//		}
 		st.add("source", ((StatementContext)ctx.getParent()).source);
 
 		putCode(ctx, st);

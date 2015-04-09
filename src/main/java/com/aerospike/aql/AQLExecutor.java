@@ -351,9 +351,12 @@ public class AQLExecutor extends AQLBaseListener {
 			if (ctx.generationPredicate() != null){
 				int generation = Integer.parseInt(ctx.generationPredicate().INTLITERAL().getText());
 				writePolicy.generation = generation;
+				writePolicy.generationPolicy = GenerationPolicy.EXPECT_GEN_EQUAL;
 			}
-			client.delete(writePolicy, key);
-			results.report("OK, 1 record affected");
+			if (client.delete(writePolicy, key))
+				results.report("OK, 1 record affected");
+			else
+				results.report("Record not found");
 		} catch (AerospikeException e){
 			results.report(e);
 		}
@@ -504,6 +507,7 @@ public class AQLExecutor extends AQLBaseListener {
 			if (ctx.generationPredicate() != null){
 				int generation = Integer.parseInt(ctx.generationPredicate().INTLITERAL().getText());
 				writePolicy.generation = generation;
+				writePolicy.generationPolicy = GenerationPolicy.EXPECT_GEN_EQUAL;
 			}
 			Record record = client.operate(writePolicy, key, operations);
 			results.report(record);
@@ -560,10 +564,9 @@ public class AQLExecutor extends AQLBaseListener {
 
 				//results.reportInfo(info("namespaces"), ";");
 			}else if (ctx.INDEXES() != null){
-				if (ctx.nameSet() != null) {
-					String nameSpace = ctx.nameSet().namespaceName;
-					String setName = ctx.nameSet().setName;
-					results.reportInfo(info("sindex/"+ nameSpace + "/" + setName), ";", ":", "=");
+				if (ctx.namespace_name() != null) {
+					String nameSpace = ctx.namespace_name().getText();
+					results.reportInfo(info("sindex/"+ nameSpace ), ";", ":", "=");
 				} else {
 					results.reportInfo(info("sindex"), ";", ":", "=");
 				}
@@ -665,18 +668,18 @@ public class AQLExecutor extends AQLBaseListener {
 	@Override
 	public void exitDesc(DescContext ctx) {
 		try {
-			if (ctx.INDEX() != null) {
-				if (ctx.namespace_name() != null) {
-					String nameSpace = ctx.namespace_name().getText(); 
-					String indexName = ctx.index_name().getText();
-					results.reportInfo(info("sindex/"+ nameSpace + "/" + indexName), ";");
-				} else {
-					results.reportInfo(info("sindex"), ":");
-				}
-			} else { // Module
+//			if (ctx.INDEX() != null) {
+//				if (ctx.namespace_name() != null) {
+//					String nameSpace = ctx.namespace_name().getText(); 
+//					String indexName = ctx.index_name().getText();
+//					results.reportInfo(info("sindex/"+ nameSpace + "/" + indexName), ";");
+//				} else {
+//					results.reportInfo(info("sindex"), ":");
+//				}
+//			} else { // Module
 				String name = ctx.moduleName().getText();
 				results.reportInfo(info(String.format("udf-get:filename=%s", name)), ";");
-			}
+//			}
 		} catch (AerospikeException e){
 			results.report(e);
 		}
@@ -912,7 +915,11 @@ public class AQLExecutor extends AQLBaseListener {
 	}
 	@Override
 	public void exitPrimaryKey(PrimaryKeyContext ctx) {
-		Key key = new Key(ctx.nameSpace, ctx.setName, makeValue(ctx.key.getText()));
+		String keyText = ctx.key.getText();
+		String namespace = ctx.nameSpace;
+		String set = ctx.setName;
+		Value value = makeValue(keyText);
+		Key key = new Key(namespace, set, value);
 		this.keyProperty.put(ctx, key);
 	}
 	
@@ -931,10 +938,10 @@ public class AQLExecutor extends AQLBaseListener {
 		Value value;
 		if (svalue.startsWith("JSON[")) {// make a list
 			JSONArray jObject = (JSONArray) JSONValue.parse(svalue.substring(4));
-			value = Value.getAsList(jObject);
+			value = Value.get(jObject);
 		} else if (svalue.startsWith("JSON{")){// make a map
 			JSONObject jObject = (JSONObject) JSONValue.parse(svalue.substring(4));
-			value = Value.getAsMap(jObject);
+			value = Value.get(jObject);
 		} else {
 			value = Value.get(svalue);
 		}

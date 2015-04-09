@@ -69,8 +69,10 @@ print '@#$--$#@'
 	SELECT bn2,bn3,bn4  FROM test.demo WHERE PK = '10'
 
 #Operate
+	DELETE From test.cats where PK = '9989'
 	operate add(cat, 23), get(cat) on test.demo where pk = 9989
-	operate add(cat, 23), get(cat) on test.demo where pk = 9989 and generation = 20967
+	operate add(cat, 23), get(cat) on test.demo where pk = 9989 and generation = 2
+	SELECT cat  FROM test.cats WHERE PK = 9989
 
 #UDF:
 	REGISTER module 'src/test/resources/example1.lua'
@@ -92,7 +94,7 @@ print '@#$--$#@'
 	SHOW SCAnS
 	shoW qUERIES
 	SHOW INDEXES
-	SHOW INDEXES test.demo
+	SHOW INDEXES test
 	DESC INDEX test index_bn2
 	STAT INDEX test index_bn3
 	STAT QUERY

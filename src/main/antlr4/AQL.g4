@@ -608,7 +608,7 @@ SHOW INDEXES [namespace[.set]]
 */
 show 
 	: SHOW 
-	( INDEXES nameSet? 
+	( INDEXES namespace_name? 
 	| SCANS
 	| NAMESPACES
 	| SETS
@@ -630,10 +630,10 @@ DESC MODULE pkgname.extension
 */
 desc 
 	: DESC 
-		(
+//		(
 		MODULE moduleName 
-		| INDEX namespace_name index_name 
-		) 
+//		| INDEX namespace_name index_name 
+//		) 
 	{
 	definitions.add(VariableDefinition.INFO_POLICY);
 	definitions.add(VariableDefinition.INFO_STRING);

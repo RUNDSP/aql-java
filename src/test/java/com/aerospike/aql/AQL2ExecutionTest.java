@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.aerospike.aql.IResultReporter.ViewFormat;
@@ -13,41 +14,57 @@ import com.aerospike.client.query.RecordSet;
 
 public class AQL2ExecutionTest {
 	private AerospikeClient client = new AerospikeClient("127.0.0.1", 3000);
+	private GenericResult result;
+	AQL aql2 = null;
 	
+	@Before 
+	public void setup(){
+		aql2 = new AQL(client, 20, ViewFormat.TABLE);
+		result = null;
+	}
 	@Test
 	public void testGetKeyWords() throws Exception {
 		List<String> words = AQL.getKeyWords();
 		System.out.println("AQL Key words...");
-		for (String word : words){
-			System.out.println("\t"+ word);
-		}
+		assertTrue(words.size() == 95);
 	}
 	@Test
 	public void testExecuteInsertMap() throws Exception {
-		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
-		aql2.execute("delete from test.demo where pk = 'test-select-map'");
-		aql2.execute("INSERT INTO test.demo (PK, bn2, bn3, bn4, amap) VALUES ('test-select-map', 5, '2', 2, 'JSON{\"first\": 123, \"second\": [4, 5, 6], \"third\": 789}')");
-		aql2.execute("select * from test.demo where pk = 'test-select-map'");
+		
+		System.out.println("Insert Map...");
+		result = aql2.go("delete from test.demo where pk = 'test-select-map'");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.go("INSERT INTO test.demo (PK, bn2, bn3, bn4, amap) VALUES ('test-select-map', 5, '2', 2, 'JSON{\"first\": 123, \"second\": [4, 5, 6], \"third\": 789}')");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.go("select * from test.demo where pk = 'test-select-map'");
+		assertTrue(result.resultCode == ResultCode.OK);
 	}
 	@Test
 	public void testExecuteInsertList() throws Exception {
-		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
-		aql2.execute("delete from test.demo where pk = 'test-select-list'");
-		aql2.execute("INSERT INTO test.demo (PK, bn2, bn3, bn4, amap) VALUES ('test-select-list', 5, '2', 2, 'JSON[{\"value\": \"New\", \"onclick\": \"CreateNewDoc()\"},{\"value\": \"Open\", \"onclick\": \"OpenDoc()\"},{\"value\": \"Close\", \"onclick\": \"CloseDoc()\"}]')");
-		aql2.execute("select * from test.demo where pk = 'test-select-list'");
+		System.out.println("Insert List...");
+		result = aql2.go("delete from test.demo where pk = 'test-select-list'");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.go("INSERT INTO test.demo (PK, bn2, bn3, bn4, amap) VALUES ('test-select-list', 5, '2', 2, 'JSON[{\"value\": \"New\", \"onclick\": \"CreateNewDoc()\"},{\"value\": \"Open\", \"onclick\": \"OpenDoc()\"},{\"value\": \"Close\", \"onclick\": \"CloseDoc()\"}]')");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.go("select * from test.demo where pk = 'test-select-list'");
+		assertTrue(result.resultCode == ResultCode.OK);
 	}
 
 	@Test
 	public void testJavaExecuteSelectOne() throws Exception {
-		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
-		AQLExecutor ex = aql2.execute("delete from test.demo where pk = 'test-select'");
-		aql2.execute("INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('test-select', 5, '2', 2)", ex);
-		aql2.execute("select * from test.demo where pk = 'test-select'", ex);
+		System.out.println("Select One...");
+		result = aql2.go("delete from test.demo where pk = 'test-select'");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.go("INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('test-select', 5, '2', 2)");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.go("select * from test.demo where pk = 'test-select'");
+		assertTrue(result.resultCode == ResultCode.OK);
 	}
 	@Test
 	public void testJavaExecuteSelectRange() throws Exception {
-		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
-		GenericResult result = aql2.go("delete from test.demo where pk = 'test-select-1'");
+		System.out.println("Select Range...");
+		result = aql2.go("delete from test.demo where pk = 'test-select-1'");
+		assertTrue(result.resultCode == ResultCode.OK);
 		result = aql2.go("delete from test.demo where pk = 'test-select-2'");
 		assertTrue(result.resultCode == ResultCode.OK);
 		result = aql2.go("delete from test.demo where pk = 'test-select-3'");
@@ -124,63 +141,76 @@ public class AQL2ExecutionTest {
 	
 	@Test
 	public void testJavaExecuteSelectAll() throws Exception {
-		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
-		aql2.execute("select * from test.demo");
+		System.out.println("Select All...");
+		result = aql2.go("select * from test.demo");
+		assertTrue(result.resultCode == ResultCode.OK);
+		assertTrue(result.scanList.size() > 0);
+		result.close();
 	}
 	@Test
 	public void testJavaExecuteShowBins() throws Exception {
-		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
-		aql2.execute("show bins");
+		System.out.println("Show Bins...");
+		result = aql2.go("show bins");
+		assertTrue(result.resultCode == ResultCode.OK);
 	}
 	@Test
 	public void testJavaExecuteShowModules() throws Exception {
-		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
-		aql2.execute("show modules");
+		System.out.println("Show Modules...");
+		result = aql2.go("show modules");
+		assertTrue(result.resultCode == ResultCode.OK);
 	}
 	@Test
 	public void testJavaExecuteShowNamespace() throws Exception {
-		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
-		aql2.execute("show namespaces");
+		System.out.println("Show Namespaces...");
+		result = aql2.go("show namespaces");
+		assertTrue(result.resultCode == ResultCode.OK);
 	}
 	@Test
 	public void testJavaExecuteShowSets() throws Exception {
-		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
-		aql2.execute("show sets");
+		System.out.println("Show Sets...");
+		result = aql2.go("show sets");
+		assertTrue(result.resultCode == ResultCode.OK);
 	}
 	@Test
 	public void testJavaExecuteShowScans() throws Exception {
-		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
-		aql2.execute("show scans");
+		System.out.println("Show Scans...");
+		result = aql2.go("show scans");
+		assertTrue(result.resultCode == ResultCode.OK);
 	}
 	@Test
 	public void testJavaExecuteShowQueries() throws Exception {
-		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
-		aql2.execute("show Queries");
+		System.out.println("Show Queries...");
+		result = aql2.go("show Queries");
+		assertTrue(result.resultCode == ResultCode.OK);
 	}
 	@Test
 	public void testJavaExecuteShowIndexes2() throws Exception {
-		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
-		aql2.execute("show InDexes");
+		System.out.println("Show Indexes...");
+		result = aql2.go("show InDexes");
+		assertTrue(result.resultCode == ResultCode.OK);
 	}
 	@Test
 	public void testJavaExecuteDescIndexe() throws Exception {
-		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
-		aql2.execute("desc InDex test index_bn2");
+		System.out.println("Desc Index...");
+		result = aql2.go("desc InDex test index_bn2");
+		assertTrue(result.resultCode == ResultCode.OK);
 	}
 	@Test
 	public void testJavaExecuteStatQuery() throws Exception {
-		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
-		aql2.execute("stat query");
+		System.out.println("Stat query...");
+		result = aql2.go("stat query");
+		assertTrue(result.resultCode == ResultCode.OK);
 	}
 	@Test
 	public void testJavaExecuteStatSystem() throws Exception {
-		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
-		aql2.execute("stat system");
+		System.out.println("Stat system...");
+		result = aql2.go("stat system");
+		assertTrue(result.resultCode == ResultCode.OK);
 	}
 	@Test
 	public void testJavaExecutePrint() throws Exception {
-		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
-		aql2.execute("print 'hello there'");
+		result = aql2.go("print 'hello there'");
+		assertTrue(result.resultCode == ResultCode.OK);
 	}
 
 	@Test
@@ -188,6 +218,9 @@ public class AQL2ExecutionTest {
 		AQL aql2 = new AQL();
 		File inputFile = new File("src/test/resources/Everything.aql");
 		aql2.execute(inputFile);
+		int errors = aql2.getErrors();
+		System.out.println("Errors: " + errors);
+		assertTrue(errors == 0);
 		
 	}
 

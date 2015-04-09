@@ -145,6 +145,8 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 				println();
 				break;
 			}
+		} else {
+			println("Record not found");
 		}
 	}
 	

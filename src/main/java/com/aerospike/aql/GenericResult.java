@@ -1,5 +1,7 @@
 package com.aerospike.aql;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.aerospike.client.AerospikeException;
@@ -20,6 +22,7 @@ public class GenericResult implements IResultReporter {
 	public Object object;
 	public String infoMessage;
 	public String[] inforMessages;
+	public List<Record> scanList;
 
 	@Override
 	public void report(String message) {
@@ -189,12 +192,17 @@ public class GenericResult implements IResultReporter {
 			this.recordSet.close();
 		if (this.resultSet != null)
 			this.resultSet.close();
-		
+		if (this.scanList != null){
+			this.scanList.clear();
+			this.scanList = null;
+		}
 	}
 
 	@Override
 	public void scanCallback(Key key, Record record) throws AerospikeException {
-		// TODO Auto-generated method stub
+		if (this.scanList == null)
+			this.scanList = new  ArrayList<Record>();
+		this.scanList.add(record);
 		
 	}
 
@@ -208,6 +216,7 @@ public class GenericResult implements IResultReporter {
 		// TODO Auto-generated method stub
 		
 	}
+
 
 
 }
