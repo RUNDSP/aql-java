@@ -10,7 +10,7 @@ public class UserTest extends AQLTest{
 		System.out.println("----- userFileSyntax -----");
 		testFileSyntax("User.aql");
 	}
-	@Test
+	//@Test
 	public void userFileGeneration() throws Exception {
 		System.out.println("----- userFileGeneration -----");
 		testFileGeneration("User.aql", Language.JAVA);

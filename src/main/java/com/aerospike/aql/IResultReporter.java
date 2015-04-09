@@ -35,7 +35,8 @@ public interface IResultReporter extends Closeable, ScanCallback{
 	public void report(Key key, Record record, boolean clear);
 	public void report(RecordSet recordSet, boolean clear);
 	public void report(ResultSet resultSet, boolean clear);
-	public void reportInfo(Map<String, String>[] ifoResults);
+	public void reportInfo(Map<String, Object>[] ifoResults);
+	public void reportInfo(Map<String, Object> statsMap);
 	public void reportInfo(String inforMessage, String...seperators);
 	public void reportInfo(String inforMessage, boolean clear, String...seperators);
 	public void reportInfo(String[] inforMessages, String...seperators);
@@ -44,4 +45,5 @@ public interface IResultReporter extends Closeable, ScanCallback{
 	public boolean isCancelled();
 	public void setViewFormat(ViewFormat format);
 	public void close();
+	public ViewFormat getViewFormat();
 }

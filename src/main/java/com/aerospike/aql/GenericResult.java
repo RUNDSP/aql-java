@@ -146,7 +146,7 @@ public class GenericResult implements IResultReporter {
 	}
 
 	@Override
-	public void reportInfo(Map<String, String>[] ifoResults) {
+	public void reportInfo(Map<String, Object>[] ifoResults) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -194,6 +194,17 @@ public class GenericResult implements IResultReporter {
 
 	@Override
 	public void scanCallback(Key key, Record record) throws AerospikeException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ViewFormat getViewFormat() {
+		return ViewFormat.TEXT;
+	}
+
+	@Override
+	public void reportInfo(Map<String, Object> statsMap) {
 		// TODO Auto-generated method stub
 		
 	}

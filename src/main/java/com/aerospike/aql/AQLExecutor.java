@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
@@ -51,7 +52,6 @@ import com.aerospike.aql.grammar.AQLParser.RegisterContext;
 import com.aerospike.aql.grammar.AQLParser.RemoveContext;
 import com.aerospike.aql.grammar.AQLParser.RevokeContext;
 import com.aerospike.aql.grammar.AQLParser.RoleContext;
-import com.aerospike.aql.grammar.AQLParser.RolesContext;
 import com.aerospike.aql.grammar.AQLParser.SelectContext;
 import com.aerospike.aql.grammar.AQLParser.SetContext;
 import com.aerospike.aql.grammar.AQLParser.ShowContext;
@@ -69,10 +69,8 @@ import com.aerospike.client.Key;
 import com.aerospike.client.Language;
 import com.aerospike.client.Operation;
 import com.aerospike.client.Record;
-import com.aerospike.client.ScanCallback;
 import com.aerospike.client.Value;
 import com.aerospike.client.admin.Privilege;
-import com.aerospike.client.admin.PrivilegeCode;
 import com.aerospike.client.cluster.Node;
 import com.aerospike.client.lua.LuaConfig;
 import com.aerospike.client.policy.AdminPolicy;
@@ -556,7 +554,7 @@ public class AQLExecutor extends AQLBaseListener {
 					ns.put("namespaces", namespaceString);
 					namespaces.add(ns);
 				}
-				Map<String,String>[] nsArray = new HashMap[namespaces.size()];
+				Map<String,Object>[] nsArray = new HashMap[namespaces.size()];
 				namespaces.toArray(nsArray); 
 				results.reportInfo(nsArray);
 
@@ -574,25 +572,25 @@ public class AQLExecutor extends AQLBaseListener {
 				// filename=redis.lua,hash=93eb0a1bc6085f112c5463d40d5d6fff72b3a4dc,type=LUA;filename=predicate.lua,hash=8206b02a88e306ea6acded648b9c65c0446c8579,type=LUA;filename=qualifiers.lua,hash=dddde723b5f98f99b367d629f45f9b43334da370,type=LUA;
 				String infoString = info("udf-list");
 				String[] moduleStrings = infoString.split(";");
-				List<Map<String,String>> modules = new ArrayList<Map<String,String>>();
+				List<Map<String, Object>> modules = new ArrayList<Map<String,Object>>();
 				for (String moduleString : moduleStrings){
-					Map<String, String> query = stringToMap(moduleString, ",", "=");
+					Map<String, Object> query = stringToMap(moduleString, ",", "=");
 					modules.add(query);
 				}
-				Map<String,String>[] moduleArray = new HashMap[modules.size()];
+				Map<String, Object>[] moduleArray = new HashMap[modules.size()];
 				modules.toArray(moduleArray); 
 				results.reportInfo(moduleArray);
 				//results.reportInfo(info("udf-list"), ";", ":", ",");
 			} else if (ctx.BINS() != null){
 				String infoString = info("bins");
 				String[] namespaceStrings = infoString.split(";");
-				List<Map<String,String>> bins = new ArrayList<Map<String,String>>();
+				List<Map<String, Object>> bins = new ArrayList<Map<String, Object>>();
 				for (String namespaceString : namespaceStrings){
 					String[] entries = namespaceString.split(",");
 					String namespaceName = entries[0].substring(0, entries[0].indexOf(":"));
 					String binQuota = entries[1].substring(entries[1].indexOf("=")+1);
 					for (int index = 2; index < entries.length; index ++){
-						Map<String, String> bin = new HashMap<String, String>();
+						Map<String, Object> bin = new HashMap<String, Object>();
 						bin.put("quota", binQuota);
 						bin.put("namespace", namespaceName);
 						bin.put("bin", entries[index]);
@@ -601,17 +599,17 @@ public class AQLExecutor extends AQLBaseListener {
 					
 				}
 				
-				Map<String,String>[] binsArray = new HashMap[bins.size()];
+				Map<String, Object>[] binsArray = new HashMap[bins.size()];
 				bins.toArray(binsArray); 
 				results.reportInfo(binsArray);
 
 			} else if (ctx.SETS() != null){
 				String infoString = info("sets");
 				String[] setStrings = infoString.split(";");
-				Map<String,String>[] sets = new Map[setStrings.length];
+				Map<String, Object>[] sets = new Map[setStrings.length];
 				int index = 0;
 				for (String setInfo : setStrings){
-					Map<String, String> set = stringToMap(setInfo, ":", "=");
+					Map<String, Object> set = stringToMap(setInfo, ":", "=");
 					sets[index] = set;
 					index++;
 				}
@@ -621,12 +619,12 @@ public class AQLExecutor extends AQLBaseListener {
 				String infoString = info("jobs:module=query");
 				if (infoString !=null){
 					String[] queryStrings = infoString.split(";");
-					List<Map<String,String>> queries = new ArrayList<Map<String,String>>();
+					List<Map<String, Object>> queries = new ArrayList<Map<String, Object>>();
 					for (String queryString : queryStrings){
-						Map<String, String> query = stringToMap(queryString, ":", "=");
+						Map<String, Object> query = stringToMap(queryString, ":", "=");
 						queries.add(query);
 					}
-					Map<String,String>[] queryArray = new HashMap[queries.size()];
+					Map<String, Object>[] queryArray = new HashMap[queries.size()];
 					queries.toArray(queryArray); 
 					results.reportInfo(queryArray);
 				} else {
@@ -637,12 +635,12 @@ public class AQLExecutor extends AQLBaseListener {
 				String infoString = info("jobs:module=scan");
 				if (infoString != null){
 				String[] scanStrings = infoString.split(";");
-				List<Map<String,String>> scans = new ArrayList<Map<String,String>>();
+				List<Map<String, Object>> scans = new ArrayList<Map<String, Object>>();
 				for (String scanString : scanStrings){
-					Map<String, String> query = stringToMap(scanString, ":", "=");
+					Map<String, Object> query = stringToMap(scanString, ":", "=");
 					scans.add(query);
 				}
-				Map<String,String>[] queryArray = new HashMap[scans.size()];
+				Map<String, Object>[] queryArray = new HashMap[scans.size()];
 				scans.toArray(queryArray); 
 				results.reportInfo(queryArray);
 				} else {
@@ -654,8 +652,8 @@ public class AQLExecutor extends AQLBaseListener {
 		}
 	}
 	
-	private Map<String, String> stringToMap(String value, String seperator, String equator) {
-		Map<String, String> map = new HashMap<String, String>();
+	private Map<String, Object> stringToMap(String value, String seperator, String equator) {
+		Map<String, Object> map = new HashMap<String, Object>();
 		String[] entries = value.split(seperator);
 		for (String entry : entries){
 			String parts[] = entry.split(equator);
@@ -697,28 +695,21 @@ public class AQLExecutor extends AQLBaseListener {
 				// cluster_size=1;cluster_key=E137E0853288E5E;cluster_integrity=true;objects=10010;total-bytes-disk=5368709120;used-bytes-disk=2562816;free-pct-disk=99;total-bytes-memory=2147483648;used-bytes-memory=1413903;data-used-bytes-memory=357931;index-used-bytes-memory=640640;sindex-used-bytes-memory=415332;free-pct-memory=99;stat_read_reqs=4;stat_read_reqs_xdr=0;stat_read_success=0;stat_read_errs_notfound=4;stat_read_errs_other=0;stat_write_reqs=10055;stat_write_reqs_xdr=0;stat_write_success=10024;stat_write_errs=31;stat_xdr_pipe_writes=0;stat_xdr_pipe_miss=0;stat_delete_success=3;stat_rw_timeout=0;udf_read_reqs=0;udf_read_success=0;udf_read_errs_other=0;udf_write_reqs=0;udf_write_success=0;udf_write_err_others=0;udf_delete_reqs=0;udf_delete_success=0;udf_delete_err_others=0;udf_lua_errs=0;udf_scan_rec_reqs=0;udf_query_rec_reqs=0;udf_replica_writes=0;stat_proxy_reqs=0;stat_proxy_reqs_xdr=0;stat_proxy_success=0;stat_proxy_errs=0;stat_cluster_key_trans_to_proxy_retry=0;stat_cluster_key_transaction_reenqueue=0;stat_slow_trans_queue_push=0;stat_slow_trans_queue_pop=0;stat_slow_trans_queue_batch_pop=0;stat_cluster_key_regular_processed=0;stat_cluster_key_prole_retry=0;stat_cluster_key_err_ack_dup_trans_reenqueue=0;stat_cluster_key_partition_transaction_queue_count=0;stat_cluster_key_err_ack_rw_trans_reenqueue=0;stat_expired_objects=3;stat_evicted_objects=0;stat_deleted_set_objects=0;stat_evicted_set_objects=0;stat_evicted_objects_time=0;stat_zero_bin_records=0;stat_nsup_deletes_not_shipped=3;err_tsvc_requests=34;err_out_of_space=0;err_duplicate_proxy_request=0;err_rw_request_not_found=0;err_rw_pending_limit=0;err_rw_cant_put_unique=0;fabric_msgs_sent=0;fabric_msgs_rcvd=0;paxos_principal=BB976C89B270008;migrate_msgs_sent=0;migrate_msgs_recv=0;migrate_progress_send=0;migrate_progress_recv=0;migrate_num_incoming_accepted=0;migrate_num_incoming_refused=0;queue=0;transactions=81234;reaped_fds=0;tscan_initiate=8;tscan_pending=2;tscan_succeeded=6;tscan_aborted=0;batch_initiate=0;batch_queue=0;batch_tree_count=0;batch_timeout=0;batch_errors=0;info_queue=0;delete_queue=0;proxy_in_progress=0;proxy_initiate=0;proxy_action=0;proxy_retry=0;proxy_retry_q_full=0;proxy_unproxy=0;proxy_retry_same_dest=0;proxy_retry_new_dest=0;write_master=10055;write_prole=0;read_dup_prole=0;rw_err_dup_internal=0;rw_err_dup_cluster_key=0;rw_err_dup_send=0;rw_err_write_internal=0;rw_err_write_cluster_key=0;rw_err_write_send=0;rw_err_ack_internal=0;rw_err_ack_nomatch=0;rw_err_ack_badnode=0;client_connections=26;waiting_transactions=0;tree_count=0;record_refs=10010;record_locks=0;migrate_tx_objs=0;migrate_rx_objs=0;ongoing_write_reqs=0;err_storage_queue_full=0;partition_actual=4096;partition_replica=0;partition_desync=0;partition_absent=0;partition_object_count=10010;partition_ref_count=4096;system_free_mem_pct=87;sindex_ucgarbage_found=0;sindex_gc_locktimedout=0;sindex_gc_inactivity_dur=34440882;sindex_gc_activity_dur=15125;sindex_gc_list_creation_time=13831;sindex_gc_list_deletion_time=252;sindex_gc_objects_validated=4375760;sindex_gc_garbage_found=0;sindex_gc_garbage_cleaned=0;system_swapping=false;err_replica_null_node=0;err_replica_non_null_node=0;err_sync_copy_null_node=0;err_sync_copy_null_master=0;storage_defrag_corrupt_record=0;err_write_fail_prole_unknown=0;err_write_fail_prole_generation=0;err_write_fail_unknown=0;err_write_fail_key_exists=18;err_write_fail_generation=13;err_write_fail_generation_xdr=0;err_write_fail_bin_exists=0;err_write_fail_parameter=0;err_write_fail_incompatible_type=0;err_write_fail_noxdr=0;err_write_fail_prole_delete=0;err_write_fail_not_found=0;err_write_fail_key_mismatch=0;stat_duplicate_operation=0;uptime=34923;stat_write_errs_notfound=0;stat_write_errs_other=31;heartbeat_received_self=229426;heartbeat_received_foreign=0;query_reqs=43;query_success=30;query_fail=6;query_abort=0;query_avg_rec_count=272;query_short_queue_full=0;query_long_queue_full=0;query_short_running=14;query_long_running=25;query_tracked=8;query_agg=30;query_agg_success=21;query_agg_err=2;query_agg_abort=0;query_agg_avg_rec_count=41;query_lookups=9;query_lookup_success=9;query_lookup_err=0;query_lookup_abort=0;query_lookup_avg_rec_count=1043
 				String infoString = info("statistics");
 				String statsStrings[] = infoString.split(";");
-				List<Map<String,String>> stats = new ArrayList<Map<String,String>>();
+				Map<String, Object> statsMap = new TreeMap<String, Object>();
 				for (String statString : statsStrings){
-					Map<String, String> stat = new HashMap<String, String>();
 					String[] parts = statString.split("=");
-					stat.put("name", parts[0]);
-					stat.put("value", parts[1]);
-					stats.add(stat);
+					statsMap.put(parts[0], parts[1]);
 				}
-				@SuppressWarnings("unchecked")
-				Map<String,String>[] statsArray = new HashMap[stats.size()];
-				stats.toArray(statsArray); 
-				results.reportInfo(statsArray);
-
+				results.reportInfo(statsMap);
 			}
 		} catch (AerospikeException e){
 			results.report(e);
 		}
 	}
-	
+
 	@Override
 	public void exitSet(SetContext ctx) {
-		
+
 		if (ctx.TIMEOUT() != null) {
 			int value = Integer.parseInt(ctx.timeOut.getText());
 			setTimeout(value);

@@ -10,11 +10,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import jline.console.ConsoleReader;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.aerospike.aql.grammar.IErrorReporter;
 import com.aerospike.client.AerospikeException;
@@ -38,13 +39,10 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 	private ArrayList<Record> recordList;
 	private JSONArray jsonRecordList;
 	
-	public ViewFormat getFormat() {
+	public ViewFormat getViewFormat() {
 		return format;
 	}
 
-	public void setFormat(ViewFormat format) {
-		this.format = format;
-	}
 
 	public AQLConsole() throws IOException {
 		console = new ConsoleReader();
@@ -53,7 +51,7 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 
 	public AQLConsole(ViewFormat viewFormat) throws IOException  {
 		this();
-		setFormat(viewFormat);
+		setViewFormat(viewFormat);
 	}
 
 	public void printf(String message, Object... args){
@@ -125,7 +123,7 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 		if (record != null){
 			switch (this.format) {
 			case JSON:
-				println(recordJSON(record).toJSONString());
+				println(recordJSON(record).toString(4));
 				break;
 			case TABLE:
 				List<Record> recordList = new ArrayList<Record>();
@@ -188,13 +186,13 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 					JSONObject jrow = new JSONObject();
 					jrow.put("key", jKey);
 					jrow.put("record", jrecord);
-					recordList.add(jrow);
+					recordList.put(jrow);
 					count ++;
 				}
 				if (count == 0) {
 					println("No records returned.");			
 				} else {
-					println(recordList.toJSONString());
+					println(recordList.toString(4));
 				}
 			} catch (AerospikeException e) {
 				e.printStackTrace();
@@ -277,13 +275,13 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 		return fieldMap;
 	}
 	private Map<String, Integer> makeFieldMap(Map<String, Integer> fieldMap,
-			Map<String, String> elements) {
+			Map<String, Object> elements) {
 		return this.makeFieldMap(fieldMap, elements, Orientation.HORIZONTAL);
 	}
 	private Map<String, Integer> makeFieldMap(Map<String, Integer> fieldMap,
-			Map<String, String> elements, Orientation orientation) {
+			Map<String, Object> elements, Orientation orientation) {
 		if (fieldMap == null)
-			fieldMap = new HashMap<String, Integer>();
+			fieldMap = new TreeMap<String, Integer>();
 		switch(orientation){
 		case HORIZONTAL:
 			Set<String> hfields = elements.keySet();
@@ -347,13 +345,13 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 		println();
 	}
 	
-	private void printTableEntry(Map<String, String> element,
+	private void printTableEntry(Map<String, Object> element,
 			Map<String, Integer> fieldMap) {
 		Set<Entry<String, Integer>> fields = fieldMap.entrySet();
 		print("|");
 		for (Entry<String, Integer> field : fields){
 			print(" ");
-			String elementString = element.get(field.getKey());
+			String elementString = (String) element.get(field.getKey());
 			printField((elementString==null)?"":elementString, field.getValue());
 			print(" |");
 		}
@@ -429,19 +427,69 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 	}
 
 	@Override
-	public void reportInfo(Map<String, String>[] infoElements) {
-		Map<String, Integer> fieldMap = null;
-		for (Map<String, String> element : infoElements){
-			fieldMap = makeFieldMap(fieldMap, element);
+	public void reportInfo(Map<String, Object>[] infoElements) {
+		switch (this.format){
+		case JSON:
+			JSONArray jsonList = new JSONArray();
+			for (Map<String, Object> element : infoElements){
+				JSONObject jsonElement = new JSONObject(element);
+				jsonList.put(jsonElement);
+			}
+			println(jsonList.toString(4));
+			break;
+		case TABLE:
+			Map<String, Integer> fieldMap = null;
+			for (Map<String, Object> element : infoElements){
+				fieldMap = makeFieldMap(fieldMap, element);
+			}
+			printTableHeader(fieldMap);
+			for (Map<String, Object> element : infoElements){
+				printTableEntry(element, fieldMap);
+			}
+			printTableSeperator(fieldMap);
+			break;
+		default:
+			println(infoElements.toString());
+			break;
 		}
-		printTableHeader(fieldMap);
-		for (Map<String, String> element : infoElements){
-			printTableEntry(element, fieldMap);
+
+	}
+	
+	@Override
+	public void reportInfo(Map<String, Object> infoElements) {
+		switch (this.format){
+		case JSON:
+			JSONObject jsonElement = new JSONObject(infoElements);
+			println(jsonElement.toString(4));
+			break;
+		case TABLE:
+			Map<String, Integer> fieldMap = null;
+			for (Entry<String, Object> element : infoElements.entrySet()){
+				fieldMap = makeFieldMap(fieldMap, statEntryToMap(element));
+			}
+			printTableHeader(fieldMap);
+			for (Entry<String, Object> element : infoElements.entrySet()){
+				printTableEntry(statEntryToMap(element), fieldMap);
+			}
+			printTableSeperator(fieldMap);
+			break;
+		default:
+			println(infoElements.toString());
+			break;
 		}
-		printTableSeperator(fieldMap);
-		
 	}
 
+	private Map<String, Object> entryToMap(Entry<String, Object> entry){
+		Map<String, Object> newElement = new HashMap<String, Object>();
+		newElement.put(entry.getKey(), entry.getValue());
+		return newElement;
+	}
+	private Map<String, Object> statEntryToMap(Entry<String, Object> entry){
+		Map<String, Object> newElement = new TreeMap<String, Object>();
+		newElement.put("Name", entry.getKey());
+		newElement.put("Value", entry.getValue().toString());
+		return newElement;
+	}
 	
 	@Override
 	public void reportInfo(String inforMessage, boolean clear,
@@ -455,16 +503,16 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 			println(infoString);
 			return;
 		}
-
+		List<Map<String, Object>> elementList = null;
 		switch (seperators.length){
 		case 3:
 			switch (this.format) {
 			case JSON:
-				Map<String, Map<String, String>> jsonresult = makeElementMap(infoString, seperators[0], seperators[1], seperators[2], "=");
-				println(formatJson(jsonresult));
+				elementList = makeElementList(infoString, seperators[0], seperators[1], seperators[2]);
+				println(formatJson(elementList));
 				break;
 			case TABLE:
-				List<Map<String, String>> elementList = makeElementList(infoString, seperators[0], seperators[1], seperators[2]);
+				elementList = makeElementList(infoString, seperators[0], seperators[1], seperators[2]);
 				printTableInfo(elementList);
 				break;
 			default: //TEXT:
@@ -476,11 +524,11 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 		case 2:
 			switch (this.format) {
 			case JSON:
-				Map<String, String> jsonresult = makeValueMap(infoString, seperators[0], "=");
+				Map<String, Object> jsonresult = makeValueMap(infoString, seperators[0], "=");
 				println(formatJson(jsonresult));
 				break;
 			case TABLE:
-				Map<String, String> result = makeValueMap(infoString, seperators[0], seperators[1]);
+				Map<String, Object> result = makeValueMap(infoString, seperators[0], seperators[1]);
 				printTableMap(result, Orientation.VERTICAL);
 				break;
 			default: //TEXT:
@@ -490,11 +538,11 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 		case 1:
 			switch (this.format) {
 			case JSON:
-				Map<String, String> jsonresult = makeValueMap(infoString, seperators[0], "=");
+				Map<String, Object> jsonresult = makeValueMap(infoString, seperators[0], "=");
 				println(formatJson(jsonresult));
 				break;
 			case TABLE:
-				Map<String, String> result = makeValueMap(infoString, seperators[0], "=");
+				Map<String, Object> result = makeValueMap(infoString, seperators[0], "=");
 				printTableMap(result);
 				break;
 			default: //TEXT:
@@ -507,22 +555,22 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 
 	}
 	
-	private void printTableInfo(List<Map<String, String>> infoList){
+	private void printTableInfo(List<Map<String, Object>> infoList){
 		Map<String, Integer> fieldMap = null;
-		for (Map<String, String> entry : infoList){
+		for (Map<String, Object> entry : infoList){
 			fieldMap = makeFieldMap(fieldMap, entry);
 		}
 		printTableHeader(fieldMap);
-		for (Map<String, String> entry : infoList){
+		for (Map<String, Object> entry : infoList){
 			printTableEntry(entry, fieldMap);
 		}
 		printTableSeperator(fieldMap);
 
 	}
-	private void printTableMap(Map<String, String> infoMap){
+	private void printTableMap(Map<String, Object> infoMap){
 		this.printTableMap(infoMap, Orientation.HORIZONTAL);
 	}
-	private void printTableMap(Map<String, String> infoMap, Orientation orientation){
+	private void printTableMap(Map<String, Object> infoMap, Orientation orientation){
 		Map<String, Integer> fieldMap = new HashMap<String, Integer>();
 		makeFieldMap(fieldMap, infoMap, orientation);
 		printTableHeader(fieldMap);
@@ -530,7 +578,7 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 		printTableSeperator(fieldMap);
 	}	
 
-	private void printTableMapList(Map<String, Map<String, String>> infoMap){
+	private void printTableMapList(Map<String, Map<String, Object>> infoMap){
 		Map<String, Integer> fieldMap = new HashMap<String, Integer>();
 		Set<String> keys = infoMap.keySet();
 		for (String element : keys){
@@ -544,34 +592,34 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 	}	
 
 	
-	private List<Map<String, String>> makeElementList(String input, String elementSeperator, String keySeperator, String valueSeperator){
-		List<Map<String, String>> result = new ArrayList<Map<String,String>>();
+	private List<Map<String, Object>> makeElementList(String input, String elementSeperator, String keySeperator, String valueSeperator){
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		String[] parts = input.split(elementSeperator);
 		for (String element : parts){
-			Map<String, String> elementMap = makeValueMap(element, keySeperator, valueSeperator);
+			Map<String, Object> elementMap = makeValueMap(element, keySeperator, valueSeperator);
 			result.add(elementMap);
 		}
 		return result;
 	}
 
-	private Map<String, Map<String, String>> makeElementMap(String input, String elementSeperator, String keySeperator, String valueSeperator, String equator){
-		Map<String, Map<String, String>> result = new HashMap<String, Map<String,String>>();
+	private Map<String, Map<String, Object>> makeElementMap(String input, String elementSeperator, String keySeperator, String valueSeperator, String equator){
+		Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
 		String[] parts = input.split(elementSeperator);
 		for (String element : parts){
 			String[] chunks = element.split(keySeperator);
 			String key = chunks[0];
 			if (chunks.length >1){
-				Map<String, String> value = makeValueMap(chunks[1], valueSeperator, equator);
+				Map<String, Object> value = makeValueMap(chunks[1], valueSeperator, equator);
 				result.put(key, value);
 			} else {
 				result.put(key, null);
 			}
-			}
+		}
 		return result;
 	}
 	
-	private Map<String, String> makeValueMap(String input, String seperator, String equator){
-		Map<String, String> result = new HashMap<String, String>();
+	private Map<String, Object> makeValueMap(String input, String seperator, String equator){
+		Map<String, Object> result = new HashMap<String, Object>();
 		String[] parts = input.split(seperator);
 		for (String element : parts){
 			String[] chunks = element.split(equator);
@@ -684,11 +732,11 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 	private String formatJson(Object json){
 		if (json instanceof List){
 			JSONArray jArray = new JSONArray();
-			jArray.addAll((Collection) json);
-			return jArray.toJSONString();
+			jArray.put((Collection) json);
+			return jArray.toString(4);
 		} else if (json instanceof Map){
 			JSONObject jObject = new JSONObject((Map) json);
-			return jObject.toJSONString();
+			return jObject.toString(4);
 		} else {
 			return null;
 		}
@@ -733,8 +781,8 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 	}
 	private void jsonFooter(){
 		if (recordCount == MAX_RECORDS || this.cancelled){
-			println(jsonRecordList.toJSONString());
-			jsonRecordList.clear();
+			println(jsonRecordList.toString(4));
+//			jsonRecordList.clear();
 			recordCount = 0;
 		}
 	}
@@ -755,7 +803,7 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 			JSONObject jrow = new JSONObject();
 			jrow.put("key", jKey);
 			jrow.put("record", jrecord);
-			jsonRecordList.add(jrow);
+			jsonRecordList.put(jrow);
 			recordCount ++;
 			jsonFooter();
 			break;
@@ -777,6 +825,8 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 			break;
 		}
 	}
+
+
 
 
 
