@@ -39,7 +39,7 @@ Developers work on many platforms. Most developers are use SQL and AQL will be v
 ##Build
 The code can be built with Maven. 
 ```bash	
-	mvn clean package
+	mvn clean package -DskipTests
 ```
 ##Dependencies
 

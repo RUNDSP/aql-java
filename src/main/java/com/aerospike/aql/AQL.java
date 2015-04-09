@@ -3,17 +3,12 @@ package com.aerospike.aql;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BaseErrorListener;
@@ -23,6 +18,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.log4j.Logger;
 
 import com.aerospike.aql.AQLGenerator.Language;
+import com.aerospike.aql.IResultReporter.ViewFormat;
 import com.aerospike.aql.grammar.AQLLexer;
 import com.aerospike.aql.grammar.AQLParser;
 import com.aerospike.aql.grammar.IErrorReporter;
@@ -44,18 +40,28 @@ public class AQL {
 	private IResultReporter resultReporter;
 	private IErrorReporter errorReporter;
 	private BaseErrorListener errorListener;
+	private ViewFormat viewFormat = ViewFormat.TABLE;
 
 	public AQL() {
 		super();
-		setResultsReporter(null); // Default
 	}
 
-	public AQL(AerospikeClient client, int timeout){
+	public AQL(AerospikeClient client, int timeout, ViewFormat viewFormat){
 		this();
 		this.client = client;
 		this.timeout = timeout;
+		setViewFormat(viewFormat);
+		setResultsReporter(null); // Default
 	}
 	
+	public ViewFormat getViewFormat() {
+		return viewFormat;
+	}
+
+	public void setViewFormat(ViewFormat viewFormat) {
+		this.viewFormat = viewFormat;
+	}
+
 	public void setErrorReporter(IErrorReporter errorReporter){
 		this.errorReporter = errorReporter;
 		this.errorListener = new ErrorListener(this.errorReporter);
@@ -68,7 +74,7 @@ public class AQL {
 	public void setResultsReporter(IResultReporter resultsReporter){
 		if (resultsReporter == null)
 			try {
-				AQLConsole console = new AQLConsole();
+				AQLConsole console = new AQLConsole(this.viewFormat);
 				this.resultReporter = console;
 				setErrorReporter(console);
 			} catch (IOException e) {

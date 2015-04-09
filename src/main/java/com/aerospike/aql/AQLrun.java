@@ -19,6 +19,7 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
 
 import com.aerospike.aql.AQLGenerator.Language;
+import com.aerospike.aql.IResultReporter.ViewFormat;
 import com.aerospike.client.AerospikeClient;
 /**
  * AQL is a runnable utility that can either compile AQL to Java, C or C#
@@ -57,13 +58,14 @@ public class AQLrun {
 			options.addOption("c", "compile", true, "AQL file name to compile, cannot be used with -f");
 			options.addOption("f", "file", true, "AQL file name to execute, cannot be used with -c");
 			options.addOption("l", "language", true, "Target language, supported languages: JAVA (future: C and CSHARP). Only valid with -c option");
-			options.addOption("o", "output", true, "Output file name. Only valid with -c option");
+			options.addOption("O", "output", true, "Output file name. Only valid with -c option");
+			options.addOption("o", "of", true, "Output format. TABLE or JSON");
 			options.addOption("u", "help", false, "Print usage.");
 
 			CommandLineParser parser = new PosixParser();
 			CommandLine cl = parser.parse(options, args, false);
 
-			if (args.length == 0 || cl.hasOption("u")) {
+			if (cl.hasOption("u")) {
 				logUsage(options);
 				return;
 			}
@@ -73,7 +75,17 @@ public class AQLrun {
 			int port = Integer.parseInt(portString);
 			String namespace = cl.getOptionValue("n","test");
 			String set = cl.getOptionValue("s", "test");
+			
+			
+			String format = cl.getOptionValue("o", "TABLE");
+			ViewFormat viewFormat = null;
+			
+			if (format.equalsIgnoreCase("JSON"))
+				viewFormat = ViewFormat.JSON;
+			else 
+				viewFormat = ViewFormat.TABLE;
 
+			
 			if (set.equals("empty")) {
 				set = "";
 			}
@@ -117,9 +129,7 @@ public class AQLrun {
 			} else {
 				// run as an interpreter
 				AerospikeClient client = new AerospikeClient(host, port);
-
-				AQL aql = new AQL(client, 20);
-
+				AQL aql = new AQL(client, 500, viewFormat);
 
 				if (cl.hasOption("f")){
 					String inputFileName = cl.getOptionValue("f");

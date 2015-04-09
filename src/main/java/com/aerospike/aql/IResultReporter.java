@@ -1,8 +1,7 @@
 package com.aerospike.aql;
 
+import java.io.Closeable;
 import java.util.Map;
-
-import javax.xml.stream.events.Namespace;
 
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Key;
@@ -16,7 +15,7 @@ import com.aerospike.client.query.ResultSet;
  * @author peter
  *
  */
-public interface IResultReporter {
+public interface IResultReporter extends Closeable{
 	enum ViewFormat {
 		JSON,
 		TABLE,
@@ -43,4 +42,5 @@ public interface IResultReporter {
 	public void cancel();
 	public boolean isCancelled();
 	public void setViewFormat(ViewFormat format);
+	public void close();
 }

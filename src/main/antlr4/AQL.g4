@@ -918,7 +918,7 @@ FOR: 'for';
 
 
 
-IDENTIFIER : ( LETTER | UNDERSCORE )( LETTER| DIGIT | UNDERSCORE | HYPHEN)*;
+IDENTIFIER : ( LETTER | UNDERSCORE )( LETTER| DIGIT | UNDERSCORE | HYPHEN | SLASH)*;
 
 /**
 Single quote delimited string 
@@ -960,6 +960,7 @@ fragment HexDigit
 fragment LETTER : ('a'..'z' | 'A'..'Z') ;
 fragment DIGIT : '0'..'9';
 fragment UNDERSCORE : '_';
+fragment SLASH : '/';
 fragment HYPHEN : '-';
 fragment SEMICOLON : ';';
 fragment EscapeSequence 

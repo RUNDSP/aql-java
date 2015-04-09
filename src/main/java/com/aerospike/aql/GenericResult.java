@@ -183,5 +183,14 @@ public class GenericResult implements IResultReporter {
 		return inforMessages;
 	}
 
+	@Override
+	public void close() {
+		if (this.recordSet != null)
+			this.recordSet.close();
+		if (this.resultSet != null)
+			this.resultSet.close();
+		
+	}
+
 
 }

@@ -124,6 +124,7 @@ public class AQLExecutor extends AQLBaseListener {
 		this.setTimeout(timeout);
 		this.setResultsReporter(reporter);
 		JSONParser jparser = new JSONParser();
+		this.setTimeout(500); // default time out of 500 milliseconds
 	}
  
 	private void setResultsReporter(IResultReporter reporter) {
@@ -821,6 +822,7 @@ public class AQLExecutor extends AQLBaseListener {
 	public void exitQuit(QuitContext ctx) {
 		
 		results.report("Exiting AQL...");
+		results.close();
 		System.exit(0);
 	}
 	

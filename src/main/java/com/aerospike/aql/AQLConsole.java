@@ -32,10 +32,23 @@ public class AQLConsole implements IResultReporter, IErrorReporter {
 	Object lastResult = null;
 	enum Orientation { VERTICAL, HORIZONTAL };
 	
+	public ViewFormat getFormat() {
+		return format;
+	}
+
+	public void setFormat(ViewFormat format) {
+		this.format = format;
+	}
+
 	public AQLConsole() throws IOException {
 		console = new ConsoleReader();
 		console.setPrompt("aql2> ");
-        	}
+	}
+
+	public AQLConsole(ViewFormat viewFormat) throws IOException  {
+		this();
+		setFormat(viewFormat);
+	}
 
 	public void printf(String message, Object... args){
 		try {
@@ -670,6 +683,16 @@ public class AQLConsole implements IResultReporter, IErrorReporter {
 	@Override
 	public int getErrors() {
 		return this.errors;
+	}
+
+	@Override
+	public void close() {
+		try {
+			console.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 
