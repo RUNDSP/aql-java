@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.aerospike.aql.IResultReporter.ViewFormat;
 import com.aerospike.client.AerospikeClient;
 import com.aerospike.client.ResultCode;
 
@@ -14,7 +15,7 @@ public class TestUserAdmin {
 
 	@Before
 	public void setUp() throws Exception {
-		aql2 = new AQL(new AerospikeClient("127.0.0.1", 3000), 1000);
+		aql2 = new AQL(new AerospikeClient("127.0.0.1", 3000), 1000, ViewFormat.TABLE);
 		aql2.setResultsReporter(null);
 	}
 

@@ -5,11 +5,12 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.aerospike.aql.IResultReporter.ViewFormat;
 import com.aerospike.client.AerospikeClient;
 
 public class AQLatApiTest {
 	private AerospikeClient client = new AerospikeClient("127.0.0.1", 3000);
-	private AQL aql2 = new AQL(client, 20);
+	private AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {

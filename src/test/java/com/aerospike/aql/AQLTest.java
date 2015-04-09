@@ -6,6 +6,7 @@ import java.net.URL;
 import org.antlr.runtime.CommonTokenStream;
 
 import com.aerospike.aql.AQLGenerator.Language;
+import com.aerospike.aql.IResultReporter.ViewFormat;
 import com.aerospike.client.AerospikeClient;
 
 public class AQLTest {
@@ -131,7 +132,7 @@ public class AQLTest {
 	protected void testFileExecution(String fileName) throws Exception{
 		if (this.client == null)
 			this.client = new AerospikeClient(this.seedNode, this.port);
-		AQL aql = new AQL(client, 20);
+		AQL aql = new AQL(client, 20, ViewFormat.TABLE);
 		aql.execute(findFile(fileName));
 	}
 }

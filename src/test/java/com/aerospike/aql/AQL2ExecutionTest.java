@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.aerospike.aql.IResultReporter.ViewFormat;
 import com.aerospike.client.AerospikeClient;
 import com.aerospike.client.ResultCode;
 import com.aerospike.client.query.RecordSet;
@@ -23,14 +24,14 @@ public class AQL2ExecutionTest {
 	}
 	@Test
 	public void testExecuteInsertMap() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		aql2.execute("delete from test.demo where pk = 'test-select-map'");
 		aql2.execute("INSERT INTO test.demo (PK, bn2, bn3, bn4, amap) VALUES ('test-select-map', 5, '2', 2, 'JSON{\"first\": 123, \"second\": [4, 5, 6], \"third\": 789}')");
 		aql2.execute("select * from test.demo where pk = 'test-select-map'");
 	}
 	@Test
 	public void testExecuteInsertList() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		aql2.execute("delete from test.demo where pk = 'test-select-list'");
 		aql2.execute("INSERT INTO test.demo (PK, bn2, bn3, bn4, amap) VALUES ('test-select-list', 5, '2', 2, 'JSON[{\"value\": \"New\", \"onclick\": \"CreateNewDoc()\"},{\"value\": \"Open\", \"onclick\": \"OpenDoc()\"},{\"value\": \"Close\", \"onclick\": \"CloseDoc()\"}]')");
 		aql2.execute("select * from test.demo where pk = 'test-select-list'");
@@ -38,14 +39,14 @@ public class AQL2ExecutionTest {
 
 	@Test
 	public void testJavaExecuteSelectOne() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		AQLExecutor ex = aql2.execute("delete from test.demo where pk = 'test-select'");
 		aql2.execute("INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('test-select', 5, '2', 2)", ex);
 		aql2.execute("select * from test.demo where pk = 'test-select'", ex);
 	}
 	@Test
 	public void testJavaExecuteSelectRange() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		GenericResult result = aql2.go("delete from test.demo where pk = 'test-select-1'");
 		result = aql2.go("delete from test.demo where pk = 'test-select-2'");
 		assertTrue(result.resultCode == ResultCode.OK);
@@ -72,26 +73,26 @@ public class AQL2ExecutionTest {
 	}
 	@Test
 	public void testJavaExecuteCreateMapKeysIndex() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		GenericResult result = aql2.go("CREATE MAPKEYS INDEX index_on_mapkeys ON test.demo (amap) string");
 		assertTrue(result.resultCode == ResultCode.OK);
 	}
 	@Test
 	public void testJavaExecuteCreateMapValuesIndex() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		GenericResult result = aql2.go("CREATE MAPVALUES INDEX index_on_valuess ON test.demo (amap) string");
 		assertTrue(result.resultCode == ResultCode.OK);
 	}
 	@Test
 	public void testJavaExecuteCreateListIndex() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		GenericResult result = aql2.go("CREATE LIST INDEX index_on_list_numeric ON test.demo (alist) numeric");
 		assertTrue(result.resultCode == ResultCode.OK);
 		
 	}
 	@Test
 	public void testJavaExecuteSelectMapKeys() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		GenericResult result = aql2.go("delete from test.demo where pk = 'test-select-list2'");
 		assertTrue(result.resultCode == ResultCode.OK);
 		result = aql2.go("CREATE MAPKEYS INDEX index_on_mapkeys ON test.demo (amap) string");
@@ -106,7 +107,7 @@ public class AQL2ExecutionTest {
 	
 	@Test
 	public void testJavaExecuteSelectList() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		GenericResult result = aql2.go("delete from test.demo where pk = 'test-select-mapkeys2'");
 		assertTrue(result.resultCode == ResultCode.OK);
 		result = aql2.go("CREATE LIST INDEX index_on_list_numeric ON test.demo (alist) numeric");
@@ -123,62 +124,62 @@ public class AQL2ExecutionTest {
 	
 	@Test
 	public void testJavaExecuteSelectAll() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		aql2.execute("select * from test.demo");
 	}
 	@Test
 	public void testJavaExecuteShowBins() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		aql2.execute("show bins");
 	}
 	@Test
 	public void testJavaExecuteShowModules() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		aql2.execute("show modules");
 	}
 	@Test
 	public void testJavaExecuteShowNamespace() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		aql2.execute("show namespaces");
 	}
 	@Test
 	public void testJavaExecuteShowSets() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		aql2.execute("show sets");
 	}
 	@Test
 	public void testJavaExecuteShowScans() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		aql2.execute("show scans");
 	}
 	@Test
 	public void testJavaExecuteShowQueries() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		aql2.execute("show Queries");
 	}
 	@Test
 	public void testJavaExecuteShowIndexes2() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		aql2.execute("show InDexes");
 	}
 	@Test
 	public void testJavaExecuteDescIndexe() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		aql2.execute("desc InDex test index_bn2");
 	}
 	@Test
 	public void testJavaExecuteStatQuery() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		aql2.execute("stat query");
 	}
 	@Test
 	public void testJavaExecuteStatSystem() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		aql2.execute("stat system");
 	}
 	@Test
 	public void testJavaExecutePrint() throws Exception {
-		AQL aql2 = new AQL(client, 20);
+		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		aql2.execute("print 'hello there'");
 	}
 
