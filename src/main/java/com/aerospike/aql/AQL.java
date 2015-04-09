@@ -44,6 +44,7 @@ public class AQL {
 
 	public AQL() {
 		super();
+		setResultsReporter(null); // Default
 	}
 
 	public AQL(AerospikeClient client, int timeout, ViewFormat viewFormat){
@@ -92,7 +93,7 @@ public class AQL {
 
 	private ParseTree compile(CommonTokenStream tokens){
 		AQLParser parser = new AQLParser(tokens);
-//		if (errorListener != null)
+		if (errorListener != null)
 			parser.addErrorListener(errorListener);
 		ParseTree tree = parser.aql();
 		return tree;

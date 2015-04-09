@@ -19,7 +19,7 @@ public class TestUserAdmin {
 		aql2.setResultsReporter(null);
 	}
 
-	@Test
+	//@Test
 	public void testAllInSequence() {
 	   aql2.execute("CREATE ROLE god PRIVILEGES sys-admin.test.demo");
 	   aql2.execute("SHOW ROLE god");
@@ -41,12 +41,12 @@ public class TestUserAdmin {
 //       GRANT PRIVILEGE[S] <priv1[.ns1[.set1]]>,<priv2[.ns2[.set2]]>... TO <role>
 //       REVOKE PRIVILEGE[S] <priv1[.ns1[.set1]]>,<priv2[.ns2[.set2]]>... FROM <role>
 	}
-	@Test
+	//@Test
 	public void testCreateAdminRole(){
 		GenericResult result = aql2.go("CREATE ROLE god PRIVILEGES sys-admin");
 		assertTrue(result.resultCode == ResultCode.OK);
 	}
-	@Test
+	//@Test
 	public void testCreatePlebRole(){
 		GenericResult result = aql2.go("CREATE ROLE pleb PRIVILEGES read.test.demo");
 		assertTrue(result.resultCode == ResultCode.OK);

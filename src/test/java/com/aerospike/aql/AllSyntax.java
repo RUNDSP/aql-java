@@ -18,14 +18,9 @@ public class AllSyntax extends AQLTest{
 		testFileGeneration("everything.aql", Language.JAVA);
 	}
 	@Test
-	public void allSyntaxFileGenerationC() throws Exception {
-		System.out.println("----- allSyntaxFileGenerationC -----");
-		testFileGeneration("everything.aql", Language.C);
-	}
-	@Test
-	public void allSyntaxFileGenerationPython() throws Exception {
-		System.out.println("----- allSyntaxFileGenerationC -----");
-		testFileGeneration("everything.aql", Language.PYTHON);
+	public void allSyntaxFileGenerationCsharp() throws Exception {
+		System.out.println("----- allSyntaxFileGenerationCsharp -----");
+		testFileGeneration("everything.aql", Language.CSHARP);
 	}
 	@Test
 	public void allSyntaxFileGenerationGo() throws Exception {

@@ -71,26 +71,26 @@ public class AQL2ExecutionTest {
 		result.recordSet.close();
 		assertTrue(count >= 3);
 	}
-	@Test
+	//@Test
 	public void testJavaExecuteCreateMapKeysIndex() throws Exception {
 		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		GenericResult result = aql2.go("CREATE MAPKEYS INDEX index_on_mapkeys ON test.demo (amap) string");
 		assertTrue(result.resultCode == ResultCode.OK);
 	}
-	@Test
+	//@Test
 	public void testJavaExecuteCreateMapValuesIndex() throws Exception {
 		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		GenericResult result = aql2.go("CREATE MAPVALUES INDEX index_on_valuess ON test.demo (amap) string");
 		assertTrue(result.resultCode == ResultCode.OK);
 	}
-	@Test
+	//@Test
 	public void testJavaExecuteCreateListIndex() throws Exception {
 		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		GenericResult result = aql2.go("CREATE LIST INDEX index_on_list_numeric ON test.demo (alist) numeric");
 		assertTrue(result.resultCode == ResultCode.OK);
 		
 	}
-	@Test
+	//@Test
 	public void testJavaExecuteSelectMapKeys() throws Exception {
 		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		GenericResult result = aql2.go("delete from test.demo where pk = 'test-select-list2'");
@@ -105,7 +105,7 @@ public class AQL2ExecutionTest {
 		}
 	}
 	
-	@Test
+	//@Test
 	public void testJavaExecuteSelectList() throws Exception {
 		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		GenericResult result = aql2.go("delete from test.demo where pk = 'test-select-mapkeys2'");

@@ -15,7 +15,7 @@ public class UserTest extends AQLTest{
 		System.out.println("----- userFileGeneration -----");
 		testFileGeneration("User.aql", Language.JAVA);
 	}
-	@Test
+	//@Test
 	public void userFileExecution() throws Exception {
 		System.out.println("----- userFileExecution -----");
 		testFileExecution("localhost", 3000, "User.aql");

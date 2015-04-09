@@ -21,16 +21,22 @@ import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Key;
 import com.aerospike.client.Log.Level;
 import com.aerospike.client.Record;
+import com.aerospike.client.ScanCallback;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.ResultSet;
 
-public class AQLConsole implements IResultReporter, IErrorReporter {
+public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback{
+	private static final int MAX_RECORDS = 100;
 	boolean cancelled = false;
 	int errors = 0;
 	private ViewFormat format = ViewFormat.TABLE;
 	ConsoleReader console;
 	Object lastResult = null;
 	enum Orientation { VERTICAL, HORIZONTAL };
+	int recordCount = 0;
+	private HashMap<String, Integer> binList;
+	private ArrayList<Record> recordList;
+	private JSONArray jsonRecordList;
 	
 	public ViewFormat getFormat() {
 		return format;
@@ -333,7 +339,9 @@ public class AQLConsole implements IResultReporter, IErrorReporter {
 		print("|");
 		for (Entry<String, Integer> field : fields){
 			print(" ");
-			printField(record.getValue(field.getKey()).toString(), field.getValue());
+			String fieldname = field.getKey();
+			Object value = record.getValue(fieldname);
+			printField((value==null)?"":value.toString(), field.getValue());
 			print(" |");
 		}
 		println();
@@ -345,7 +353,8 @@ public class AQLConsole implements IResultReporter, IErrorReporter {
 		print("|");
 		for (Entry<String, Integer> field : fields){
 			print(" ");
-			printField(element.get(field.getKey()).toString(), field.getValue());
+			String elementString = element.get(field.getKey());
+			printField((elementString==null)?"":elementString, field.getValue());
 			print(" |");
 		}
 		println();
@@ -587,6 +596,18 @@ public class AQLConsole implements IResultReporter, IErrorReporter {
 	@Override
 	public void cancel() {
 		this.cancelled = true;
+		if (this.recordCount > 0){
+			switch (this.format) {
+			case JSON:
+				jsonFooter();
+				break;
+			case TABLE:
+				tableFooter();
+				break;
+			default:
+				break;
+			}
+		}
 	}
 
 	@Override
@@ -693,6 +714,68 @@ public class AQLConsole implements IResultReporter, IErrorReporter {
 			e.printStackTrace();
 		}
 		
+	}
+
+	private void jsonHeader(){
+		if (recordCount == 0){
+			// Print header and initialize containers
+			jsonRecordList = new JSONArray();
+			binList = new HashMap<String, Integer>();
+		}
+
+	}
+	private void tableHeader(){
+		if (recordCount == 0){
+			// Print header and initialize containers
+			recordList = new ArrayList<Record>();
+			binList = new HashMap<String, Integer>();
+		}
+	}
+	private void jsonFooter(){
+		if (recordCount == MAX_RECORDS || this.cancelled){
+			println(jsonRecordList.toJSONString());
+			jsonRecordList.clear();
+			recordCount = 0;
+		}
+	}
+	private void tableFooter(){
+		if (recordCount == MAX_RECORDS || this.cancelled){
+			printTableRecordList(recordList, binList);
+			recordList.clear();
+			recordCount = 0;
+		}
+	}
+	@Override
+	public void scanCallback(Key key, Record record) throws AerospikeException {
+		switch (this.format) {
+		case JSON:
+			jsonHeader();
+			JSONObject jrecord = recordJSON(record);
+			JSONObject jKey = keyJSON(key);
+			JSONObject jrow = new JSONObject();
+			jrow.put("key", jKey);
+			jrow.put("record", jrecord);
+			jsonRecordList.add(jrow);
+			recordCount ++;
+			jsonFooter();
+			break;
+		case TABLE:
+			tableHeader();
+			recordList.add(record);
+			makeFieldMap(binList, record);
+			recordCount ++;
+			tableFooter();
+			break;
+		default: //TEXT:
+
+			print("Record: " + key.toString());
+			for (String binName :record.bins.keySet()){
+				String result = record.getValue(binName).toString();
+				print(" bin="+binName +" value="+ result);
+			}
+			println();
+			break;
+		}
 	}
 
 

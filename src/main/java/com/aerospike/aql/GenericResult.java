@@ -192,5 +192,11 @@ public class GenericResult implements IResultReporter {
 		
 	}
 
+	@Override
+	public void scanCallback(Key key, Record record) throws AerospikeException {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }

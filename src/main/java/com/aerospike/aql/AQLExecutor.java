@@ -396,13 +396,8 @@ public class AQLExecutor extends AQLBaseListener {
 			} else { // its a scan
 				String ns = ctx.nameSet().namespaceName;
 				String set = ctx.nameSet().setName;
-				client.scanAll(null, ns, set, new ScanCallback() {
-
-					@Override
-					public void scanCallback(Key key, Record record) throws AerospikeException {
-						results.report(key, record);
-					}
-				}, binNames);
+				client.scanAll(null, ns, set, results, binNames);
+				results.cancel();
 			}
 		} catch (AerospikeException e){
 			results.report(e);

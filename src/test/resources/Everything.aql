@@ -10,6 +10,13 @@ print '@#$--$#@'
 	DELETE From test.demo where pk = '2'
 	DELETE From test.demo where pk = '3'
 	DELETE From test.demo where pk = '4'
+	DELETE From test.demo where pk = '5'
+	DELETE From test.demo where pk = '6'
+	DELETE From test.demo where pk = '7'
+	DELETE From test.demo where pk = '8'
+	DELETE From test.demo where pk = '9'
+	DELETE From test.demo where pk = '10'
+	DELETE From test.cats where PK = '1234'
 
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('1', 1, '1', 1)
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('2', 2, '2', 2)
@@ -29,6 +36,10 @@ print '@#$--$#@'
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('9', 9, '2', 2)
 	INSERT INTO test.demo (PK, bn2, bn3, bn4, bn4) VALUES ('10', 9, '2', 2, 'JSON{"key": 1}')
 
+
+	INSERT INTO test.cats (PK, bob, sue) values ('1234', 23, 'abc')
+
+
 #Create
 	CREATE INDEX index_bn2 ON test.demo (bn2) NUMERIC
 	CREATE INDEX index_bn3 ON cats.demo (bn3) STRING
@@ -40,9 +51,9 @@ print '@#$--$#@'
 	UPDATE test.demo SET bn2 = 8, bn3 = '22', bn4 = 22 where pk = '8'
 	UPDATE test.demo SET bn2 = 7, bn3 = '22', bn4 = 22 where pk = '7'
 	UPDATE test.demo SET bn2 = 6, bn3 = '22', bn4 = 22 where pk = '6'
-	update test.cats SET bob = 23, sue = 'abc' where pk = '1234' and generation = 98765
-	update test.cats SET ttl = 3000 where pk = '1234' and generation = 98765
-	update test.cats SET ttl = 3000, bob = 23, sue = 'abc' where pk = '1234' and generation = 98765
+	update test.cats SET bob = 23, sue = 'abc' where pk = '1234' and generation = 1
+	update test.cats SET ttl = 3000 where pk = '1234' and generation = 2
+	update test.cats SET ttl = 3000, bob = 23, sue = 'abc' where pk = '1234' and generation = 3
 
 #QUERY:
 	SELECT * FROM test.demo
@@ -112,19 +123,20 @@ print '@#$--$#@'
 
 #clean up
 
-DELETE FROM test.demo WHERE PK = '1'
-DELETE FROM test.demo WHERE PK = '2'
-DELETE FROM test.demo WHERE PK = '3'
-DELETE FROM test.demo WHERE PK = '4'
-#DELETE FROM test.demo WHERE PK = '5'
-DELETE FROM test.demo WHERE PK = '6'
-#DELETE FROM test.demo WHERE PK = '7'
-DELETE FROM test.demo WHERE PK = '8'
-#DELETE FROM test.demo WHERE PK = '9'
-DELETE FROM test.demo WHERE PK = '10'
+	DELETE From test.demo where pk = '1'
+	DELETE From test.demo where pk = '2'
+	DELETE From test.demo where pk = '3'
+	DELETE From test.demo where pk = '4'
+	DELETE From test.demo where pk = '5'
+	DELETE From test.demo where pk = '6'
+	DELETE From test.demo where pk = '7'
+	DELETE From test.demo where pk = '8'
+	DELETE From test.demo where pk = '9'
+	DELETE From test.demo where pk = '10'
+	DELETE From test.cats where PK = '1234'
 
-#DROP INDEX test.demo index_bn2
-#DROP INDEX test.demo index_bn3
+	DROP INDEX test.demo index_bn2
+	DROP INDEX test.demo index_bn3
 	DroP INDEX test.demo index_bn4
 
 disconnect	

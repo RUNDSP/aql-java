@@ -7,6 +7,7 @@ import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Key;
 import com.aerospike.client.Log.Level;
 import com.aerospike.client.Record;
+import com.aerospike.client.ScanCallback;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.ResultSet;
 /**
@@ -15,7 +16,7 @@ import com.aerospike.client.query.ResultSet;
  * @author peter
  *
  */
-public interface IResultReporter extends Closeable{
+public interface IResultReporter extends Closeable, ScanCallback{
 	enum ViewFormat {
 		JSON,
 		TABLE,

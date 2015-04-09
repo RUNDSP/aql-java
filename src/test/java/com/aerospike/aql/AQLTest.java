@@ -74,9 +74,9 @@ public class AQLTest {
 			extension = ".java";
 			langDir = "java/";
 			break;
-		case C:
-			extension = ".c";
-			langDir = "c/";
+		case CSHARP:
+			extension = ".cs";
+			langDir = "cs/";
 			break;
 		default:
 			throw new Exception("Invalid Template Type. Myst be PYTHON, JAVA or C");
