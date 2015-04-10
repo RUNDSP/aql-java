@@ -6,7 +6,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import com.aerospike.client.AerospikeClient;
@@ -46,8 +46,12 @@ public class <className> {
 	}
 
 	public static void main(String[] args) {
+		try {
 		<className> worker = new <className>();
-		worker.run();
+			worker.run();
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
 	}
 	public void run()  {
 		<statements>
@@ -97,6 +101,7 @@ AerospikeClient client = null;
 
 
 connect(source, host, port)::=<<
+
 /* <source> */
 /*
 Host[] hosts = new Host[] {new Host("a.host", 3000),
@@ -110,6 +115,7 @@ client = new AerospikeClient(clientPolicy, "<host>", <port>);
 >>
 
 disconnect(source)::=<<
+
 /* <source> */
 client.close();
 
@@ -192,14 +198,16 @@ IndexTask indexTask = null;
 >>
 
 insertStmt(source, primaryKey, binNames, values) ::= <<
+
 /* <source> */
 writePolicy.recordExistsAction = RecordExistsAction.CREATE_ONLY;
 client.put(writePolicy, <primaryKey>, 
 	<first(binNames),first(values):{z,vv|new Bin("<z>", <vv>)}><rest(binNames),rest(values):{z,vv|, new Bin("<z>", <vv>)}>);
-			
+
 >>
 
 updateStmt(source, primaryKey, binList, generation, ttl)::=<<
+
 /* <source> */
 <if(ttl)>writePolicy.expiration = <ttl>;<endif>
 <if(generation)><generation><endif>
@@ -221,15 +229,20 @@ new Bin("<binName>", <binValue>)
 >>
 
 deleteStmt(source, primaryKey, generation) ::= <<
+
 /* <source> */
 <if(generation)>
 writePolicy.generation = <generation>;
 <endif>
-client.delete(writePolicy, <primaryKey>);
+if (client.delete(writePolicy, <primaryKey>))
+	System.out.println("Deleted: " + <primaryKey>);
+else
+	System.out.println("Delete failed: " + <primaryKey>);
 
 >>
 
 query(source, nameSpace, setName, binNames, where) ::= <<
+
 /* <source> */
 stmt = new Statement();
 stmt.setNamespace("<nameSpace>");
@@ -256,16 +269,19 @@ finally {
 >>
 
 get(source, binNames, key) ::= <<
+
 /* <source> */
 <if(binNames)>
 record = client.get(policy, <key>, <first(binNames):{b|"<b>"}><rest(binNames):{b|, "<b>"}>);
 <else>
 record = client.get(policy, <key>);
 <endif>
+System.out.println("Record: " + record);
 
 >>
 
 scan(source, nameSpace, setName, binNames)::=<<
+
 /* <source> */
 client.scanAll(scanPolicy, "<nameSpace>", "<setName>", new ScanCallback() {
 	@Override
@@ -280,6 +296,7 @@ client.scanAll(scanPolicy, "<nameSpace>", "<setName>", new ScanCallback() {
 aggregate(source, nameSpace, setName, 
 				package, function,  
 				arguments, where) ::= <<
+
 /* <source> */
 stmt = new Statement();
 stmt.setNamespace("<nameSpace>");
@@ -305,6 +322,7 @@ finally {
 >>
 
 createUser(source, user, password, roles)::=<<
+
 /* <source> */
 <if(roles)>
 List\<String> roles = new ArrayList\<String>();
@@ -316,6 +334,7 @@ client.createUser(adminPolicy, "<user>", "<password>"<if(roles)>, roles<endif>);
 >>
 
 dropUser(source, user)::=<<
+
 /* <source> */
 client.dropUser(adminPolicy, "<user>");
 
@@ -324,30 +343,37 @@ client.dropUser(adminPolicy, "<user>");
 
 
 create(source, indexName, nameSpace, setName, binName, type, collectionType) ::= <<
-/* <source> */
+
+* <source> */
 indexTask = client.createIndex(policy, "<nameSpace>", "<setName>", "<indexName>", "<binName>", IndexType.<type>, IndexCollectionType.<collectionType>);
 indexTask.waitTillComplete(10);
-				
+
 >>
 
 dropIndex(source, indexName, nameSpace, setName) ::= <<
+
 /* <source> */
 client.dropIndex(policy, "<nameSpace>", "<setName>", "<indexName>");
 
 >>
 
 showIndex(source, nameSpace, setName) ::= <<
+
 /* <source> */
 infoResult = Info.request(infoPolicy, client.getNodes()[0], "sindex<if(nameSpace)>/<nameSpace><endif><if(setName)>/<setName><endif>");
 
 >>
 
 statIndex(source, nameSpace, indexName) ::= <<
+
 /* <source> */
+
+infoResult = Info.request(infoPolicy, client.getNodes()[0], "sindex/<nameSpace>/<indexName>");
 
 >>
 
 register(source, path) ::= <<
+
 /* <source> */
 udfFile = new File("<path>");
 task = client.register(null, 
@@ -359,27 +385,38 @@ task.waitTillComplete(10);
 >>
 
 removeModule(source, module) ::= <<
+
 /* <source> */
 infoResult = Info.request(infoPolicy, client.getNodes()[0], "udf-remove:filename=<module>");
 
 >>
 
 operateStatement(source, operations, key, generation)::=<<
+
 /* <source> */
+
 <if(generation)>
 <generation>
+<else>
+writePolicy.generationPolicy = GenerationPolicy.NONE;
 <endif>
 record = client.operate(writePolicy, <key>, <first(operations):{b|<b>}><rest(operations):{b|, <b>}>);
+if (record != null)
+	System.out.println("Record: " + record);
+else
+	System.out.println("No record returned");
 
 >>
 
 deleteSet(source, namespace, set)::= <<
+
 /* <source> */
 String[] infoResults = infoAll("set-config:context=namespace;id=<namespace>;set=<set>;set-delete=true;"));
 
 >>
 
 execute(source, nameSpace, nameSpace, setName, key, module, udf, arguments) ::= <<
+
 /* <source> */
 <if(key)>
 client.execute(null, <key>, "<module>", "<udf>"<if(arguments)><arguments:{z|, <z>}><endif>);
@@ -393,6 +430,7 @@ client.queryAggregate(null, stmt, "<module>", "<udf>"<if(arguments)><arguments:{
 >>
 
 setTimeOut(source, value) ::= <<
+
 /* <source> */
 clientPolicy.timeout = <value>;
 policy.timeout = <value>;
@@ -401,91 +439,109 @@ writePolicy.timeout = <value>;
 >>
  
 setVerbose(source, value) ::= <<
+
 /* <source> */
 
 >>
 
 setEcho(source, value) ::= <<
+
 /* <source> */
 
 >>
 
 setTTL(source, value) ::= <<
+
 /* <source> */
 writePolicy.expiration = <value>;
 
 >>
 
 setView(source, type) ::= <<
+
 /* <source> */
 
 >>
 
 useSmd(source, value) ::= <<
+
 /* <source> */
 
 >>
 
 setUserPath(source, value) ::= <<
+
 /* <source> */
 LuaConfig.SourceDirectory = "<value>"; 
 
 >>
 
 setSystemPath(source, value) ::= <<
+
 /* <source> */
 
 >>
 
 setUserPassword(source, user, password) ::= <<
+
 /* <source> */
 
 >>
 
 getTimeout(source) ::= <<
+
 /* <source> */
 System.out.println("Policy timeout: " + policy.timeout);
 System.out.println("Write policy timeout: " + writePolicy.timeout);
 
 >>
 getVerbose(source) ::= <<
+
 /* <source> */
 
 >>
 getEcho(source) ::= <<
+
 /* <source> */
 
 >>
 getTTL(source) ::= <<
+
 /* <source> */
 System.out.println("Write policy expiration: " + writePolicy.expiration);
 
 >>
 getView(source) ::= <<
+
 /* <source> */
 
 >>
 getUseSMD(source) ::= <<
+
 /* <source> */
 
 >>
 getUserPath(source) ::= <<
+
 /* <source> */
 System.out.println("Lua source directory: " + LuaConfig.SourceDirectory);
 
 >>
 getSystemPath(source) ::= <<
+
 /* <source> */
 
 >>
 
 statQuery(source) ::= <<
+
 /* <source> */
 infoResult = Info.request(infoPolicy, client.getNodes()[0], "query-stat");
 
 >>
 
 statSystem(source) ::= <<
+
 /* <source> */
 infoResult = Info.request(infoPolicy, client.getNodes()[0], "statistics");
 
@@ -549,54 +605,63 @@ operateFunction(functionName, bin, value) ::=<<
 
 
 showModules(source) ::= <<
+
 /* <source> */
 infoResult = Info.request(infoPolicy, client.getNodes()[0], "udf-list");
 
 >>
 
 showNamespaces(source) ::= <<
+
 /* <source> */
 infoResult = Info.request(infoPolicy, client.getNodes()[0], "namespaces");
 
 >>
 
 showSets(source) ::= <<
+
 /* <source> */
 infoResult = Info.request(infoPolicy, client.getNodes()[0], "sets");
 
 >>
 
 showIndexes(source, nameSpace, setName) ::= <<
+
 /* <source> */
 infoResult = Info.request(infoPolicy, client.getNodes()[0], "indexes");
 
 >>
 
 showBins(source) ::= <<
+
 /* <source> */
 infoResult = Info.request(infoPolicy, client.getNodes()[0], "bins");
 
 >>
 
 showScans(source) ::= <<
+
 /* <source> */
 infoResult = Info.request(infoPolicy, client.getNodes()[0], "jobs:module=scan");
 
 >>
 
 showQueries(source) ::= <<
+
 /* <source> */
 infoResult = Info.request(infoPolicy, client.getNodes()[0], "jobs:module=query");
 
 >>
 
 showUser(source, user) ::= <<
+
 /* <source> */
 //TODO
 
 >>
 
 showUsers(source) ::= <<
+
 /* <source> */
 //TODO
 
@@ -604,6 +669,7 @@ showUsers(source) ::= <<
 
 
 descIndex(source, nameSpace, indexName) ::= <<
+
 /* <source> */
 infoResult = Info.request(infoPolicy, client.getNodes()[0], "sindex-describe");
 
@@ -611,6 +677,7 @@ infoResult = Info.request(infoPolicy, client.getNodes()[0], "sindex-describe");
 
 
 descModule(source, name) ::= <<
+
 /* <source> */
 System.out.println("Module: <name>");
 infoResult = Info.request(infoPolicy, client.getNodes()[0], "udf-get:filename=<name>");
@@ -622,23 +689,27 @@ infoResult = Info.request(infoPolicy, client.getNodes()[0], "udf-get:filename=<n
 >>
 
 killQuery(source, id) ::= <<
+
 /* <source> */
 Info.request(infoPolicy, client.getNodes()[0], "query-kill=<id>");
 
 >>
 
 killScan(source, id) ::= <<
+
 /* <source> */
 Info.request(infoPolicy, client.getNodes()[0], "scan-kill=<id>");
 
 >>
 
 run(source, fileName) ::= <<
+
 /* <source> */
 System.out.println("Run file: " + <fileName>);
 
 >>
 print(source, value) ::= <<
+
 /* <source> */
 System.out.println("<value>");
 

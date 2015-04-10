@@ -68,11 +68,24 @@ print '@#$--$#@'
 	SELECT bn2,bn3,bn4  FROM test.demo WHERE PK = '10'
 
 #Operate
-	DELETE From test.cats where PK = 9989
-	operate add(cat, 23), get(cat) on test.demo where pk = 9989
-	SELECT cat  FROM test.cats WHERE PK = 9989
-	operate add(cat, 23), get(cat) on test.demo where pk = 9989 and generation = 2
-	SELECT cat  FROM test.cats WHERE PK = 9989
+#Integer key
+print 'Integer key 9989'
+delete from test.demo where pk = 9989
+print 'Add'
+operate add(cat, 23), get(cat) on test.demo where pk = 9989
+print 'Add with generation'
+operate add(cat, 23), get(cat) on test.demo where pk = 9989 and generation = 1
+print 'Select'
+select * from test.demo where pk = 9989
+#string key
+print 'String key 9988'
+delete from test.demo where pk = '9988'
+print 'Add'
+operate add(cat, 23), get(cat) on test.demo where pk = '9988'
+print 'Add with generation'
+operate add(cat, 23), get(cat) on test.demo where pk = '9988' and generation = 1
+print 'Select'
+select * from test.demo where pk = '9988'
 
 #UDF:
 	REGISTER module 'src/test/resources/example1.lua'

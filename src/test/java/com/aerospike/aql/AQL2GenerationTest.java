@@ -70,7 +70,7 @@ public class AQL2GenerationTest {
 	}
 
 	@Test
-	public void testJavaGenerateUpdate() throws Exception {
+	public void testJavaGenerateOperate() throws Exception {
 		AQL aql2 = new AQL();
 		String code = aql2.generate("operate add(cat, 23), get(cat) on test.demo where pk = 9989\n"
 				+ "operate add(cat, 23), get(cat) on test.demo where pk = 9989 and generation = 20967", Language.JAVA);
@@ -80,7 +80,7 @@ public class AQL2GenerationTest {
 		System.out.println(code);
 	}
 	@Test
-	public void testJavaGenerateOperate() throws Exception {
+	public void testJavaGenerateUpdate() throws Exception {
 		AQL aql2 = new AQL();
 		aql2.generate("update test.cats SET bob = 23, sue = 'abc' where pk = '1234'\n"
 				+ "update test.cats SET bob = 23, sue = 'abc' where pk = '1234' and generation = 98765", Language.JAVA);

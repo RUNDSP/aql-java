@@ -61,26 +61,6 @@ public class AQL2ExecutionTest {
 		assertTrue(result.resultCode == ResultCode.OK);
 	}
 	@Test
-	public void testJavaExecuteOperateNumericKey() throws Exception {
-		System.out.println("Operate...");
-		result = aql2.executeImmediate("DELETE From test.cats where PK = 9989");
-		assertTrue(result.resultCode == ResultCode.OK);
-		result = aql2.executeImmediate("INSERT INTO test.cats (PK, bn2, bn3, bn4) VALUES (9989, 1, '1', 1)");
-		assertTrue(result.resultCode == ResultCode.OK);
-		result = aql2.executeImmediate("SELECT cat  FROM test.cats WHERE PK = 9989");
-		assertTrue(result.resultCode == ResultCode.OK);
-		result = aql2.executeImmediate("DELETE From test.cats where PK = 9989");
-		assertTrue(result.resultCode == ResultCode.OK);
-		result = aql2.executeImmediate("operate add(cat, 23), get(cat) on test.demo where pk = 9989");
-		assertTrue(result.resultCode == ResultCode.OK);
-		result = aql2.executeImmediate("SELECT cat  FROM test.cats WHERE PK = 9989");
-		assertTrue(result.resultCode == ResultCode.OK);
-		result = aql2.executeImmediate("operate add(cat, 23), get(cat) on test.demo where pk = 9989 and generation = 2");
-		assertTrue(result.resultCode == ResultCode.OK);
-		result = aql2.executeImmediate("SELECT cat  FROM test.cats WHERE PK = 9989");
-		assertTrue(result.resultCode == ResultCode.OK);
-	}
-	@Test
 	public void testJavaExecuteSelectRange() throws Exception {
 		System.out.println("Select Range...");
 		result = aql2.executeImmediate("delete from test.demo where pk = 'test-select-1'");

@@ -13,6 +13,8 @@ import (
 	"time"
 )
 
+AerospikeClient client 
+
 func panicOnError(err error) {
 	if err != nil {
 		fmt.Printf("Aerospike error: %d", err)
@@ -21,16 +23,6 @@ func panicOnError(err error) {
 }
 
 func main() {
-	// Establish connection to Aerospike server
-	client, err := NewClient("<host>", <port>)
-	panicOnError(err)
-	defer client.Close()
-
-	if !client.IsConnected() {
-		fmt.Println("ERROR: Connection to Aerospike cluster failed! Please check the server settings and try again!")
-		fmt.Scanf("%s", &c)
-		return
-	}
 	
 	<statements>
 
@@ -60,6 +52,8 @@ client, err := NewClientWithPolicyAndHost(clientPolicy, NewHost("a.host", 3000),
 */
 clientPolicy = NewClientPolicy()
 client, err := NewClientWithPolicy(clientPolicy, "<host>", <port>)
+panicOnError(err)
+defer client.Close()
 
 >>
 
@@ -200,6 +194,7 @@ record, err := client.GetBins(policy, <key>, <first(binNames):{b|"<b>"}><rest(bi
 record, err := client.Get(policy, <key>)
 <endif>
 panicOnError(err)
+fmt.Printf("Record: %o", record)
 
 >>
 
@@ -245,13 +240,13 @@ createUser(source, user, password, roles)::=<<
 List\<String\> roles = new ArrayList\<String\>();
 <roles:{r|roles.add("<r>");}>
 <endif>
-client.createUser(adminPolicy, "<user>", "<password>"<if(roles)>, roles<endif>);
+client.CreateUser(adminPolicy, "<user>", "<password>"<if(roles)>, roles<endif>);
 
 >>
 
 dropUser(source, user)::=<<
 // <source>
-client.dropUser(adminPolicy, "<user>");
+client.DropUser(adminPolicy, "<user>");
 
 >>
 
@@ -304,6 +299,7 @@ operateStatement(source, operations, key, generation)::=<<
 <generation>
 <endif>
 record, err := client.Operate(writePolicy, <key>, <first(operations):{b|<b>}><rest(operations):{b|, <b>}>);
+fmt.Printf("Record: %o", record)
 
 >>
 
