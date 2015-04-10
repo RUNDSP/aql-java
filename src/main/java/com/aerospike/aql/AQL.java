@@ -36,7 +36,6 @@ public class AQL {
 	private AerospikeClient client;
 	private int timeout;
 	private Language generationLanguage;
-	private String fileExtension;
 	private IResultReporter resultReporter;
 	private IErrorReporter errorReporter;
 	private BaseErrorListener errorListener;
@@ -54,7 +53,7 @@ public class AQL {
 		setViewFormat(viewFormat);
 		setResultsReporter(null); // Default
 	}
-	
+
 	public ViewFormat getViewFormat() {
 		return viewFormat;
 	}
@@ -67,11 +66,14 @@ public class AQL {
 		this.errorReporter = errorReporter;
 		this.errorListener = new ErrorListener(this.errorReporter);
 	}
-	
-	public int getErrors(){
-		return this.errorReporter.getErrors();
+
+	public int getErrorCount(){
+		return this.errorReporter.getErrorCount();
 	}
-	
+	public List<String> getErrorList(){
+		return this.errorReporter.getErrorList();
+	}
+
 	public void setResultsReporter(IResultReporter resultsReporter){
 		if (resultsReporter == null)
 			try {
@@ -123,10 +125,11 @@ public class AQL {
 	private AQLExecutor execute(CommonTokenStream tokens, AQLExecutor executor){
 		AQLParser parser = new AQLParser(tokens);
 		//if (errorListener != null)
-			parser.addErrorListener(errorListener);
+		parser.addErrorListener(errorListener);
 		ParseTree tree = parser.aql();
 		if (executor == null)
-			executor = new AQLExecutor(parser, this.client, this.timeout, this.resultReporter);
+			executor = new AQLExecutor(parser, this.client, this.timeout, 
+					this.resultReporter, this.errorReporter);
 		walker.walk(executor, tree);
 		return executor;
 	}
@@ -141,7 +144,7 @@ public class AQL {
 		CommonTokenStream tokens = getTokenStream(new NoCaseFileStream(file));
 		return execute(tokens, executor);
 	}
-	
+
 	public AQLExecutor execute(File file) throws IOException{
 		return this.execute(file, null);
 	}
@@ -210,28 +213,20 @@ public class AQL {
 		this.generationLanguage = generationLanguage;
 		switch (this.generationLanguage) {
 		case JAVA:
-			this.fileExtension = ".java";
 			break;
 		case C:
-			this.fileExtension = ".c";
 			break;
 		case CSHARP:
-			this.fileExtension = ".csharp";
 			break;
 		case GO:
-			this.fileExtension = ".go";
 			break;
 		case PYTHON:
-			this.fileExtension = ".py";
 			break;
 		case PHP:
-			this.fileExtension = ".php";
 			break;
 		case NODE:
-			this.fileExtension = ".js";
 			break;
 		case RUBY:
-			this.fileExtension = ".ruby";
 			break;
 		}
 	}
@@ -246,16 +241,16 @@ public class AQL {
 			String input = console.readLine();
 			executor = execute(input, executor);
 		}
-		
+
 	}
-	
+
 	/**
 	 * This method executes a AQL command and returns the result in a GenericResult.
 	 * User this method from you application to use AQL at the the API level.
 	 * @param aqlString
 	 * @return
 	 */
-	public GenericResult go(String aqlString){
+	public GenericResult executeImmediate(String aqlString){
 		if (!(this.resultReporter instanceof GenericResult))
 			this.resultReporter = new GenericResult();
 		execute(aqlString, null);
@@ -271,14 +266,13 @@ public class AQL {
 			BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
 			String inputLine;
 
-			boolean keep = false;
 			while ((inputLine = in.readLine()) != null) {
 				if (inputLine.startsWith("'") || inputLine.startsWith("T__")){
 					continue;
 				}
 				String word = inputLine.substring(0, inputLine.indexOf("="));
 				keyWords.add(word);
-				//System.out.println(inputLine);
+				log.debug(inputLine);
 			}
 			in.close();
 
@@ -286,22 +280,6 @@ public class AQL {
 			throw new AQLException("Cannot locate key words", e);
 		}
 		return keyWords;
-//		try {
-//			File file = new File("grammar/AQL.tokens");
-//			BufferedReader br = new BufferedReader(new FileReader(file));
-//			String line;
-//			while ((line = br.readLine()) != null) {
-//				if (line.startsWith("'") || line.startsWith("T__")){
-//					continue;
-//				}
-//				String word = line.substring(0, line.indexOf("="));
-//				keyWords.add(word);
-//			}
-//			br.close();
-//		} catch (IOException e){
-//
-//		}
-//		return keyWords;
 	}
 
 }

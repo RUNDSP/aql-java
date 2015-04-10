@@ -8,6 +8,7 @@ import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Key;
 import com.aerospike.client.Log.Level;
 import com.aerospike.client.Record;
+import com.aerospike.client.ResultCode;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.ResultSet;
 
@@ -23,6 +24,9 @@ public class GenericResult implements IResultReporter {
 	public String infoMessage;
 	public String[] inforMessages;
 	public List<Record> scanList;
+	public boolean flag;
+	public Map<String, Object>[] infoResults;
+	public Map<String, Object> statsMap;
 
 	@Override
 	public void report(String message) {
@@ -30,12 +34,12 @@ public class GenericResult implements IResultReporter {
 
 	}
 
-	@Override
-	public void report(AerospikeException e) {
-		this.resultCode = e.getResultCode();
-		this.message = e.getMessage();
-		throw e;
-	}
+//	@Override
+//	public void report(AerospikeException e) {
+//		this.resultCode = e.getResultCode();
+//		this.message = e.getMessage();
+//		throw e;
+//	}
 
 	@Override
 	public void report(Level level, String message) {
@@ -46,6 +50,8 @@ public class GenericResult implements IResultReporter {
 	@Override
 	public void report(Record record) {
 		this.record = record;
+		if (record == null)
+			this.resultCode = ResultCode.KEY_NOT_FOUND_ERROR;
 
 	}
 
@@ -53,6 +59,8 @@ public class GenericResult implements IResultReporter {
 	public void report(Key key, Record record) {
 		this.key = key;
 		this.record = record;
+		if (record == null)
+			this.resultCode = ResultCode.KEY_NOT_FOUND_ERROR;
 
 	}
 
@@ -149,8 +157,8 @@ public class GenericResult implements IResultReporter {
 	}
 
 	@Override
-	public void reportInfo(Map<String, Object>[] ifoResults) {
-		// TODO Auto-generated method stub
+	public void reportInfo(Map<String, Object>[] infoResults) {
+		this.infoResults = infoResults;
 		
 	}
 
@@ -196,6 +204,13 @@ public class GenericResult implements IResultReporter {
 			this.scanList.clear();
 			this.scanList = null;
 		}
+		this.flag = false;
+		this.infoMessage = null;
+		this.infoResults = null;
+		this.inforMessages = null;
+		this.message = null;
+		this.record = null;
+		this.resultCode = -1;
 	}
 
 	@Override
@@ -213,10 +228,15 @@ public class GenericResult implements IResultReporter {
 
 	@Override
 	public void reportInfo(Map<String, Object> statsMap) {
-		// TODO Auto-generated method stub
-		
+		this.statsMap = statsMap;
+
 	}
+	@Override
+	public void report(boolean flag, String message) {
+		this.flag = flag;
+		this.message = message;
 
 
+	}		
 
 }

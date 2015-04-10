@@ -1667,6 +1667,9 @@ public class AQLParser extends Parser {
 			setState(373); valueList();
 			setState(374); match(T__0);
 
+					//bins = binNameList().bin().size()+1;
+					//vals = valueList().value().size();
+					//if (bins != vals) notifyErrorListeners("Bin names and Values not equal");
 					definitions.add(VariableDefinition.WRITE_POLICY);
 				
 			}

@@ -386,9 +386,12 @@ DML:
 INSERT INTO namespace[.setname] (PK,binnames,,,) VALUES ('pk',nnn,'xxx',,)
 */
 insert 
-	: INSERT INTO nameSet '(' PK ',' binNameList ')'
+	: INSERT INTO nameSet '(' PK ',' binNameList ')' 
 		VALUES '(' primaryKey[$statement::nameSpace, $statement::setName] ',' valueList ')' 
 	{
+		//bins = binNameList().bin().size()+1;
+		//vals = valueList().value().size();
+		//if (bins != vals) notifyErrorListeners("Bin names and Values not equal");
 		definitions.add(VariableDefinition.WRITE_POLICY);
 	}  	
 		
@@ -625,15 +628,10 @@ show
 	;
 	
 /**
-DESC INDEX namespace indexname
 DESC MODULE pkgname.extension
 */
 desc 
-	: DESC 
-//		(
-		MODULE moduleName 
-//		| INDEX namespace_name index_name 
-//		) 
+	: DESC MODULE moduleName 
 	{
 	definitions.add(VariableDefinition.INFO_POLICY);
 	definitions.add(VariableDefinition.INFO_STRING);

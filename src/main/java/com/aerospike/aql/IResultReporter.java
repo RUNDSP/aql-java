@@ -23,7 +23,7 @@ public interface IResultReporter extends Closeable, ScanCallback{
 		TEXT
 	}
 	public void report(String message);
-	public void report(AerospikeException e);
+	public void report(boolean flag, String message);
 	public void report(Level level, String message);
 	public void report(Record record);
 	public void report(Key key, Record record);

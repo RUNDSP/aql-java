@@ -149,26 +149,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9.1</version>
-				<configuration>
-					<reportOutputDirectory>${project.basedir}</reportOutputDirectory>
-					<outputDirectory>${project.basedir}</outputDirectory>
-					<destDir>doc</destDir>
-					<doctitle>AQL2 Documentation</doctitle>
-					<show>public</show>
-					<splitindex>true</splitindex>
-					<bottom>Copyright &#169; 2012&#x2013;{currentYear} Aerospike, Inc.
-						All rights reserved.</bottom>
-          			<sourcepath>${project.basedir}/src/main/java</sourcepath>
-					<sourceFileIncludes>
-						<include>com/aerospike/aql/*</include>
-						<include>com/aerospike/aql/grammar/*</include>
-					</sourceFileIncludes>
-				</configuration>
-			</plugin>
 		</plugins>
 		<resources>
 			<resource>
@@ -228,6 +208,26 @@
 					<artifactId>antlr4-maven-plugin</artifactId>
 					<version>4.3</version>
 				</plugin>
+				<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.2</version>
+				<configuration>
+					<reportOutputDirectory>${project.basedir}</reportOutputDirectory>
+					<outputDirectory>${project.basedir}</outputDirectory>
+					<destDir>doc</destDir>
+					<doctitle>AQL2 Documentation</doctitle>
+					<show>public</show>
+					<splitindex>true</splitindex>
+					<bottom>Copyright &#169; 2012&#x2013;{currentYear} Aerospike, Inc.
+						All rights reserved.</bottom>
+          			<sourcepath>${project.basedir}/src/main/java</sourcepath>
+					<sourceFileIncludes>
+						<include>com/aerospike/aql/**/*.java</include>
+						<include>com/aerospike/aql/grammar/**/*.java</include>
+					</sourceFileIncludes>
+				</configuration>
+			</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>

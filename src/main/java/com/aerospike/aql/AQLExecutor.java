@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.apache.log4j.Logger;
@@ -61,6 +62,7 @@ import com.aerospike.aql.grammar.AQLParser.TextValueContext;
 import com.aerospike.aql.grammar.AQLParser.UpdateContext;
 import com.aerospike.aql.grammar.AQLParser.ValueContext;
 import com.aerospike.aql.grammar.AQLParser.ValueListContext;
+import com.aerospike.aql.grammar.IErrorReporter;
 import com.aerospike.client.AerospikeClient;
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Bin;
@@ -101,6 +103,7 @@ public class AQLExecutor extends AQLBaseListener {
 	private ParseTreeProperty<Operation> operationProperty = new ParseTreeProperty<Operation>();
 	
 	private IResultReporter results = null;
+	private IErrorReporter errorReporter = null;
 	private boolean verbose;
 	private boolean echo;
 	private String view;
@@ -110,16 +113,18 @@ public class AQLExecutor extends AQLBaseListener {
 	private Object result = null;
 	private AdminPolicy adminPolicy;
 	private InfoPolicy infoPolicy;
+	private AQLConsole console;
 	
 	
 
-	public AQLExecutor(AQLParser parser, AerospikeClient client, int timeout, IResultReporter reporter) {
+	public AQLExecutor(AQLParser parser, AerospikeClient client, int timeout, IResultReporter reporter, IErrorReporter errorReporter) {
 		super();
 		this.client = client;
 		this.parser = parser;
 		adminPolicy = new AdminPolicy();
 		infoPolicy = new InfoPolicy();
 		this.setTimeout(timeout);
+		this.errorReporter = errorReporter;
 		this.setResultsReporter(reporter);
 		JSONParser jparser = new JSONParser();
 		this.setTimeout(500); // default time out of 500 milliseconds
@@ -128,7 +133,9 @@ public class AQLExecutor extends AQLBaseListener {
 	private void setResultsReporter(IResultReporter reporter) {
 		if (reporter == null)
 			try {
-				this.results = new AQLConsole();
+				this.console = new AQLConsole();
+				this.results = this.console;
+				this.errorReporter = this.console;
 			} catch (IOException e) {
 				throw new AQLException("Cannot create console", e);
 			}
@@ -170,8 +177,16 @@ public class AQLExecutor extends AQLBaseListener {
 			if (this.client.isConnected())
 				results.report("Connected to: " + host + ":" + port);
 		} catch (AerospikeException e){
-			results.report(e);
+			reportError(ctx, e);
 		}
+	}
+	private void reportError(ParserRuleContext ctx, AerospikeException e){
+		int line = ctx.getStart().getLine();
+		this.errorReporter.reportError(line, e);
+	}
+	private void reportError(ParserRuleContext ctx, String message){
+		int line = ctx.getStart().getLine();
+		this.errorReporter.reportError(line, message);
 	}
 	
 	@Override
@@ -183,7 +198,7 @@ public class AQLExecutor extends AQLBaseListener {
 			this.client = null;
 			results.report("Disconnected");
 		} catch (AerospikeException e){
-			results.report(e);
+			reportError(ctx, e);
 		}
 	}
 	
@@ -233,7 +248,7 @@ public class AQLExecutor extends AQLBaseListener {
 				results.report("Created role: " + roleName);
 			}
 		} catch (AerospikeException e){
-			results.report(e);
+			reportError(ctx, e);
 		}
 	}
 	
@@ -250,7 +265,16 @@ public class AQLExecutor extends AQLBaseListener {
 			} else if (ctx.MODULE() != null) {
 				String module = ctx.moduleName().getText();
 				String[] infoStrings = infoAll(infoPolicy, client, "udf-remove:filename=" + module);
-				results.reportInfo(infoStrings, ";");
+				if (infoStrings.length > 0){
+					Node[] nodes = client.getNodes();
+					int index = 0;
+					for (Node node : nodes){
+						results.report(String.format("%S, Drop module  %s on node %s", infoStrings[index], module, node.getName() ));
+						index++;
+					}
+				} else {
+					results.reportInfo("Failed to drop module " + module);
+				}
 			} else if (ctx.SET() != null) {
 				String namespace = ctx.nameSet().namespaceName;
 				String set = ctx.nameSet().setName;
@@ -266,9 +290,10 @@ public class AQLExecutor extends AQLBaseListener {
 				results.report(String.format("Role %s deleted", role));
 			}
 		} catch (AerospikeException e){
-			results.report(e);
+			reportError(ctx, e);
 		}
 	}
+
 
 	@Override
 	public void exitRemove(RemoveContext ctx) {
@@ -278,7 +303,7 @@ public class AQLExecutor extends AQLBaseListener {
 			String[] infoStrings = infoAll(infoPolicy, client, "udf-remove:filename=" + module);
 			results.reportInfo(infoStrings, ";");
 		} catch (AerospikeException e) {
-			results.report(e);
+			reportError(ctx, e);
 		}
 	}
 
@@ -289,6 +314,10 @@ public class AQLExecutor extends AQLBaseListener {
 			Key key = keyProperty.get(ctx.primaryKey());
 			List<Value> values = valueListProperty.get(ctx.valueList());
 			List<String> binNames = stringListProperty.get(ctx.binNameList());
+			if (values.size() != binNames.size()){
+				reportError(ctx, "Number of Bin names and Values different");
+				return;
+			}
 			Bin[] bins = new Bin[binNames.size()];
 			int index = 0;
 			WritePolicy writePolicy = new WritePolicy();
@@ -302,9 +331,9 @@ public class AQLExecutor extends AQLBaseListener {
 			}
 			writePolicy.recordExistsAction = RecordExistsAction.CREATE_ONLY;
 			client.put(writePolicy, key, bins);
-			results.report("OK, 1 record affected");
+			results.report("OK, 1 record inserted");
 		} catch (AerospikeException e){
-			results.report(e);
+			reportError(ctx, e);
 		}
 	}
 	
@@ -338,7 +367,7 @@ public class AQLExecutor extends AQLBaseListener {
 			}
 			results.report("OK, 1 record affected");
 		} catch (AerospikeException e){
-			results.report(e);
+			reportError(ctx, e);
 		}
 	}
 
@@ -354,11 +383,11 @@ public class AQLExecutor extends AQLBaseListener {
 				writePolicy.generationPolicy = GenerationPolicy.EXPECT_GEN_EQUAL;
 			}
 			if (client.delete(writePolicy, key))
-				results.report("OK, 1 record affected");
+				results.report("Record delete ");
 			else
 				results.report("Record not found");
 		} catch (AerospikeException e){
-			results.report(e);
+			reportError(ctx, e);
 		}
 	}
 	
@@ -401,7 +430,7 @@ public class AQLExecutor extends AQLBaseListener {
 				results.cancel();
 			}
 		} catch (AerospikeException e){
-			results.report(e);
+			reportError(ctx, e);
 		}
 	}
 	
@@ -409,16 +438,16 @@ public class AQLExecutor extends AQLBaseListener {
 	public void exitRegister(RegisterContext ctx) {
 		try {
 			
-			String filepath = ctx.filepath.getText();
+			String filepath = stripQuotes(ctx.filepath.getText());
 			File udfFile = new File(filepath);
 			RegisterTask task = client.register(null, 
 					udfFile.getPath(), 
 					udfFile.getName(), 
 					Language.LUA); 
 			task.waitTillComplete(10);
-			results.report("Registered module: " + filepath);
+			results.report("Registered module: " + udfFile.getName());
 		} catch (AerospikeException e){
-			results.report(e);
+			reportError(ctx, e);
 		}
 	}
 
@@ -452,7 +481,7 @@ public class AQLExecutor extends AQLBaseListener {
 				results.report(resultSet);
 			}
 		} catch (AerospikeException e){
-			results.report(e);
+			reportError(ctx, e);
 		}
 	}
 
@@ -486,7 +515,7 @@ public class AQLExecutor extends AQLBaseListener {
 			results.report(resultSet);
 			
 		} catch (AerospikeException e){
-			results.report(e);
+			reportError(ctx, e);
 		}
 	}
 	
@@ -510,9 +539,10 @@ public class AQLExecutor extends AQLBaseListener {
 				writePolicy.generationPolicy = GenerationPolicy.EXPECT_GEN_EQUAL;
 			}
 			Record record = client.operate(writePolicy, key, operations);
-			results.report(record);
+			results.close();
+			results.report(key, record);
 		} catch (AerospikeException e){
-			results.report(e);
+			reportError(ctx, e);
 		}
 	}
 
@@ -631,7 +661,7 @@ public class AQLExecutor extends AQLBaseListener {
 					queries.toArray(queryArray); 
 					results.reportInfo(queryArray);
 				} else {
-					results.report("OK");
+					results.report("No queries found");
 				}
 			} else if (ctx.SCANS() != null){
 				//results.reportInfo(info("jobs:module=scan"), ";");
@@ -647,11 +677,11 @@ public class AQLExecutor extends AQLBaseListener {
 				scans.toArray(queryArray); 
 				results.reportInfo(queryArray);
 				} else {
-					results.report("No jobs found");
+					results.report("No scans found");
 				}
 			}
 		} catch (AerospikeException e){
-			results.report(e);
+			reportError(ctx, e);
 		}
 	}
 	
@@ -681,7 +711,7 @@ public class AQLExecutor extends AQLBaseListener {
 				results.reportInfo(info(String.format("udf-get:filename=%s", name)), ";");
 //			}
 		} catch (AerospikeException e){
-			results.report(e);
+			reportError(ctx, e);
 		}
 	}
 	
@@ -706,7 +736,7 @@ public class AQLExecutor extends AQLBaseListener {
 				results.reportInfo(statsMap);
 			}
 		} catch (AerospikeException e){
-			results.report(e);
+			reportError(ctx, e);
 		}
 	}
 

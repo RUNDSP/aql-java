@@ -72,7 +72,6 @@ SHOW INDEXES
 SHOW INDEXES test
 SHOW INDEXES test.newtest
 
-DESC INDEX test strindex
 DESC MODULE example1-udf.lua
 REMOVE MODULE example1-udf.lua
 STAT SYSTEM

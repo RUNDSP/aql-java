@@ -43,12 +43,12 @@ public class TestUserAdmin {
 	}
 	//@Test
 	public void testCreateAdminRole(){
-		GenericResult result = aql2.go("CREATE ROLE god PRIVILEGES sys-admin");
+		GenericResult result = aql2.executeImmediate("CREATE ROLE god PRIVILEGES sys-admin");
 		assertTrue(result.resultCode == ResultCode.OK);
 	}
 	//@Test
 	public void testCreatePlebRole(){
-		GenericResult result = aql2.go("CREATE ROLE pleb PRIVILEGES read.test.demo");
+		GenericResult result = aql2.executeImmediate("CREATE ROLE pleb PRIVILEGES read.test.demo");
 		assertTrue(result.resultCode == ResultCode.OK);
 	}
 }

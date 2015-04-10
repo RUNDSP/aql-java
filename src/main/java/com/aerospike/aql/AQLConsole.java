@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,9 +34,10 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 	Object lastResult = null;
 	enum Orientation { VERTICAL, HORIZONTAL };
 	int recordCount = 0;
-	private HashMap<String, Integer> binList;
+	private TreeMap<String, Integer> binList;
 	private ArrayList<Record> recordList;
 	private JSONArray jsonRecordList;
+	private List<String> errorList = new ArrayList<String>();
 	
 	public ViewFormat getViewFormat() {
 		return format;
@@ -127,7 +127,7 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 				break;
 			case TABLE:
 				List<Record> recordList = new ArrayList<Record>();
-				Map<String, Integer> binList = new HashMap<String, Integer>();
+				Map<String, Integer> binList = new TreeMap<String, Integer>();
 				recordList.add(record);
 				makeFieldMap(binList, record);
 				printTableRecordList(recordList, binList);
@@ -209,7 +209,7 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 			try {
 				int count = 0;
 				List<Record> recordList = new ArrayList<Record>();
-				Map<String, Integer> binList = new HashMap<String, Integer>();
+				Map<String, Integer> binList = new TreeMap<String, Integer>();
 				while (recordSet.next()) {
 					Record record = recordSet.getRecord();
 					recordList.add(record);
@@ -263,7 +263,7 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 	
 	private Map<String, Integer> makeFieldMap(Map<String, Integer> fieldMap, Record record ){
 		if (fieldMap == null)
-			fieldMap = new HashMap<String, Integer>();
+			fieldMap = new TreeMap<String, Integer>();
 		Set<String> bins = record.bins.keySet();
 		for (String bin : bins){
 			Integer size = fieldMap.get(bin);
@@ -482,7 +482,7 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 	}
 
 	private Map<String, Object> entryToMap(Entry<String, Object> entry){
-		Map<String, Object> newElement = new HashMap<String, Object>();
+		Map<String, Object> newElement = new TreeMap<String, Object>();
 		newElement.put(entry.getKey(), entry.getValue());
 		return newElement;
 	}
@@ -573,7 +573,7 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 		this.printTableMap(infoMap, Orientation.HORIZONTAL);
 	}
 	private void printTableMap(Map<String, Object> infoMap, Orientation orientation){
-		Map<String, Integer> fieldMap = new HashMap<String, Integer>();
+		Map<String, Integer> fieldMap = new TreeMap<String, Integer>();
 		makeFieldMap(fieldMap, infoMap, orientation);
 		printTableHeader(fieldMap);
 		printTableEntry(infoMap, fieldMap);
@@ -581,7 +581,7 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 	}	
 
 	private void printTableMapList(Map<String, Map<String, Object>> infoMap){
-		Map<String, Integer> fieldMap = new HashMap<String, Integer>();
+		Map<String, Integer> fieldMap = new TreeMap<String, Integer>();
 		Set<String> keys = infoMap.keySet();
 		for (String element : keys){
 			makeFieldMap(fieldMap, infoMap.get(element));
@@ -605,7 +605,7 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 	}
 
 	private Map<String, Map<String, Object>> makeElementMap(String input, String elementSeperator, String keySeperator, String valueSeperator, String equator){
-		Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
+		Map<String, Map<String, Object>> result = new TreeMap<String, Map<String, Object>>();
 		String[] parts = input.split(elementSeperator);
 		for (String element : parts){
 			String[] chunks = element.split(keySeperator);
@@ -621,7 +621,7 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 	}
 	
 	private Map<String, Object> makeValueMap(String input, String seperator, String equator){
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new TreeMap<String, Object>();
 		String[] parts = input.split(seperator);
 		for (String element : parts){
 			String[] chunks = element.split(equator);
@@ -667,9 +667,11 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 	}
 
 	@Override
-	public void report(AerospikeException e) {
+	public void reportError(int line, AerospikeException e) {
 		errors++;
-		println(String.format("Aerospike %s", e.getMessage()));
+		String message = String.format("Error on line: %d, Aerospike %s", line, e.getMessage());
+		this.errorList.add(message);
+		println(message);
 		
 	}
 
@@ -747,12 +749,21 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 
 	@Override
 	public void reportError(int line, int charStart, int charEnd, String message) {
+		String errorMessage = String.format("Error on line %d, at %d: %s", line, charStart, message);
+		this.errorList.add(errorMessage);
+		this.report(errorMessage);
 		this.errors++;
-		this.report(String.format("Error on line %d, at %d: %s", line, charStart, message));
+	}
+	@Override
+	public void reportError(int line, String message) {
+		String errorMessage = String.format("Error on line %d: %s", line, message);
+		this.errorList.add(errorMessage);
+		this.report(errorMessage);
+		this.errors++;
 	}
 
 	@Override
-	public int getErrors() {
+	public int getErrorCount() {
 		return this.errors;
 	}
 
@@ -770,7 +781,7 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 		if (recordCount == 0){
 			// Print header and initialize containers
 			jsonRecordList = new JSONArray();
-			binList = new HashMap<String, Integer>();
+			binList = new TreeMap<String, Integer>();
 		}
 
 	}
@@ -778,7 +789,7 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 		if (recordCount == 0){
 			// Print header and initialize containers
 			recordList = new ArrayList<Record>();
-			binList = new HashMap<String, Integer>();
+			binList = new TreeMap<String, Integer>();
 		}
 	}
 	private void jsonFooter(){
@@ -826,6 +837,19 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 			println();
 			break;
 		}
+	}
+
+
+	@Override
+	public void report(boolean flag, String message) {
+		println(message + ((flag)?"OK":"failed"));
+		
+	}
+
+
+	@Override
+	public List<String> getErrorList() {
+		return this.errorList;
 	}
 
 

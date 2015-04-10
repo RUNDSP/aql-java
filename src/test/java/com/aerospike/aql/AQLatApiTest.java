@@ -26,7 +26,7 @@ public class AQLatApiTest {
 
 	@Test
 	public void test() {
-		GenericResult result = aql2.go("select * from test.users where PK = 'user100'");
+		GenericResult result = aql2.executeImmediate("select * from test.users where PK = 'user100'");
 		System.out.println(result.record);
 	}
 

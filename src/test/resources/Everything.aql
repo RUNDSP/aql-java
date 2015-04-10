@@ -28,21 +28,17 @@ print '@#$--$#@'
 	Select *  From test.demo where pk = '3'
 	Select *  From test.demo where pk = '4'
 
-
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('5', 5, '2', 2)
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('6', 6, '2', 2)
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('7', 7, '2', 2)
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('8', 8, '2', 2)
 	INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('9', 9, '2', 2)
-	INSERT INTO test.demo (PK, bn2, bn3, bn4, bn4) VALUES ('10', 9, '2', 2, 'JSON{"key": 1}')
-
-
-	INSERT INTO test.cats (PK, bob, sue) values ('1234', 23, 'abc')
+	INSERT INTO test.demo (PK, bn2, bn3, bn4, bn5) VALUES ('10', 9, '2', 2, 'JSON{"first": 123, "second": [4, 5, 6], "third": 789}')
 
 
 #Create
 	CREATE INDEX index_bn2 ON test.demo (bn2) NUMERIC
-	CREATE INDEX index_bn3 ON cats.demo (bn3) STRING
+	CREATE INDEX index_bn3 ON test.demo (bn3) STRING
 	CREATE INDEX index_bn4 ON test.demo (bn4) NUMERIC
     REPAIR INDEX index_bn4 ON test.demo 
 
@@ -51,9 +47,12 @@ print '@#$--$#@'
 	UPDATE test.demo SET bn2 = 8, bn3 = '22', bn4 = 22 where pk = '8'
 	UPDATE test.demo SET bn2 = 7, bn3 = '22', bn4 = 22 where pk = '7'
 	UPDATE test.demo SET bn2 = 6, bn3 = '22', bn4 = 22 where pk = '6'
+
+#Update with generation
+	INSERT INTO test.cats (PK, bob, sue) values ('1234', 23, 'abc')
 	update test.cats SET bob = 23, sue = 'abc' where pk = '1234' and generation = 1
-	update test.cats SET ttl = 3000 where pk = '1234' and generation = 2
-	update test.cats SET ttl = 3000, bob = 23, sue = 'abc' where pk = '1234' and generation = 3
+	update test.cats SET ttl = 3000 where pk = '1234' and generation = 2 #updating TTL does not change generation count
+	update test.cats SET ttl = 3000, bob = 23, sue = 'abc' where pk = '1234' and generation = 2
 
 #QUERY:
 	SELECT * FROM test.demo
@@ -69,8 +68,9 @@ print '@#$--$#@'
 	SELECT bn2,bn3,bn4  FROM test.demo WHERE PK = '10'
 
 #Operate
-	DELETE From test.cats where PK = '9989'
+	DELETE From test.cats where PK = 9989
 	operate add(cat, 23), get(cat) on test.demo where pk = 9989
+	SELECT cat  FROM test.cats WHERE PK = 9989
 	operate add(cat, 23), get(cat) on test.demo where pk = 9989 and generation = 2
 	SELECT cat  FROM test.cats WHERE PK = 9989
 
@@ -95,7 +95,6 @@ print '@#$--$#@'
 	shoW qUERIES
 	SHOW INDEXES
 	SHOW INDEXES test
-	DESC INDEX test index_bn2
 	STAT INDEX test index_bn3
 	STAT QUERY
 	STAT SYSTEM
