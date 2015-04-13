@@ -226,6 +226,7 @@ record = client.Get(policy, <key>, <first(binNames):{b|"<b>"}><rest(binNames):{b
 <else>
 record = client.Get(policy, <key>);
 <endif>
+Console.WriteLine("Record: " + record);
 
 >>
 
@@ -301,6 +302,7 @@ infoResult = Info.Request(infoPolicy, client.Nodes[0], "sindex<if(nameSpace)>/<n
 
 statIndex(source, nameSpace, indexName) ::= <<
 /* <source> */
+infoResult = Info.Request(infoPolicy, client.Nodes()[0], "sindex/<nameSpace>/<indexName>");
 
 >>
 
@@ -326,13 +328,18 @@ operateStatement(source, operations, key, generation)::=<<
 <if(generation)>
 <generation>
 <endif>
+writePolicy.generationPolicy = GenerationPolicy.NONE;
 record = client.Operate(writePolicy, <key>, <first(operations):{b|<b>}><rest(operations):{b|, <b>}>);
+if (record != null)
+	Console.WriteLine("Record: " + record);
+else
+	Console.WriteLine("No record returned");
 
 >>
 
 deleteSet(source, namespace, set)::= <<
 /* <source> */
-String[] infoResults = infoAll("set-config:context=namespace;id=<namespace>;set=<set>;set-delete=true;"));
+String[] infoResults = InfoAll("set-config:context=namespace;id=<namespace>;set=<set>;set-delete=true;"));
 
 >>
 
