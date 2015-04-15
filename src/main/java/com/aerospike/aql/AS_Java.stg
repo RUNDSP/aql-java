@@ -202,7 +202,9 @@ insertStmt(source, primaryKey, binNames, values) ::= <<
 /* <source> */
 writePolicy.recordExistsAction = RecordExistsAction.CREATE_ONLY;
 client.put(writePolicy, <primaryKey>, 
-	<first(binNames),first(values):{z,vv|new Bin("<z>", <vv>)}><rest(binNames),rest(values):{z,vv|, new Bin("<z>", <vv>)}>);
+	<first(binNames),first(values):{z,vv|new Bin("<z>", <vv>)}><rest(binNames),rest(values):{z,vv|,
+	new Bin("<z>", <vv>)}>
+	);
 
 >>
 
@@ -213,7 +215,10 @@ updateStmt(source, primaryKey, binList, generation, ttl)::=<<
 <if(generation)><generation><endif>
 writePolicy.recordExistsAction = RecordExistsAction.UPDATE;
 <if(binList)>
-client.put(writePolicy, <primaryKey>, <first(binList):{z|<z>}><rest(binList):{z|, <z>}>);
+client.put(writePolicy, <primaryKey>, 
+	<first(binList):{z|<z>}><rest(binList):{z|,
+	<z>}>
+	);
 <else>
 client.touch(writePolicy, <primaryKey>);
 <endif>
@@ -272,10 +277,14 @@ get(source, binNames, key) ::= <<
 
 /* <source> */
 <if(binNames)>
-record = client.get(policy, <key>, <first(binNames):{b|"<b>"}><rest(binNames):{b|, "<b>"}>);
+record = client.get(policy, <key>, 
+	<first(binNames):{b|"<b>"}><rest(binNames):{b|, 
+	"<b>"}>
+	);
 <else>
 record = client.get(policy, <key>);
 <endif>
+System.out.println("Key: " + <key>);
 System.out.println("Record: " + record);
 
 >>
@@ -344,7 +353,7 @@ client.dropUser(adminPolicy, "<user>");
 
 create(source, indexName, nameSpace, setName, binName, type, collectionType) ::= <<
 
-* <source> */
+/* <source> */
 indexTask = client.createIndex(policy, "<nameSpace>", "<setName>", "<indexName>", "<binName>", IndexType.<type>, IndexCollectionType.<collectionType>);
 indexTask.waitTillComplete(10);
 
