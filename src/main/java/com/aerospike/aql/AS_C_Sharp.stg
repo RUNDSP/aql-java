@@ -13,11 +13,10 @@ namespace AQLGeneration
 {
     class Program
     {
-
         static void Main(string[] args)
         {
-        	AerospikeClient client;
-			ClientPolicy clientPolicy;
+        	AerospikeClient client = null;
+			ClientPolicy clientPolicy = null;
             try
             {
 				<statements>
@@ -34,11 +33,8 @@ namespace AQLGeneration
             }
             finally
             {
-                if (client != null && client.Connected)
-                {
-                    // Close Aerospike server connection
-                    client.Close();
-                }
+            	if (client != null)
+                	client.Close();
             }
             
         } //main
@@ -165,8 +161,11 @@ insertStmt(source, primaryKey, binNames, values) ::= <<
 /* <source> */
 writePolicy.recordExistsAction = RecordExistsAction.CREATE_ONLY;
 client.Put(writePolicy, <primaryKey>, 
-	<first(binNames),first(values):{z,vv|new Bin("<z>", <vv>)}><rest(binNames),rest(values):{z,vv|, new Bin("<z>", <vv>)}>);
-			
+	<first(binNames),first(values):{z,vv|new Bin("<z>", <vv>)}><rest(binNames),rest(values):{z,vv|,
+	new Bin("<z>", <vv>)}>
+	);
+Console.WriteLine("Inserted: " + <primaryKey>);
+
 >>
 
 updateStmt(source, primaryKey, binList, generation, ttl)::=<<
@@ -175,10 +174,13 @@ updateStmt(source, primaryKey, binList, generation, ttl)::=<<
 <if(generation)><generation><endif>
 writePolicy.recordExistsAction = RecordExistsAction.UPDATE;
 <if(binList)>
-client.Put(writePolicy, <primaryKey>, <first(binList):{z|<z>}><rest(binList):{z|, <z>}>);
+client.Put(writePolicy, <primaryKey>, <first(binList):{z|<z>}><rest(binList):{z|,
+	<z>}>
+	);
 <else>
 client.Touch(writePolicy, <primaryKey>);
 <endif>
+Console.WriteLine("Updated: " + <primaryKey>);
 
 >>
 
@@ -196,6 +198,7 @@ deleteStmt(source, primaryKey, generation) ::= <<
 writePolicy.generation = <generation>;
 <endif>
 client.Delete(writePolicy, <primaryKey>);
+Console.WriteLine("Deleted: " + <primaryKey>);
 
 >>
 
@@ -222,10 +225,14 @@ recordSet.Close();
 get(source, binNames, key) ::= <<
 /* <source> */
 <if(binNames)>
-record = client.Get(policy, <key>, <first(binNames):{b|"<b>"}><rest(binNames):{b|, "<b>"}>);
+record = client.Get(policy, <key>, 
+	<first(binNames):{b|"<b>"}><rest(binNames):{b|,
+	"<b>"}>
+	);
 <else>
 record = client.Get(policy, <key>);
 <endif>
+Console.WriteLine("Key: " + <key>);
 Console.WriteLine("Record: " + record);
 
 >>
@@ -297,12 +304,14 @@ client.DropIndex(policy, "<nameSpace>", "<setName>", "<indexName>");
 showIndex(source, nameSpace, setName) ::= <<
 /* <source> */
 infoResult = Info.Request(infoPolicy, client.Nodes[0], "sindex<if(nameSpace)>/<nameSpace><endif><if(setName)>/<setName><endif>");
+Console.WriteLine("Show Index: " + infoResult);
 
 >>
 
 statIndex(source, nameSpace, indexName) ::= <<
 /* <source> */
-infoResult = Info.Request(infoPolicy, client.Nodes()[0], "sindex/<nameSpace>/<indexName>");
+infoResult = Info.Request(infoPolicy, client.Nodes[0], "sindex/<nameSpace>/<indexName>");
+Console.WriteLine("Stat Index: " + infoResult);
 
 >>
 
@@ -320,6 +329,7 @@ task.Wait();
 removeModule(source, module) ::= <<
 /* <source> */
 infoResult = Info.Request(infoPolicy, client.Nodes[0], "udf-remove:filename=<module>");
+Console.WriteLine("Remove Module: " + infoResult);
 
 >>
 
@@ -340,6 +350,7 @@ else
 deleteSet(source, namespace, set)::= <<
 /* <source> */
 String[] infoResults = InfoAll("set-config:context=namespace;id=<namespace>;set=<set>;set-delete=true;"));
+Console.WriteLine("Delete set: " + infoResults);
 
 >>
 
