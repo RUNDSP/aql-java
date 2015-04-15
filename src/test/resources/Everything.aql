@@ -51,8 +51,8 @@ print '@#$--$#@'
 #Update with generation
 	INSERT INTO test.cats (PK, bob, sue) values ('1234', 23, 'abc')
 	update test.cats SET bob = 23, sue = 'abc' where pk = '1234' and generation = 1
-	update test.cats SET ttl = 3000 where pk = '1234' and generation = 2 #updating TTL does not change generation count
-	update test.cats SET ttl = 3000, bob = 23, sue = 'abc' where pk = '1234' and generation = 2
+	update test.cats SET ttl = 3000 where pk = '1234' and generation = 2 
+	update test.cats SET ttl = 3000, bob = 23, sue = 'abc' where pk = '1234' and generation = 3
 
 #QUERY:
 	SELECT * FROM test.demo
