@@ -431,19 +431,17 @@ delete
 */	
 select 
 	: SELECT 
-	( '*'  
+	(
+	(('*' | binNameList) (IN collectionType)? FROM)
 	{
 	definitions.add(VariableDefinition.RECORD);
 	}
-	| binNameList
-	{
-	definitions.add(VariableDefinition.RECORD);
-	}
-	| moduleFunction ('(' (valueList)? ')')?
+	 | moduleFunction ('(' (valueList)? ')')? ON
 	{
 	definitions.add(VariableDefinition.RESULT_SET);
 	}
-	) (IN collectionType)? FROM nameSet where? 
+	)
+	   nameSet where? 
 	{
 	definitions.add(VariableDefinition.QUERY_POLICY);
 	definitions.add(VariableDefinition.READ_POLICY);
@@ -451,6 +449,12 @@ select
 	definitions.add(VariableDefinition.STMT);
 	}  	
 	;
+	/*
+	 * | moduleFunction ('(' (valueList)? ')')?
+	{
+	definitions.add(VariableDefinition.RESULT_SET);
+	}
+	 */
 /**
 AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin = nnn
 AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin BETWEEN nnn AND mmm
@@ -611,7 +615,7 @@ SHOW INDEXES [namespace[.set]]
 */
 show 
 	: SHOW 
-	( INDEXES namespace_name? 
+	( INDEXES (namespace_name ('.' index_name)?)? 
 	| SCANS
 	| NAMESPACES
 	| SETS

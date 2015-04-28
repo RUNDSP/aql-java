@@ -15,7 +15,6 @@ select filter_example.profile_filter('ghjks') on test.profile where username = '
 # Delete statements
 DELETE From test.demo where pk = '4'
 DELETE From test.demo
-DELETE From test.demo where showsize = 16
 # Operate statements
 operate add(cat, 23), get(cat) on test.demo where pk = 9989
 operate add(cat, 23), get(cat) on test.demo where pk = 9989 and generation = 20967

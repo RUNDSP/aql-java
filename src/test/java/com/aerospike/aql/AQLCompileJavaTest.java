@@ -102,4 +102,9 @@ public class AQLCompileJavaTest {
 		AQLrun.main(new String[]{"-h", HOST , "-p", PORT, "-c", "src/test/resources/SelectPK.aql", "-o", "src/output/SelectPK.java", "-l", "JAVA"});
 
 	}
+	@Test
+	public void testDML() throws Exception {
+		AQLrun.main(new String[]{"-h", HOST , "-p", PORT, "-c", "src/test/resources/DML.aql", "-o", "src/output/DML.java", "-l", "JAVA"});
+
+	}
 }
