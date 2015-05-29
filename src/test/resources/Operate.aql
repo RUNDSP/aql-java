@@ -17,5 +17,7 @@ operate add(cat, 23), get(cat) on test.demo where pk = '9988'
 print 'Add with generation'
 operate add(cat, 23), get(cat) on test.demo where pk = '9988' and generation = 1
 print 'Select'
+operate prepend(salutation, 'hello') on test.demo where pk = '1234'
+operate put(bob, 23), append(salutation, ' world') on test.demo where pk = '1234' 
 select * from test.demo where pk = '9988'
 

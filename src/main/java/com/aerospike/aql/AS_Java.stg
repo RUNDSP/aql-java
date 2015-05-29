@@ -594,11 +594,11 @@ object(value)::=<<
 >>
 
 jsonArrayValue(value) ::= <<
-Value.getAsList((JSONArray)JSONValue.parse("<value>"))
+Value.get((JSONArray)JSONValue.parse("<value>"))
 >>
 
 jsonObjectValue(value) ::= <<
-Value.getAsMap((JSONObject)JSONValue.parse("<value>"))
+Value.get((JSONObject)JSONValue.parse("<value>"))
 >>
 
 
