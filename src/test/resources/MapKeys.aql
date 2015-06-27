@@ -1,0 +1,5 @@
+delete from test.demo where pk = 'test-select-map'
+CREATE MAPKEYS INDEX index_on_mapkeys ON test.demo (amap) string
+INSERT INTO test.demo (PK, bn2, bn3, bn4, amap) VALUES ('test-select-map', 5, '2', 2, 'JSON{"first": 123, "second": [4, 5, 6], "third": 789}')
+select * in mapkeys from test.demo where amap = 'first'
+

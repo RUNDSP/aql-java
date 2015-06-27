@@ -8,9 +8,9 @@ update test.cats SET ttl = 3000 where pk = '1234' and generation = 98765
 # Select statements including aggregations
 SELECT * FROM test.demo
 SELECT * FROM test.demo WHERE bn4 = 2
-SELECT bn2,bn3,bn4  FROM test.demo WHERE bn4 BETWEEN 1 AND 2
+SELECT bn2,bn3,bn4  FROM test.demo WHERE bn4 BETWEEN 1 and 2
 SELECT bn2,bn3,bn4  FROM test.demo WHERE PK = '10'
-select sum_example.sum_single_bin('bn4') ON test.demo WHERE bn4 BETWEEN 1 AND 2
+#select sum_example.sum_single_bin('bn4') ON test.demo WHERE bn4 BETWEEN 1 to 2
 select filter_example.profile_filter('ghjks') on test.profile where username = 'Mary'
 # Delete statements
 DELETE From test.demo where pk = '4'

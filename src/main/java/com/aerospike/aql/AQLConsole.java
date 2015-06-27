@@ -96,7 +96,7 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 	
 	public void println(Object object){
 		try {
-			console.println(object.toString());
+			console.println((object==null)?"null":object.toString());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -701,8 +701,45 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 	public void report(ResultSet resultSet, boolean clear) {
 		switch (this.format) {
 		case JSON:
+			try {
+				int count = 0;
+				while (resultSet.next()) {
+					Object element = resultSet.getObject();
+					String jsonString = formatJson(element);
+					println(jsonString);
+					count ++;
+				}
+				if (count == 0) {
+					println("No results returned.");			
+				} else {
+					println(String.format("%d objects returned", count));
+				}
+			} catch (AerospikeException e) {
+				e.printStackTrace();
+			} finally {
+				if (resultSet != null) {
+					resultSet.close();
+				}
+
+			}
 			break;
 		case TABLE:
+			try {
+				int count = 0;
+				while (resultSet.next()) {
+					Object object = resultSet.getObject();
+					count++;
+					println(String.format("Result %d: %s", count, object.toString()));
+				}
+				if (count == 0) {
+					println("No results returned.");			
+				} else {
+					println(String.format("%d objects returned", count));
+				}
+			}
+			finally {
+				resultSet.close();
+			}
 			break;
 		default: //TEXT:
 			try {
@@ -714,6 +751,8 @@ public class AQLConsole implements IResultReporter, IErrorReporter, ScanCallback
 				}
 				if (count == 0) {
 					println("No results returned.");			
+				} else {
+					println(String.format("%d objects returned", count));
 				}
 			}
 			finally {

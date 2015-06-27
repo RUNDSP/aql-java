@@ -46,7 +46,7 @@ SELECT a FROM test.newtest
 SELECT b,c FROM test.newtest 
 SELECT * FROM test.newtest WHERE b = 3 
 SELECT * FROM test.newtest WHERE c = 'adc' 
-SELECT * FROM test.newtest WHERE b BETWEEN 0 AND 4 
+SELECT * FROM test.newtest WHERE b BETWEEN 0 and 4 
 SELECT * FROM test.newtest WHERE PK = 'rec10' 
 SELECT * FROM test.newtest WHERE PK = 'rec11' 
 PRINT '>>> We deleted rec11, so this should FAIL.'

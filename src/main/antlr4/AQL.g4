@@ -176,6 +176,7 @@ import java.util.Set;
 import java.util.HashSet;
 import com.aerospike.client.admin.Privilege;
 import com.aerospike.client.admin.PrivilegeCode;
+import com.aerospike.client.query.IndexCollectionType;
 }
 
 @members {
@@ -430,9 +431,13 @@ delete
 	Note:SELECT...WHERE bin ... needs an INDEX on bin. Use CREATE INDEX first.
 */	
 select 
+locals [IndexCollectionType indexCollectionType]
+@init{$indexCollectionType = IndexCollectionType.DEFAULT;} 
 	: SELECT 
 	(
-	(('*' | binNameList) (IN collectionType)? FROM)
+	(('*' | binNameList) (IN collectionType )? 
+		FROM 
+	)
 	{
 	definitions.add(VariableDefinition.RECORD);
 	}
@@ -468,13 +473,19 @@ aggregate
 	}  	
 	;
 	
-collectionType
-	: LIST | MAPKEYS | MAPVALUES
+collectionType 
+locals [IndexCollectionType type]
+@after {
+	$select::indexCollectionType = $type;
+}
+	: LIST {$type = IndexCollectionType.LIST;}
+	| MAPKEYS {$type = IndexCollectionType.MAPKEYS;}
+	| MAPVALUES {$type = IndexCollectionType.MAPVALUES;}
 	;
 
 
 where
-	: WHERE predicate
+	: WHERE predicate //filterList?
 	;
 
 	
@@ -570,15 +581,19 @@ generationPredicate
 	: 'generation' '=' INTLITERAL
 	;	
 	
-filterPredicate
-	: (equalityFilter | rangeFilter)
+filterPredicate 
+	: (equalityFilter[$select::indexCollectionType] | rangeFilter[$select::indexCollectionType])
 	{
 	definitions.add(VariableDefinition.QUERY_POLICY);
 	definitions.add(VariableDefinition.RECORD_SET);
 	}  	
 	;
+	
+//filterList
+//	: (AND filterPredicate)*
+//	;
 
-equalityFilter 
+equalityFilter [IndexCollectionType indexCollectionType]
 	: binValue
 	;
 	
@@ -590,7 +605,7 @@ binValue
 	: bin '=' value
 	;
 	
-rangeFilter
+rangeFilter [IndexCollectionType indexCollectionType]
 	: bin BETWEEN low=integerValue AND high=integerValue
 	;
 		

@@ -4,7 +4,7 @@
 	<groupId>com.aerospike</groupId>
 	<artifactId>aql2</artifactId>
 	<packaging>jar</packaging>
-	<version>2.0.1</version>
+	<version>2.0.2</version>
 
 	<name>aql2</name>
 	<organization>
@@ -32,7 +32,7 @@
 		<dependency>
 			<groupId>com.aerospike</groupId>
 			<artifactId>aerospike-client</artifactId>
-			<version>3.1.2</version>
+			<version>[3.1.2,)</version>
 		</dependency>
 		<!-- Apache command line parser. -->
 		<dependency>
@@ -160,7 +160,7 @@
 				</includes>
 			</resource>
 			<resource>
-				<directory>${project.basedir}/src/main/resources/udf</directory>
+				<directory>${project.basedir}/src/main/resources</directory>
 				<includes>
 					<include>**/*.lua</include>
 				</includes>

@@ -65,6 +65,28 @@ public class AQL2ExecutionTest {
 		result = aql2.executeImmediate("select * from test.demo where pk = 'test-select-list'");
 		assertTrue(result.resultCode == ResultCode.OK);
 	}
+	@Test
+	public void testJavaExecuteMapKeys() throws Exception {
+		System.out.println("Map keys query...");
+		result = aql2.executeImmediate("delete from test.demo where pk = 'test-select-map'");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.executeImmediate("CREATE MAPKEYS INDEX index_on_mapkeys ON test.demo (amap) string");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.executeImmediate("show indexes");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.executeImmediate("INSERT INTO test.demo (PK, bn2, bn3, bn4, amap) VALUES ('test-select-map', 5, '2', 2, 'JSON{\"first\": 123, \"second\": [4, 5, 6], \"third\": 789}')");
+		assertTrue(result.resultCode == ResultCode.OK);
+		result = aql2.executeImmediate("select * in mapkeys from test.demo where amap = 'first'");
+		assertTrue(result.resultCode == ResultCode.OK);
+		int count = 0;
+		while (result.recordSet.next()){
+			System.out.println(result.recordSet.getKey() + " " +  result.recordSet.getRecord());
+			count++;
+		}
+		result.recordSet.close();
+		System.out.println(String.format("Found %d records", count));
+		
+	}
 
 	@Test
 	public void testJavaExecuteSelectOne() throws Exception {
@@ -97,6 +119,7 @@ public class AQL2ExecutionTest {
 		assertTrue(result.resultCode == ResultCode.OK);
 		result = aql2.executeImmediate("select * from test.demo where bn2 between 5 and 7");
 		assertTrue(result.resultCode == ResultCode.OK);
+		assertTrue("RecordSet is null", result.recordSet != null);
 		int count = 0;
 		while (result.recordSet.next()){
 			count++;
@@ -104,7 +127,9 @@ public class AQL2ExecutionTest {
 		result.recordSet.close();
 		assertTrue(count >= 3);
 	}
-	//@Test
+	
+
+	@Test
 	public void testJavaExecuteCreateMapKeysIndex() throws Exception {
 		AQL aql2 = new AQL(client, 20, ViewFormat.TABLE);
 		GenericResult result = aql2.executeImmediate("CREATE MAPKEYS INDEX index_on_mapkeys ON test.demo (amap) string");
@@ -228,13 +253,32 @@ public class AQL2ExecutionTest {
 		assertTrue(result.resultCode == ResultCode.OK);
 	}
 
+	//@Test
+	public void testExecuteFileMultiFilter() throws Exception {
+		System.out.println("Select multi filter...");
+		AQL aql2 = new AQL(client, 20, ViewFormat.JSON);
+		File inputFile = new File("src/test/resources/MultipleFilters.aql");
+		aql2.execute(inputFile);
+		int errors = aql2.getErrorCount();
+		if (errors > 0){
+			List<String> errorList = aql2.getErrorList();
+			System.out.println("\nErrors: " + errors);
+			for (String error : errorList){
+				System.out.println("\t" + error);
+			}
+		}
+		assertTrue(errors == 0);
+	}
+
 	@Test
 	public void testExecuteFileEverything() throws Exception {
-		AQL aql2 = new AQL();
+		System.out.println("Everything...");
+		AQL aql2 = new AQL(client, 20, ViewFormat.JSON);
 		File inputFile = new File("src/test/resources/Everything.aql");
 		aql2.execute(inputFile);
 		int errors = aql2.getErrorCount();
 		if (errors > 0){
+			System.out.println("Everything errors...");
 			List<String> errorList = aql2.getErrorList();
 			System.out.println("\nErrors: " + errors);
 			for (String error : errorList){

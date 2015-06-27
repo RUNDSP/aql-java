@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.HashSet;
 import com.aerospike.client.admin.Privilege;
 import com.aerospike.client.admin.PrivilegeCode;
+import com.aerospike.client.query.IndexCollectionType;
 
 
 import org.antlr.v4.runtime.ParserRuleContext;

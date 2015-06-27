@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import com.aerospike.aql.IResultReporter.ViewFormat;
 import com.aerospike.client.AerospikeClient;
+import com.aerospike.aql.*;
 
 public class AQLatApiTest {
 	private AerospikeClient client = new AerospikeClient("127.0.0.1", 3000);

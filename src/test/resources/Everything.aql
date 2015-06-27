@@ -58,13 +58,13 @@ print '@#$--$#@'
 	SELECT * FROM test.demo
 	SELECT * FROM test.demo WHERE bn4 = 2
 	SELECT * FROM test.demo WHERE bn3 = '2'
-	SELECT * FROM test.demo WHERE bn4 BETWEEN 1 AND 2
+	SELECT * FROM test.demo WHERE bn4 BETWEEN 1 and 2
 	SELECT * FROM test.demo WHERE PK = '10'
 
 	SELECT bn2,bn3,bn4  FROM test.demo
 	SELECT bn2,bn3,bn4  FROM test.demo WHERE bn4 = 2
 	SELECT bn2,bn3,bn4  FROM test.demo WHERE bn3 = '2'
-	SELECT bn2,bn3,bn4  FROM test.demo WHERE bn4 BETWEEN 1 AND 2
+	SELECT bn2,bn3,bn4  FROM test.demo WHERE bn4 BETWEEN 1 and 2
 	SELECT bn2,bn3,bn4  FROM test.demo WHERE PK = '10'
 
 #Operate
@@ -97,7 +97,7 @@ select * from test.demo where pk = '9988'
 	EXECUTE example1.foo('arg1','arg2',3) ON test.demo WHERE PK = '1' 
 	EXECUTE example1.foo('arg1','arg2',3) ON test.demo 
 	drop module example1.lua
-	AGGREGATE sum_example.sum_single_bin('bn4') ON test.demo WHERE bn4 BETWEEN 1 AND 2
+	AGGREGATE sum_example.sum_single_bin('bn4') ON test.demo WHERE bn4 BETWEEN 1 and 2
 	aggregate filter_example.profile_filter('ghjks') on test.profile where username = 'Mary'
 
 #ADMIN:

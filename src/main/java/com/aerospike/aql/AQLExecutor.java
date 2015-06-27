@@ -87,6 +87,7 @@ import com.aerospike.client.Key;
 import com.aerospike.client.Language;
 import com.aerospike.client.Operation;
 import com.aerospike.client.Record;
+import com.aerospike.client.ScanCallback;
 import com.aerospike.client.Value;
 import com.aerospike.client.admin.Privilege;
 import com.aerospike.client.cluster.Node;
@@ -96,6 +97,7 @@ import com.aerospike.client.policy.ClientPolicy;
 import com.aerospike.client.policy.GenerationPolicy;
 import com.aerospike.client.policy.InfoPolicy;
 import com.aerospike.client.policy.RecordExistsAction;
+import com.aerospike.client.policy.ScanPolicy;
 import com.aerospike.client.policy.WritePolicy;
 import com.aerospike.client.query.Filter;
 import com.aerospike.client.query.IndexCollectionType;
@@ -130,6 +132,7 @@ public class AQLExecutor extends AQLBaseListener {
 	private AdminPolicy adminPolicy;
 	private InfoPolicy infoPolicy;
 	private AQLConsole console;
+	protected long counter = 0;
 	
 	
 
@@ -392,16 +395,33 @@ public class AQLExecutor extends AQLBaseListener {
 		try {
 			WritePolicy writePolicy = new WritePolicy();
 			writePolicy.timeout = this.client.writePolicyDefault.timeout;
-			Key key  = keyProperty.get(ctx.primaryKeyPredicate().primaryKey());
-			if (ctx.generationPredicate() != null){
-				int generation = Integer.parseInt(ctx.generationPredicate().INTLITERAL().getText());
-				writePolicy.generation = generation;
-				writePolicy.generationPolicy = GenerationPolicy.EXPECT_GEN_EQUAL;
+			if (ctx.primaryKeyPredicate() != null) { //Primary key delete
+				Key key  = keyProperty.get(ctx.primaryKeyPredicate().primaryKey());
+				if (ctx.generationPredicate() != null){
+					int generation = Integer.parseInt(ctx.generationPredicate().INTLITERAL().getText());
+					writePolicy.generation = generation;
+					writePolicy.generationPolicy = GenerationPolicy.EXPECT_GEN_EQUAL;
+				}
+				if (client.delete(writePolicy, key))
+					results.report("Record delete ");
+				else
+					results.report("Record not found");
+			} else { // its a scan and delete
+				ScanPolicy deleteScanPolicy = new ScanPolicy();
+				deleteScanPolicy.includeBinData = false;
+				String nameSpace = ctx.nameSet().namespaceName;
+				String setName = ctx.nameSet().setName;
+				counter = 0;
+				this.client.scanAll(deleteScanPolicy, nameSpace, setName, new ScanCallback() {
+
+					@Override
+					public void scanCallback(Key key, Record record) throws AerospikeException {
+						client.delete(null, key);
+						counter++;
+					}
+				});
+				results.report(String.format("%d Record deleted", counter));
 			}
-			if (client.delete(writePolicy, key))
-				results.report("Record delete ");
-			else
-				results.report("Record not found");
 		} catch (AerospikeException e){
 			reportError(ctx, e);
 		}
@@ -927,8 +947,16 @@ public class AQLExecutor extends AQLBaseListener {
 	@Override
 	public void exitEqualityFilter(EqualityFilterContext ctx) {
 		String binName = ctx.binValue().bin().getText();
-		Value value = makeValue(ctx.binValue().value().getText());
-		filterProperty.put(ctx, Filter.equal(binName, value));
+		String value = ctx.binValue().value().getText();
+		IndexCollectionType type = ctx.indexCollectionType;
+		Filter filter = null;
+		try {
+			long number = Long.parseLong(value); 
+			filter = Filter.contains(binName, type, number);
+		} catch (NumberFormatException e){ // Its a string
+			filter = Filter.contains(binName, type, stripQuotes(value));
+		}
+		filterProperty.put(ctx, filter);
 	}
 	
 	@Override
@@ -936,7 +964,8 @@ public class AQLExecutor extends AQLBaseListener {
 		long low = Long.parseLong(ctx.low.getText());
 		long high = Long.parseLong(ctx.low.getText());
 		String binName = ctx.bin().getText();
-		filterProperty.put(ctx, Filter.range(binName, low, high));
+		IndexCollectionType type = ctx.indexCollectionType;
+		filterProperty.put(ctx, Filter.range( binName, type, low, high));
 	}
 	
 	@Override

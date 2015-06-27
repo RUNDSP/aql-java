@@ -112,12 +112,12 @@ INSERT INTO test.demo (PK, bn2, bn3, bn4) VALUES ('100', 100, '11', 11)
 
 	SELECT * FROM test.demo WHERE bn4 = 2
 	SELECT * FROM test.demo WHERE bn3 = '2'
-	SELECT * FROM test.demo WHERE bn4 BETWEEN 1 AND 2
+	SELECT * FROM test.demo WHERE bn4 BETWEEN 1 and 2
 
 	SELECT bn2,bn3,bn4  FROM test.demo
 	SELECT bn2,bn3,bn4  FROM test.demo WHERE bn4 = 2
 	SELECT bn2,bn3,bn4  FROM test.demo WHERE bn3 = '2'
-	SELECT bn2,bn3,bn4  FROM test.demo WHERE bn4 BETWEEN 1 AND 2
+	SELECT bn2,bn3,bn4  FROM test.demo WHERE bn4 BETWEEN 1 and 2
 
 show Indexes test.index_bn2
 show Indexes test.index_bn3

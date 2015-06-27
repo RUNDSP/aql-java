@@ -24,7 +24,7 @@ EXECUTE example1.foo('arg1','arg2',3) ON test.demo WHERE PK = '1'
 remove module example1.lua
 SHOW modules
 #AGGREGATE example-udf.foo('arg1','arg2',3) ON test.demo WHERE bn3 = 'smith'
-AGGREGATE sum_example.sum_single_bin('bn4') ON test.demo WHERE bn4 BETWEEN 1 AND 2
+AGGREGATE sum_example.sum_single_bin('bn4') ON test.demo WHERE bn4 BETWEEN 1 and 2
 
 #cleanup
 DELETE FROM test.demo WHERE PK = '1'

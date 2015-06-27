@@ -24,6 +24,7 @@ import org.junit.Test;
 import com.aerospike.aql.IResultReporter.ViewFormat;
 import com.aerospike.client.AerospikeClient;
 import com.aerospike.client.ResultCode;
+import com.aerospike.aql.*;
 
 public class TestUserAdmin {
 	
