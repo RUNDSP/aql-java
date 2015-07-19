@@ -32,7 +32,7 @@ import com.aerospike.client.query.ResultSet;
  * @author peter
  *
  */
-public interface IResultReporter extends Closeable, ScanCallback{
+public interface IResultReporter extends Closeable{
 	enum ViewFormat {
 		JSON,
 		TABLE,

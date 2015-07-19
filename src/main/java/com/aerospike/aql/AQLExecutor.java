@@ -462,8 +462,14 @@ public class AQLExecutor extends AQLBaseListener {
 			} else { // its a scan
 				String ns = ctx.nameSet().namespaceName;
 				String set = ctx.nameSet().setName;
-				client.scanAll(null, ns, set, results, binNames);
-				results.cancel();
+//				client.scanAll(null, ns, set, results, binNames);
+//				results.cancel();
+				Statement stmt = new Statement();
+				stmt.setNamespace(ns);
+				stmt.setSetName(set);
+				stmt.setBinNames(binNames);
+				RecordSet recordSet = client.query(null, stmt);
+				results.report(recordSet);
 			}
 		} catch (AerospikeException e){
 			reportError(ctx, e);

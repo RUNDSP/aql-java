@@ -229,7 +229,7 @@ public class GenericResult implements IResultReporter {
 		this.resultCode = -1;
 	}
 
-	@Override
+	@Deprecated
 	public void scanCallback(Key key, Record record) throws AerospikeException {
 		if (this.scanList == null)
 			this.scanList = new  ArrayList<Record>();
