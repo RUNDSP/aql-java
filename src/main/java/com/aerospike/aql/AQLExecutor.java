@@ -968,7 +968,7 @@ public class AQLExecutor extends AQLBaseListener {
 	@Override
 	public void exitRangeFilter(RangeFilterContext ctx) {
 		long low = Long.parseLong(ctx.low.getText());
-		long high = Long.parseLong(ctx.low.getText());
+		long high = Long.parseLong(ctx.high.getText());
 		String binName = ctx.bin().getText();
 		IndexCollectionType type = ctx.indexCollectionType;
 		filterProperty.put(ctx, Filter.range( binName, type, low, high));
