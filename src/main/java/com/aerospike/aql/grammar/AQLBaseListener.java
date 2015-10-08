@@ -713,19 +713,6 @@ public class AQLBaseListener implements AQLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCollectionType(@NotNull AQLParser.CollectionTypeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCollectionType(@NotNull AQLParser.CollectionTypeContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterHelp(@NotNull AQLParser.HelpContext ctx) { }
 	/**
 	 * {@inheritDoc}

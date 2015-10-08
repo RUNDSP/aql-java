@@ -35,11 +35,11 @@ public class AQLTest {
 	protected int stType = NONE;
 
 	//protected StringTemplateGroup group = null;
-	private CommonTokenStream tokenStream;
-	private String workingDir;
-	private String templatePath;
-	private String testDataPath;
-	private AerospikeClient client;
+	protected CommonTokenStream tokenStream;
+	protected String workingDir;
+	protected String templatePath;
+	protected String testDataPath;
+	protected AerospikeClient client;
 
 	public AQLTest() {
 		workingDir = System.getProperty("user.dir");

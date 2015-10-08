@@ -599,17 +599,6 @@ public interface AQLListener extends ParseTreeListener {
 	void exitDotPath(@NotNull AQLParser.DotPathContext ctx);
 
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#collectionType}.
-	 * @param ctx the parse tree
-	 */
-	void enterCollectionType(@NotNull AQLParser.CollectionTypeContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AQLParser#collectionType}.
-	 * @param ctx the parse tree
-	 */
-	void exitCollectionType(@NotNull AQLParser.CollectionTypeContext ctx);
-
-	/**
 	 * Enter a parse tree produced by {@link AQLParser#help}.
 	 * @param ctx the parse tree
 	 */

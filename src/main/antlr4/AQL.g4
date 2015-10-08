@@ -435,7 +435,7 @@ locals [IndexCollectionType indexCollectionType]
 @init{$indexCollectionType = IndexCollectionType.DEFAULT;} 
 	: SELECT 
 	(
-	(('*' | binNameList) (IN collectionType )? 
+	(('*' | binNameList) /*(IN collectionType )?*/ 
 		FROM 
 	)
 	{
@@ -465,29 +465,27 @@ AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin = nnn
 AGGREGATE pkgname.funcname(arg1,arg2,,) ON namespace[.setname] WHERE bin BETWEEN nnn AND mmm
 */
 aggregate 
-	: AGGREGATE moduleFunction ('(' (valueList)? ')')? ON nameSet (IN collectionType)? (where)?
+	: AGGREGATE moduleFunction ('(' (valueList)? ')')? ON nameSet /*(IN collectionType)?*/ (where)?
 	{
 	definitions.add(VariableDefinition.QUERY_POLICY);
 	definitions.add(VariableDefinition.RESULT_SET);
 	definitions.add(VariableDefinition.STMT);
 	}  	
 	;
-	
-collectionType 
-locals [IndexCollectionType type]
-@after {
-	$select::indexCollectionType = $type;
-}
-	: LIST {$type = IndexCollectionType.LIST;}
-	| MAPKEYS {$type = IndexCollectionType.MAPKEYS;}
-	| MAPVALUES {$type = IndexCollectionType.MAPVALUES;}
-	;
+//	
+//collectionType locals [IndexCollectionType type]
+//@after {
+//	$select::indexCollectionType = $type;
+//}
+//	: LIST {$type = IndexCollectionType.LIST;}
+//	| MAPKEYS {$type = IndexCollectionType.MAPKEYS;}
+//	| MAPVALUES {$type = IndexCollectionType.MAPVALUES;}
+//	;
 
 
 where
 	: WHERE predicate //filterList?
 	;
-
 	
 operateFunction
 	: ADD '(' bin ',' value ')'
@@ -582,7 +580,7 @@ generationPredicate
 	;	
 	
 filterPredicate 
-	: (equalityFilter[$select::indexCollectionType] | rangeFilter[$select::indexCollectionType])
+	: (equalityFilter/*[$select::indexCollectionType]*/ | rangeFilter/*[$select::indexCollectionType]*/)
 	{
 	definitions.add(VariableDefinition.QUERY_POLICY);
 	definitions.add(VariableDefinition.RECORD_SET);
@@ -593,7 +591,7 @@ filterPredicate
 //	: (AND filterPredicate)*
 //	;
 
-equalityFilter [IndexCollectionType indexCollectionType]
+equalityFilter //[IndexCollectionType indexCollectionType]
 	: binValue
 	;
 	
@@ -605,7 +603,7 @@ binValue
 	: bin '=' value
 	;
 	
-rangeFilter [IndexCollectionType indexCollectionType]
+rangeFilter //[IndexCollectionType indexCollectionType]
 	: bin BETWEEN low=integerValue AND high=integerValue
 	;
 		

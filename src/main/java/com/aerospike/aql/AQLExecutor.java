@@ -954,7 +954,7 @@ public class AQLExecutor extends AQLBaseListener {
 	public void exitEqualityFilter(EqualityFilterContext ctx) {
 		String binName = ctx.binValue().bin().getText();
 		String value = ctx.binValue().value().getText();
-		IndexCollectionType type = ctx.indexCollectionType;
+		IndexCollectionType type = null; //ctx.indexCollectionType;
 		Filter filter = null;
 		try {
 			long number = Long.parseLong(value); 
@@ -970,7 +970,7 @@ public class AQLExecutor extends AQLBaseListener {
 		long low = Long.parseLong(ctx.low.getText());
 		long high = Long.parseLong(ctx.high.getText());
 		String binName = ctx.bin().getText();
-		IndexCollectionType type = ctx.indexCollectionType;
+		IndexCollectionType type = null; //ctx.indexCollectionType;
 		filterProperty.put(ctx, Filter.range( binName, type, low, high));
 	}
 	
