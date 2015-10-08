@@ -441,7 +441,7 @@ locals [IndexCollectionType indexCollectionType]
 	{
 	definitions.add(VariableDefinition.RECORD);
 	}
-	 | moduleFunction ('(' (valueList)? ')')? ON
+	 | moduleFunction ('(' valueList? ')')? ON
 	{
 	definitions.add(VariableDefinition.RESULT_SET);
 	}
